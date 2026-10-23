@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.MechanicApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- رنگ‌های اصلی -->
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <item name="colorSecondary">@color/accent_teal</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <item name="colorButtonNormal">@color/primary_blue</item>  <!-- رنگ عادی -->
+        <item name="colorControlHighlight">@color/primary_dark</item>  <!-- رنگ ripple -->
+
+        <item name="colorError">@color/priority_high</item>
+
+        <!-- پس‌زمینه -->
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- فونت پیش‌فرض سیستم -->
+        <item name="android:fontFamily">sans-serif</item>
+
+        <!-- نوار وضعیت -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item> <!-- برای متن تیره روی پس‌زمینه روشن -->
+
+        <!-- RTL -->
+        <item name="android:layoutDirection">rtl</item>
+    </style>
+
+    <style name="Theme.ChatActivity" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent_teal</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:layoutDirection">rtl</item>
+    </style>
+
+</resources>

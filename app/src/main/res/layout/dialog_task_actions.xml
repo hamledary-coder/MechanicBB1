@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layoutDirection="rtl">
+
+    <TextView
+        android:id="@+id/dialogTaskTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#2E7D32"
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:id="@+id/dialogTaskDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_marginBottom="20dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="8dp">
+
+        <Button
+            android:id="@+id/dialogBtnEdit"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="ویرایش"
+            android:backgroundTint="#2196F3"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/dialogBtnDelete"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="حذف"
+            android:backgroundTint="#F44336"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/dialogBtnRefer"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="ارجاع"
+            android:backgroundTint="#FF9800"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/dialogBtnVolunteer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="داوطلب شدن"
+        android:backgroundTint="#4CAF50"/>
+
+</LinearLayout>

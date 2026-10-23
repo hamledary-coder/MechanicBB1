@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingVertical="4dp"
+    android:background="?attr/selectableItemBackground"
+    android:weightSum="4.5">  <!-- ← weightSum رو اضافه کن -->
+
+    <TextView
+        android:id="@+id/tvPerfName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.2"
+        android:text="نام"
+        android:textSize="12sp"
+        android:textColor="#333"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvPerfRawTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="00:00"
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tvPerfResponsibility"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="-"
+        android:textSize="12sp"
+        android:textColor="#2E7D32"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvPerfPhysical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="-"
+        android:textSize="12sp"
+        android:textColor="#2E7D32"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvPerfTechnical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="-"
+        android:textSize="12sp"
+        android:textColor="#2E7D32"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvPerfInspection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="-"
+        android:textSize="12sp"
+        android:textColor="#2E7D32"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+</LinearLayout>

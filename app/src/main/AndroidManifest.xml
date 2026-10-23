@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".MyApplication"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MechanicApp"
+        tools:targetApi="35">
+
+        <!-- صفحه ورود - Launcher -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- صفحه اصلی -->
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- کارتابل -->
+        <activity
+            android:name=".ui.cartable.CartableActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- آرشیو -->
+        <activity
+            android:name=".ui.archive.ArchiveActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ایجاد تسک -->
+        <activity
+            android:name=".ui.task.create.CreateTaskActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- تکمیل تسک -->
+        <activity
+            android:name=".ui.task.complete.CompleteTaskActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- جزئیات تسک -->
+        <activity
+            android:name=".ui.task.detail.TaskDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- افزودن لاگ -->
+        <activity
+            android:name=".ui.task.log.AddLogActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- جزئیات لاگ -->
+        <activity
+            android:name=".ui.task.log.TaskLogDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- تنظیمات -->
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- چت -->
+        <activity
+            android:name=".ui.chat.ChatActivity"
+            android:theme="@style/Theme.ChatActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- گزارش‌ها -->
+        <activity
+            android:name=".ui.reports.ReportsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ارزیابی -->
+        <activity
+            android:name=".ui.task.evaluation.EvaluationActivity"
+            android:parentActivityName=".ui.task.detail.TaskDetailActivity" />
+
+        <!-- لاگ سریع -->
+        <activity
+            android:name=".ui.task.quicklog.QuickLogActivity"
+            android:parentActivityName=".ui.home.HomeActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- گزارش پرسنل -->
+        <activity
+            android:name=".ui.reports.PersonnelReportActivity"
+            android:parentActivityName=".ui.home.HomeActivity" />
+
+        <!-- FileProvider -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

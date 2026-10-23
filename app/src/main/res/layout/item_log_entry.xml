@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingVertical="8dp">
+
+    <!-- سطر اول: نام روز + تاریخ + ساعت و کاربر -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <!-- نام روز + تاریخ + ساعت -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/tvDayName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="سه‌شنبه"
+                android:textColor="@color/primary_blue"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/tvLogDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="۱۴۰۵/۰۴/۰۵"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvLogTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  ۱۰:۳۰"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+
+        <!-- نام کاربر (سمت چپ) -->
+        <TextView
+            android:id="@+id/tvLogUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="علی محمدی"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:background="@drawable/bg_user_pill"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="0dp" />
+
+    </LinearLayout>
+
+    <!-- سطر دوم: شرح اقدام (کامل) -->
+    <TextView
+        android:id="@+id/tvLogAction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="پمپ آب دستگاه تعویض شد و تست عملکرد انجام گرفت. دستگاه با توان ۱۰۰% به کار خود ادامه داد."
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:lineSpacingExtra="2dp"
+        android:layout_marginStart="4dp" />
+
+    <!-- خط جداکننده -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/divider_gradient" />
+
+</LinearLayout>

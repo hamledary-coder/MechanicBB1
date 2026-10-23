@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    android:id="@+id/cardLog"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#F1FCFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ====== هدر ====== -->
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvLogSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="گزارش ۱۴۰۴/۰۲/۲۵ - علی رضایی"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#1A237E"
+                android:gravity="start"/>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E8E8E8"/>
+
+        <!-- ====== جزئیات ====== -->
+        <LinearLayout
+            android:id="@+id/detailLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- شرح اقدام با پس‌زمینه ملایم -->
+            <TextView
+                android:id="@+id/tvActionDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="شرح اقدام: ..."
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:background="#FFE8E7"
+                android:padding="14dp"
+                android:layout_marginBottom="12dp"
+                android:lineSpacingExtra="4dp"/>
+
+            <View
+                android:id="@+id/dividerDescription"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8E8E8"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- مدت زمان -->
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⏱ مدت زمان: ..."
+                android:textSize="13sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"/>
+
+            <!-- گروه انجام‌دهنده -->
+            <TextView
+                android:id="@+id/tvWorkers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="👥 گروه انجام‌دهنده: ..."
+                android:textSize="13sp"
+                android:textColor="#555555"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"/>
+
+            <View
+                android:id="@+id/dividerWorkers"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8E8E8"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
+
+            <!-- وضعیت جدید با آیکون دایره -->
+            <LinearLayout
+                android:id="@+id/statusContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone">
+
+                <View
+                    android:id="@+id/statusDot"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/circle_indicator"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/tvNewStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="وضعیت جدید: ..."
+                    android:textSize="13sp"
+                    android:textColor="#555555"/>
+            </LinearLayout>
+
+            <View
+                android:id="@+id/dividerSeenBy"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8E8E8"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
+
+            <!-- ====== بخش ارزیابی (اکسپندبل) ====== -->
+            <LinearLayout
+                android:id="@+id/evaluationContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/evaluationHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="10dp"
+                    android:background="#F5F5F5"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tvEvaluationTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📊 ارزیابی گزارش"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="#555555"/>
+
+                    <ImageView
+                        android:id="@+id/ivEvaluationExpand"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_down"
+                        app:tint="#888888"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/evaluationDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:background="#FAFAFA"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvHeatLevel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🌡️ دمای هوا: ..."
+                        android:textSize="13sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="2dp"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/tvPollutionLevel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🏭 میزان آلودگی: ..."
+                        android:textSize="13sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="2dp"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/tvPhysicalDifficulty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="💪 سختی فیزیکی: ..."
+                        android:textSize="13sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="2dp"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/tvTechnicalComplexity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🔧 پیچیدگی فنی: ..."
+                        android:textSize="13sp"
+                        android:textColor="#555555"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/dividerEvaluation"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E8E8E8"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <!-- ====== نظرات ====== -->
+            <TextView
+                android:id="@+id/tvCommentLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💬 نظرات:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#37474F"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/commentsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- دکمه ثبت نظر -->
+            <Button
+                android:id="@+id/btnAddComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="➕ ثبت نظر"
+                android:backgroundTint="#689F38"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
+
+            <View
+                android:id="@+id/dividerButtons"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E8E8E8"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
+
+            <!-- ====== دکمه‌های عملیاتی ====== -->
+            <LinearLayout
+                android:id="@+id/actionButtonsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/btnEvaluate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⭐ ارزیابی"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#303F9F"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/btnEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="✏️ ویرایش"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#FBC02D"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🗑️ حذف"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#C62828"
+                    android:layout_marginStart="4dp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <!-- مشاهده‌کنندگان -->
+            <LinearLayout
+                android:id="@+id/seenByContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="2dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <!-- عنوان -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📄 خروجی PDF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="گزارش با موفقیت ایجاد شد."
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- خط جداکننده -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginBottom="16dp" />
+
+    <!-- دکمه‌ها -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- دکمه نمایش -->
+        <Button
+            android:id="@+id/btnViewPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📖 نمایش"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/primary_blue"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- دکمه اشتراک‌گذاری -->
+        <Button
+            android:id="@+id/btnSharePdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📤 اشتراک‌گذاری"
+            android:textSize="15sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/accent_teal"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- دکمه انصراف -->
+        <Button
+            android:id="@+id/btnCancelPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✖ انصراف"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:backgroundTint="@color/gray_light"
+            android:padding="10dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

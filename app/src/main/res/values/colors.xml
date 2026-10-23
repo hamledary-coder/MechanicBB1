@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- رنگ‌های اصلی (پالت آبی دودی - حرفه‌ای و آرامش‌بخش) -->
+    <color name="purple_500">#3F51B5</color>
+    <color name="purple_700">#303F9F</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- رنگ‌های جدید برنامه -->
+    <color name="primary">#2196F3</color>           <!-- ← اضافه شد -->
+    <color name="primary_blue">#2196F3</color>      <!-- آبی اصلی -->
+    <color name="primary_dark">#1976D2</color>      <!-- آبی تیره برای نوار وضعیت -->
+    <color name="accent_teal">#009688</color>       <!-- آبی‌سبز برای دکمه‌ها -->
+    <color name="background_light">#FAF0EEE3</color><!-- پس‌زمینه روشن -->
+    <color name="card_background">#EBEBEB</color>   <!-- پس‌زمینه کارت‌ها -->
+    <color name="text_primary">#212121</color>      <!-- متن اصلی -->
+    <color name="text_secondary">#757575</color>    <!-- متن فرعی -->
+    <color name="divider">#E0E0E0</color>           <!-- رنگ خطوط جداکننده -->
+
+    <!-- رنگ‌های اضافی برای کارت گزارشات -->
+    <color name="gray_dark">#616161</color>         <!-- ← اضافه شد -->
+    <color name="gray_medium">#9E9E9E</color>       <!-- ← اضافه شد -->
+    <color name="gray_light">#E0E0E0</color>        <!-- ← اضافه شد -->
+    <color name="gray_very_light">#F5F5F5</color>   <!-- ← اضافه شد -->
+
+    <!-- رنگ‌های وضعیت -->
+    <color name="priority_high">#F44336</color>     <!-- قرمز برای اولویت بالا -->
+    <color name="priority_medium">#FF9800</color>   <!-- نارنجی برای متوسط -->
+    <color name="priority_low">#4CAF50</color>      <!-- سبز برای پایین -->
+
+    <!-- در colors.xml اضافه کنید -->
+    <color name="primary_green">#4CAF50</color>
+    <color name="primary_green_light">#E8F5E9</color>
+    <color name="primary_green_dark">#388E3C</color>
+</resources>
