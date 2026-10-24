@@ -4,8 +4,12 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.workshop.mechanicbb1.data.local.AppDatabase
+import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.local.entity.OutboxEntity
 import com.workshop.mechanicbb1.data.remote.Config
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
@@ -23,9 +27,6 @@ class ReportSyncWorker(
         private const val TAG = "ReportSyncWorker"
         private const val WORK_NAME = "ReportSyncWork"
 
-        /**
-         * trigger فوری (بعد از ثبت گزارش)
-         */
         fun enqueue(context: Context) {
             val request = OneTimeWorkRequestBuilder<ReportSyncWorker>()
                 .setConstraints(
@@ -46,7 +47,6 @@ class ReportSyncWorker(
                     request
                 )
         }
-
     }
 
     override suspend fun doWork(): Result {
@@ -78,6 +78,29 @@ class ReportSyncWorker(
                     }
                 }
 
+                // آپدیت WorkOrder در Room
+                when (item.action) {
+                    "createWorkOrder", "updateWorkOrder" -> {
+                        WorkOrderSyncer.syncSingleWorkOrder(
+                            applicationContext,
+                            item.targetId
+                        ) { ok ->
+                            Log.d(TAG, "WorkOrder ${item.targetId} synced: $ok")
+                        }
+                    }
+                    "deleteWorkOrder" -> {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                val repo = WorkOrderLocalRepository(applicationContext)
+                                repo.deleteWorkOrder(item.targetId)
+                                Log.d(TAG, "WorkOrder ${item.targetId} deleted from Room")
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Error deleting WorkOrder: ${e.message}")
+                            }
+                        }
+                    }
+                }
+
                 Log.d(TAG, "✅ ${item.action} - ${item.targetId} sent")
             } else {
                 // ناموفق → retry
@@ -105,6 +128,7 @@ class ReportSyncWorker(
     private fun sendToServer(item: OutboxEntity): Boolean {
         return try {
             val (url, body) = when (item.action) {
+                // ===== Delete (GET) =====
                 "deleteTask" -> {
                     val taskId = JSONObject(item.payload).optString("taskId", "")
                     "${Config.BASE_URL}?action=delete&id=$taskId" to null
@@ -113,6 +137,12 @@ class ReportSyncWorker(
                     val logId = JSONObject(item.payload).optString("logId", "")
                     "${Config.BASE_URL}?action=deleteTaskLog&logId=$logId" to null
                 }
+                "deleteWorkOrder" -> {
+                    val woId = JSONObject(item.payload).optString("workOrderId", "")
+                    "${Config.BASE_URL}?action=deleteWorkOrder&workOrderId=$woId" to null
+                }
+
+                // ===== Create/Update (POST) =====
                 else -> {
                     val postUrl = when (item.action) {
                         "addTaskLog" -> "${Config.BASE_URL}?action=addTaskLog"
@@ -121,6 +151,8 @@ class ReportSyncWorker(
                         "updateEvaluation" -> "${Config.BASE_URL}?action=updateEvaluation"
                         "updateTask" -> "${Config.BASE_URL}?action=update"
                         "updateTaskPriority" -> "${Config.BASE_URL}?action=updateTaskPriority"
+                        "createWorkOrder" -> "${Config.BASE_URL}?action=createWorkOrder"
+                        "updateWorkOrder" -> "${Config.BASE_URL}?action=updateWorkOrder"
                         else -> return false
                     }
                     postUrl to item.payload.toRequestBody("application/json; charset=utf-8".toMediaType())

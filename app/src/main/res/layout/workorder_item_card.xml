@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="2dp"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+
+        <!-- شماره WO -->
+        <TextView
+            android:id="@+id/tvWoNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WO-1001"
+            android:textSize="12sp"
+            android:textColor="#1565C0"
+            android:textStyle="bold"
+            android:maxWidth="80dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <!-- جداکننده -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" | "
+            android:textSize="12sp"
+            android:textColor="#999999" />
+
+        <!-- تاریخ -->
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="۱۴۰۳/۰۸/۱۲"
+            android:textSize="11sp"
+            android:textColor="#666666"
+            android:maxWidth="70dp"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <!-- جداکننده -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" | "
+            android:textSize="12sp"
+            android:textColor="#999999" />
+
+        <!-- عنوان -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="تعمیر پمپ"
+            android:textSize="12sp"
+            android:textColor="#333333"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- جداکننده -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" | "
+            android:textSize="12sp"
+            android:textColor="#999999" />
+
+        <!-- درصد پیشرفت -->
+        <TextView
+            android:id="@+id/tvProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="۵۰٪"
+            android:textSize="12sp"
+            android:textColor="#FF9800"
+            android:textStyle="bold"
+            android:minWidth="40dp"
+            android:gravity="end" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -303,13 +303,14 @@
 
             </LinearLayout>
 
-            <!-- سطر سوم (تنظیمات و گفتگو) -->
+            <!-- سطر سوم (تنظیمات + درخواست‌ها) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-                <!-- ۵. کارت تنظیمات (جایگاه پنجم) -->
+                <!-- ۵. کارت تنظیمات -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardSettings"
                     android:layout_width="0dp"
@@ -356,9 +357,9 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- ۶. کارت گفتگو (جایگاه ششم) -->
+                <!-- ۶. کارت درخواست‌ها (به جای چت) -->
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardChat"
+                    android:id="@+id/cardWorkOrders"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -381,14 +382,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="💬"
+                            android:text="📝"
                             android:textSize="32sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:text="گفتگو"
+                            android:text="درخواست‌ها"
                             android:textSize="15sp"
                             android:textStyle="bold"
                             android:textColor="@color/text_primary" />
@@ -397,7 +398,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="ارسال پیام"
+                            android:text="مدیریت درخواست‌ها"
                             android:textSize="12sp"
                             android:textColor="@color/primary_blue" />
                     </LinearLayout>
@@ -405,14 +406,13 @@
 
             </LinearLayout>
 
-            <!-- ===== سطر جدید: کارت گزارش کارکرد پرسنل ===== -->
+            <!-- سطر چهارم: کارت گزارش کارکرد پرسنل -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="16dp">
 
-                <!-- کارت گزارش کارکرد پرسنل (تمام عرض) -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardPersonnelReport"
                     android:layout_width="match_parent"
@@ -471,9 +471,7 @@
                             app:tint="@color/text_secondary" />
 
                     </LinearLayout>
-
                 </androidx.cardview.widget.CardView>
-
             </LinearLayout>
 
         </LinearLayout>

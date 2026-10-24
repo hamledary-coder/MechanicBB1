@@ -5,6 +5,7 @@ import android.content.Context
 import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.OutboxEntity
 import com.workshop.mechanicbb1.data.model.TaskLogModel
+import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -189,6 +190,86 @@ object OutboxHelper {
             action = "updateTask",
             payload = payload.toString(),
             targetId = task.id,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    /**
+     * ثبت یه action "createWorkOrder" توی Outbox
+     */
+    suspend fun enqueueCreateWorkOrder(context: Context, workOrder: WorkOrderModel) {
+        val payload = JSONObject().apply {
+            put("id", workOrder.id)                          // WO-xxx
+            put("request_number", workOrder.requestNumber)
+            put("title", workOrder.title)
+            put("request_class", workOrder.requestClass ?: JSONObject.NULL)
+            put("request_date", workOrder.requestDate)
+            put("requester", workOrder.requester)
+            put("unit", workOrder.unit)
+            put("sub_unit", workOrder.subUnit)
+            put("equipment_name", workOrder.equipmentName)
+            put("description", workOrder.description)
+        }
+
+        val entity = OutboxEntity(
+            action = "createWorkOrder",
+            payload = payload.toString(),
+            targetId = workOrder.id,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    /**
+     * ثبت یه action "updateWorkOrder" توی Outbox
+     */
+    suspend fun enqueueUpdateWorkOrder(context: Context, workOrder: WorkOrderModel) {
+        val payload = JSONObject().apply {
+            put("workOrderId", workOrder.id)
+            put("title", workOrder.title)
+            put("request_class", workOrder.requestClass ?: JSONObject.NULL)
+            put("request_date", workOrder.requestDate)
+            put("requester", workOrder.requester)
+            put("unit", workOrder.unit)
+            put("sub_unit", workOrder.subUnit)
+            put("equipment_name", workOrder.equipmentName)
+            put("description", workOrder.description)
+        }
+
+        val entity = OutboxEntity(
+            action = "updateWorkOrder",
+            payload = payload.toString(),
+            targetId = workOrder.id,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    /**
+     * ثبت یه action "deleteWorkOrder" توی Outbox
+     */
+    suspend fun enqueueDeleteWorkOrder(context: Context, workOrderId: String) {
+        val payload = JSONObject().apply {
+            put("workOrderId", workOrderId)
+        }
+
+        val entity = OutboxEntity(
+            action = "deleteWorkOrder",
+            payload = payload.toString(),
+            targetId = workOrderId,
             expectedVersion = -1,
             status = "pending"
         )

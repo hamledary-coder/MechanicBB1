@@ -11,23 +11,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import com.workshop.mechanicbb1.R
+import com.workshop.mechanicbb1.data.local.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
+import com.workshop.mechanicbb1.data.sync.TaskSyncer
+import com.workshop.mechanicbb1.notifications.NotificationPermissionManager
 import com.workshop.mechanicbb1.ui.archive.ArchiveActivity
 import com.workshop.mechanicbb1.ui.cartable.CartableActivity
-import com.workshop.mechanicbb1.ui.chat.ChatActivity
 import com.workshop.mechanicbb1.ui.reports.PersonnelReportActivity
 import com.workshop.mechanicbb1.ui.reports.ReportsActivity
 import com.workshop.mechanicbb1.ui.settings.SettingsActivity
 import com.workshop.mechanicbb1.ui.task.quicklog.QuickLogActivity
+import com.workshop.mechanicbb1.ui.workorder.WorkOrderListActivity
 import com.workshop.mechanicbb1.utils.UserCache
-import androidx.lifecycle.lifecycleScope
-import com.workshop.mechanicbb1.data.local.TaskLocalRepository
-import com.workshop.mechanicbb1.data.sync.TaskSyncer
-import com.workshop.mechanicbb1.notifications.NotificationPermissionManager
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Job
 
 class HomeActivity : AppCompatActivity() {
 
@@ -38,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var cardCartable: CardView
     private lateinit var cardArchive: CardView
     private lateinit var cardSettings: CardView
-    private lateinit var cardChat: CardView
+    private lateinit var cardWorkOrders: CardView
     private lateinit var cardQuickLog: CardView
     private lateinit var cardPersonnelReport: CardView
     private lateinit var taskLocalRepository: TaskLocalRepository
@@ -79,7 +79,7 @@ class HomeActivity : AppCompatActivity() {
         cardCartable = findViewById(R.id.cardCartable)
         cardArchive = findViewById(R.id.cardArchive)
         cardSettings = findViewById(R.id.cardSettings)
-        cardChat = findViewById(R.id.cardChat)
+        cardWorkOrders = findViewById(R.id.cardWorkOrders)    // ← جدید
         cardQuickLog = findViewById(R.id.cardQuickLog)
         cardPersonnelReport = findViewById(R.id.cardPersonnelReport)
     }
@@ -158,9 +158,8 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        cardChat.setOnClickListener {
-            startActivity(Intent(this, ChatActivity::class.java))
-        }
+        cardWorkOrders.setOnClickListener {
+            startActivity(Intent(this, WorkOrderListActivity::class.java))
 
         cardPersonnelReport.setOnClickListener {
             startActivity(Intent(this, PersonnelReportActivity::class.java))
@@ -175,25 +174,28 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    }
+
     private fun showLoading(show: Boolean) {
         progressBar.visibility = if (show) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun disableCards(disable: Boolean) {
-        val cards = listOf(
-            cardQuickLog,
-            cardReports,
-            cardCartable,
-            cardArchive,
-            cardSettings,
-            cardChat
-        )
-        val alpha = if (disable) 0.5f else 1.0f
-        cards.forEach { card ->
-            card.isEnabled = !disable
-            card.alpha = alpha
+            val cards = listOf(
+                cardQuickLog,
+                cardReports,
+                cardCartable,
+                cardArchive,
+                cardSettings,
+                cardWorkOrders,        // ← جایگزین cardChat
+                cardPersonnelReport
+            )
+            val alpha = if (disable) 0.5f else 1.0f
+            cards.forEach { card ->
+                card.isEnabled = !disable
+                card.alpha = alpha
+            }
         }
-    }
 
     private fun requestNotificationPermission() {
         if (!NotificationPermissionManager.hasPermission(this)) {

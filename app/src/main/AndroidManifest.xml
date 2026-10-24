@@ -113,6 +113,22 @@
             android:name=".ui.reports.PersonnelReportActivity"
             android:parentActivityName=".ui.home.HomeActivity" />
 
+        <!-- Activityهای جدید WorkOrder -->
+        <activity
+            android:name=".ui.workorder.WorkOrderListActivity"
+            android:exported="false"
+            android:label="درخواست‌ها" />
+
+        <activity
+            android:name=".ui.workorder.WorkOrderDetailActivity"
+            android:exported="false"
+            android:label="جزئیات درخواست" />
+
+        <activity
+            android:name=".ui.workorder.CreateWorkOrderActivity"
+            android:exported="false"
+            android:label="درخواست جدید" />
+
         <!-- FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"
