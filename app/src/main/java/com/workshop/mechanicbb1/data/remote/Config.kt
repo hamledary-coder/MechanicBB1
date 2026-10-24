@@ -2,7 +2,7 @@ package com.workshop.mechanicbb1.data.remote
 
 object Config {
     // آدرس اسکریپت گوگل
-    const val BASE_URL = "https://mechanicbb1.ir/api.php"
+    const val BASE_URL = "https://mechanicbb1.ir/api_v2.php"
 
     object Endpoints {
         const val LOGIN = BASE_URL
