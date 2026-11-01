@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <View
+        android:id="@+id/topColorStrip"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/colorStrip"
+            android:layout_width="6dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="#E0E0E0"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ========== عنوان کار ========== -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="#E3F2FD"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📌"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:text="عنوان کار"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0" />
+
+                    <TextView
+                        android:id="@+id/tvTaskId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#123"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:textColor="#1565C0"
+                        android:background="#BBDEFB"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ========== بخش وضعیت ========== -->
+            <LinearLayout
+                android:id="@+id/statusSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📊 وضعیت کار"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- عنوان وضعیت (بالای slider) -->
+                <TextView
+                    android:id="@+id/tvStatusLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ادامه دارد"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:layout_gravity="center"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_status_label"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Slider استاندارد -->
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="0"
+                    android:valueTo="2"
+                    android:stepSize="1"
+                    android:value="0"
+                    app:trackHeight="6dp"
+                    app:trackColorActive="#1565C0"
+                    app:trackColorInactive="#DDDDDD"
+                    app:thumbRadius="18dp"
+                    app:tickVisible="true"
+                    app:tickColorActive="#1565C0"
+                    app:tickColorInactive="#DDDDDD" />
+
+                <!-- برچسب‌های زیر اسلایدر -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="متوقف"
+                        android:textSize="11sp"
+                        android:textAlignment="center"
+                        android:textColor="#C62828" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ادامه"
+                        android:textSize="11sp"
+                        android:textAlignment="center"
+                        android:textColor="#1565C0" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="اتمام"
+                        android:textSize="11sp"
+                        android:textAlignment="center"
+                        android:textColor="#2E7D32" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ========== scheduledDate + فوریت + اولویت ========== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutScheduledDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📅 تاریخ برنامه‌ریزی: "
+                        android:textSize="12sp"
+                        android:textColor="#999" />
+
+                    <TextView
+                        android:id="@+id/tvScheduledDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="..."
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/layoutUrgency"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⚡ فوریت: "
+                            android:textSize="12sp"
+                            android:textColor="#999" />
+
+                        <TextView
+                            android:id="@+id/tvTaskUrgency"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="..."
+                            android:textSize="13sp"
+                            android:textColor="#333"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutPriority"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🎯 اولویت: "
+                            android:textSize="12sp"
+                            android:textColor="#999" />
+
+                        <TextView
+                            android:id="@+id/tvTaskPriority"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="50"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#333" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========== توضیحات ========== -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="#F5F5F5"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📄 شرح کار"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="..."
+                        android:textSize="14sp"
+                        android:textColor="#444"
+                        android:lineSpacingExtra="4dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- ========== مسئول + گروه + ارجاع‌دهنده ========== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:id="@+id/layoutResponsible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👤 مسئول: "
+                        android:textSize="12sp"
+                        android:textColor="#999" />
+
+                    <TextView
+                        android:id="@+id/tvTaskResponsible"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="..."
+                        android:textSize="13sp"
+                        android:textColor="#333"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutAssignees"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👥 گروه: "
+                        android:textSize="12sp"
+                        android:textColor="#999" />
+
+                    <TextView
+                        android:id="@+id/tvTaskAssignees"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="..."
+                        android:textSize="13sp"
+                        android:textColor="#333" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutReferredBy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="↩️ ارجاع‌دهنده: "
+                        android:textSize="12sp"
+                        android:textColor="#999" />
+
+                    <TextView
+                        android:id="@+id/tvReferredBy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="..."
+                        android:textSize="13sp"
+                        android:textColor="#333" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- ========== WorkOrderها (بدون include) ========== -->
+            <LinearLayout
+                android:id="@+id/workOrdersSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:background="#F5F5F5"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvWorkOrdersTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🔗 درخواست‌های مرتبط"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:layout_marginBottom="8dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvWorkOrders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+
+            <!-- ========== مشاهده‌کنندگان ========== -->
+            <LinearLayout
+                android:id="@+id/seenByContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone" />
+
+            <!-- ========== دکمه‌های عملیات ========== -->
+            <LinearLayout
+                android:id="@+id/taskActionButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:visibility="gone">
+
+                <ImageButton
+                    android:id="@+id/btnEditTask"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_edit"
+                    android:background="@drawable/bg_icon_circle"
+                    android:backgroundTint="#9C27B0"
+                    android:contentDescription="ویرایش"
+                    android:scaleType="centerInside"
+                    android:padding="8dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/btnDeleteTask"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_delete"
+                    android:background="@drawable/bg_icon_circle"
+                    android:backgroundTint="#F44336"
+                    android:contentDescription="حذف"
+                    android:scaleType="centerInside"
+                    android:padding="8dp"
+                    app:tint="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/btnReferTask"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_refer"
+                    android:background="@drawable/bg_icon_circle"
+                    android:backgroundTint="#2196F3"
+                    android:contentDescription="ارجاع"
+                    android:scaleType="centerInside"
+                    android:padding="8dp"
+                    app:tint="#FFFFFF" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

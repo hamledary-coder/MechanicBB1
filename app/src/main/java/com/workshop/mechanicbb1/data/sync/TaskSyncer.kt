@@ -78,7 +78,11 @@ object TaskSyncer {
 
                         // ← جدید
                         val filteredEntities = tasks.mapNotNull { task ->
-                            val existing = db.taskDao().getByIdOnce(task.id)
+                            // قبل:
+// val existing = db.taskDao().getByIdOnce(task.id)
+
+// بعد:
+                            val existing = db.taskDao().getById(task.id)
                             if (existing?.isDeleted == true) null
                             else TaskMapper.toEntity(task)
                         }
@@ -105,29 +109,26 @@ object TaskSyncer {
      * دقیقاً همون کد fetchTasks توی WorkListFragment
      */
     private fun parseTask(obj: org.json.JSONObject): TaskModel {
-        val hasUnseenReport = obj.optInt("has_unseen_report", 0) == 1
-
         return TaskModel(
-            id = obj.getString("id"),
-            createDate = obj.getString("createDate"),
-            title = obj.getString("title"),
-            description = obj.getString("description"),
-            creator = obj.getString("creator"),
-            status = obj.getString("status"),
+            id = obj.optString("id", ""),
+            createDate = obj.optString("createDate", ""),
+            title = obj.optString("title", ""),
+            description = obj.optString("description", ""),
+            creator = obj.optString("creator", ""),
+            status = obj.optString("status", ""),
             assignedTo = obj.optString("assignedTo", ""),
             responsible = obj.optString("responsible", ""),
-            pendingInvites = obj.optString("pendingInvites", ""),
-            unit = obj.optString("unit", ""),
             priority = obj.optInt("priority", 50),
-            sub_unit = obj.optString("sub_unit", ""),
-            declaration_method = obj.optString("declaration_method", ""),
-            requester = obj.optString("requester", ""),
-            request_date = obj.optString("request_date", ""),
             urgency = obj.optString("urgency", ""),
-            initial_review = obj.optString("initial_review", ""),
-            system_request_number = obj.optString("system_request_number", ""),
             referredBy = obj.optString("referred_by", ""),
-            hasUnseenReport = hasUnseenReport
+            hasUnseenReport = obj.optInt("has_unseen_report", 0) == 1,
+            scheduledDate = parseNullableString(obj, "scheduled_date")   // ✅
         )
+    }
+
+    private fun parseNullableString(obj: org.json.JSONObject, key: String): String? {
+        if (obj.isNull(key)) return null
+        val value = obj.optString(key, "")
+        return value.takeIf { it.isNotEmpty() && it != "null" && it != "NULL" }
     }
 }

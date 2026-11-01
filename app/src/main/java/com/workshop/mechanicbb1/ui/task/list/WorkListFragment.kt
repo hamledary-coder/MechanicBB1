@@ -74,10 +74,10 @@ class WorkListFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         swipeRefreshLayout.setOnRefreshListener {
-            fetchTasks()   // فقط refresh از Room + sync جدید
+            fetchTasks()
         }
 
-        fetchTasks()   // بار اول
+        fetchTasks()
     }
 
     @Deprecated("Deprecated in Java")
@@ -132,12 +132,14 @@ class WorkListFragment : Fragment() {
         val currentUserId = sharedPref.getString(Config.PrefKeys.USER_ROW_ID, "") ?: ""
         val userRole = sharedPref.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
 
+        Log.d("TAB_DEBUG", "=== fetchTasks: status='$status', userId='$currentUserId' ===")
+
         hideEmptyState()
         if (!swipeRefreshLayout.isRefreshing) {
             loadingLayout.visibility = View.VISIBLE
         }
 
-        // ۱. اول sync کن (آپدیت از سرور به Room)
+        // sync
         com.workshop.mechanicbb1.data.sync.TaskSyncer.syncTasksFromServer(
             context = requireContext(),
             userId = currentUserId
@@ -145,27 +147,56 @@ class WorkListFragment : Fragment() {
             Log.d("WorkListFragment", "Synced $count tasks")
         }
 
-        // ۲. همزمان از Room بخون (Flow خودش آپدیت می‌کنه)
+        // ⬇️⬇️⬇️ چک Room بعد از sync ⬇️⬇️⬇️
+        viewLifecycleOwner.lifecycleScope.launch {
+            // یه تأخیر کوچیک تا sync کامل شه
+            kotlinx.coroutines.delay(1500)
+
+            val db = com.workshop.mechanicbb1.data.local.AppDatabase.getInstance(requireContext())
+            val all = db.taskDao().getAllOnce()
+            val today = com.workshop.mechanicbb1.utils.DateUtils.gregorianToShamsi()
+
+            Log.d("TAB_DEBUG", "========== ROOM DATA ==========")
+            Log.d("TAB_DEBUG", "Total tasks: ${all.size}")
+            Log.d("TAB_DEBUG", "Today: '$today'")
+
+            // توزیع status
+            all.groupBy { it.status }.forEach { (st, list) ->
+                Log.d("TAB_DEBUG", "  status='$st': ${list.size}")
+            }
+
+            // کارهای status=2
+            val st2 = all.filter { it.status == "2" }
+            Log.d("TAB_DEBUG", "========== status=2 (${st2.size}) ==========")
+            st2.forEach { t ->
+                Log.d("TAB_DEBUG", "  id=${t.id}, isDeleted=${t.isDeleted}, scheduledDate='${t.scheduledDate}', responsible='${t.responsible}'")
+            }
+
+            // شبیه‌سازی getTodayTasks
+            val simulated = st2.filter {
+                    t -> !t.isDeleted && (t.scheduledDate == null || t.scheduledDate <= today)
+            }
+            Log.d("TAB_DEBUG", "========== SIMULATED getTodayTasks ==========")
+            Log.d("TAB_DEBUG", "Result count: ${simulated.size}")
+            simulated.forEach { t ->
+                Log.d("TAB_DEBUG", "  ✓ id=${t.id}, scheduledDate='${t.scheduledDate}'")
+            }
+        }
+        // ⬆️⬆️⬆️
+
+        // از Room بخون
         viewLifecycleOwner.lifecycleScope.launch {
             taskLocalRepository.getTasksForTab(status ?: "", currentUserId, userRole)
                 .collectLatest { tasks ->
-                    // این بلاک هر بار که Room آپدیت می‌شه اجرا می‌شه
+                    Log.d("TAB_DEBUG", "Tab '$status' got ${tasks.size} tasks")
+
                     taskList.clear()
                     taskList.addAll(tasks)
-
-                    if (taskList.isNotEmpty()) {
-                        UserCache.preloadFromTasks(taskList)
-                    }
-
+                    if (taskList.isNotEmpty()) UserCache.preloadFromTasks(taskList)
                     loadingLayout.visibility = View.GONE
                     swipeRefreshLayout.isRefreshing = false
-
-                    if (taskList.isEmpty()) {
-                        showEmptyState()
-                    } else {
-                        hideEmptyState()
-                        setupAdapter()
-                    }
+                    if (taskList.isEmpty()) showEmptyState()
+                    else { hideEmptyState(); setupAdapter() }
                 }
         }
     }
@@ -175,10 +206,10 @@ class WorkListFragment : Fragment() {
         adapter = ExpandableTaskAdapter(
             tasks = taskList,
             tabType = when (status?.trim()) {
-                "اقدام نشده" -> "unassigned"
-                "در حال انجام" -> "inProgress"
-                "کارتابل من" -> "myCartable"
-                else -> "unassigned"
+                "myTasks" -> "myCartable"
+                "today" -> "inProgress"
+                "queue" -> "queue"
+                else -> "myCartable"
             },
             onItemClick = { task -> openTaskDetail(task) }
         )
@@ -196,16 +227,10 @@ class WorkListFragment : Fragment() {
         intent.putExtra("DATE", task.createDate)
         intent.putExtra("RESPONSIBLE", task.responsible)
         intent.putExtra("ASSIGNED_TO", task.assignedTo)
-        intent.putExtra("UNIT", task.unit)
         intent.putExtra("PRIORITY", task.priority)
-        intent.putExtra("SUB_UNIT", task.sub_unit)
-        intent.putExtra("DECLARATION_METHOD", task.declaration_method)
-        intent.putExtra("REQUESTER", task.requester)
-        intent.putExtra("REQUEST_DATE", task.request_date)
-        intent.putExtra("INITIAL_REVIEW", task.initial_review)
-        intent.putExtra("SYSTEM_REQUEST_NUMBER", task.system_request_number)
         intent.putExtra("URGENCY", task.urgency)
         intent.putExtra("REFERRED_BY", task.referredBy)
+        intent.putExtra("SCHEDULED_DATE", task.scheduledDate ?: "")
         startActivity(intent)
     }
 

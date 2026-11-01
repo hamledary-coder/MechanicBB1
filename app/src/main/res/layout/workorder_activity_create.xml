@@ -75,6 +75,22 @@
                 android:background="@drawable/bg_spinner"
                 android:layout_marginBottom="12dp" />
 
+            <!-- وضعیت (Spinner) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="مرحله"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spinnerStatus"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_spinner"
+                android:layout_marginBottom="12dp" />
+
             <!-- واحد (Spinner) -->
             <TextView
                 android:layout_width="wrap_content"
@@ -133,6 +149,21 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etRequester"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- تاییدکننده (رییس واحد) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="تاییدکننده (رییس واحد)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etApprover"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />

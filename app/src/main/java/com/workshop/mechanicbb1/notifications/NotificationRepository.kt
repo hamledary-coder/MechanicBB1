@@ -29,7 +29,7 @@ class NotificationRepository(private val context: Context) {
                             taskId = obj.getString("task_id"),
                             type = obj.getString("type"),
                             actorId = obj.optString("actor_id", ""),
-                            isSeen = obj.getBoolean("is_seen"),
+                            isSeen = obj.optInt("is_seen", 0) == 1,
                             createdAt = obj.getString("created_at")
                         )
                     )

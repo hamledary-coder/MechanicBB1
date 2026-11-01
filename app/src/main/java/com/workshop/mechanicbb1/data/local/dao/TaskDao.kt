@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskDao {
 
+    // ========== عمومی ==========
     @Query("SELECT * FROM tasks WHERE isDeleted = 0 ORDER BY priority DESC, id DESC")
     fun getAll(): Flow<List<TaskEntity>>
 
@@ -20,51 +21,175 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
     fun getByIdFlow(id: String): Flow<TaskEntity?>
 
-    // ========== کوئری‌های فیلتر برای کارتابل ==========
+    @Query("SELECT * FROM tasks WHERE id IN (:ids)")
+    suspend fun getByIds(ids: List<String>): List<TaskEntity>
 
-    /** تب «اقدام نشده» → status = "1" */
-    @Query("SELECT * FROM tasks WHERE status = '1' AND isDeleted = 0 ORDER BY priority DESC, id DESC")
-    fun getUnassigned(): Flow<List<TaskEntity>>
+    @Query("SELECT * FROM tasks WHERE isDeleted = 0")
+    suspend fun getAllOnce(): List<TaskEntity>
 
-    /** تب «در حال انجام» → status شروع می‌شه با "2" */
-    @Query("SELECT * FROM tasks WHERE status LIKE '2%' AND isDeleted = 0 ORDER BY priority DESC, id DESC")
-    fun getInProgress(): Flow<List<TaskEntity>>
+    // ================================================================
+    // تب ۱: «کارهای من» — ۳ بخش
+    // ================================================================
 
-    /** تب «کارتابل من» برای کارمند → assignedTo شامل user و responsible = user */
+    /** بخش ۱: در حال انجام — responsible = من */
     @Query("""
-        SELECT * FROM tasks 
-        WHERE isDeleted = 0 
-          AND status != '5'
+        SELECT * FROM tasks
+        WHERE isDeleted = 0
+          AND status = '2'
           AND responsible = :userId
-          AND (',' || assignedTo || ',') LIKE '%,' || :userId || ',%'
         ORDER BY
-            CASE WHEN responsible = :userId THEN 0 ELSE 1 END,
+            CASE urgency
+                WHEN 'خیلی زیاد' THEN 1
+                WHEN 'زیاد' THEN 2
+                ELSE 3
+            END ASC,
             priority DESC,
             id DESC
     """)
-    fun getMyCartableForEmployee(userId: String): Flow<List<TaskEntity>>
+    fun getMyInProgress(userId: String): Flow<List<TaskEntity>>
 
-    /** تب «کارتابل من» برای سرشیفت/مدیر → کارهای مرتبط یا کارهای تمام‌شده */
+    /** بخش ۲: متوقف — responsible = من */
     @Query("""
-        SELECT * FROM tasks 
-        WHERE isDeleted = 0 
-          AND status != '5'
-          AND (
-              responsible = :userId 
-              OR (',' || assignedTo || ',') LIKE '%,' || :userId || ',%'
-              OR status = '41'
-              OR hasUnseenReport = 1
-          )
+        SELECT * FROM tasks
+        WHERE isDeleted = 0
+          AND status = '3'
+          AND responsible = :userId
+        ORDER BY
+            CASE urgency
+                WHEN 'خیلی زیاد' THEN 1
+                WHEN 'زیاد' THEN 2
+                ELSE 3
+            END ASC,
+            priority DESC,
+            id DESC
+    """)
+    fun getMyBlocked(userId: String): Flow<List<TaskEntity>>
+
+    /** بخش ۳: به اتمام — responsible = من */
+    @Query("""
+        SELECT * FROM tasks
+        WHERE isDeleted = 0
+          AND status = '41'
+          AND responsible = :userId
+        ORDER BY
+            CASE urgency
+                WHEN 'خیلی زیاد' THEN 1
+                WHEN 'زیاد' THEN 2
+                ELSE 3
+            END ASC,
+            priority DESC,
+            id DESC
+    """)
+    fun getMyCompleted(userId: String): Flow<List<TaskEntity>>
+
+    // ================================================================
+// متوقف‌های تیم (برای سرشیفت/مدیر)
+// ================================================================
+    @Query("""
+    SELECT * FROM tasks
+    WHERE isDeleted = 0
+      AND status = '3'
+    ORDER BY
+        CASE urgency
+            WHEN 'خیلی زیاد' THEN 1
+            WHEN 'زیاد' THEN 2
+            ELSE 3
+        END ASC,
+        priority DESC,
+        id DESC
+""")
+    fun getAllBlocked(): Flow<List<TaskEntity>>
+
+    // ================================================================
+// اتمام‌های تیم (برای سرشیفت/مدیر)
+// ================================================================
+    @Query("""
+    SELECT * FROM tasks
+    WHERE isDeleted = 0
+      AND status = '41'
+    ORDER BY
+        CASE urgency
+            WHEN 'خیلی زیاد' THEN 1
+            WHEN 'زیاد' THEN 2
+            ELSE 3
+        END ASC,
+        priority DESC,
+        id DESC
+""")
+    fun getAllCompleted(): Flow<List<TaskEntity>>
+
+    // ================================================================
+    // تب ۲: «کارهای امروز» — تیم
+    // ================================================================
+    /**
+     * تب ۲: «کارهای امروز»
+     *
+     * منطق (دقیق):
+     * - همه‌ی کارهایی که status = '2' (در حال انجام)
+     * - و scheduledDate شون:
+     *   - null (بدون برنامه‌ریزی) → میان
+     *   - یا <= امروز (گذشته یا امروز) → میان
+     *
+     * کارهای status=2 که scheduledDate=آینده دارن → نمیان
+     * کارهای status=1, 3, 41, 5 → همیشه حذف می‌شن
+     */
+    @Query("""
+    SELECT * FROM tasks
+    WHERE isDeleted = 0
+      AND status = '2'
+      AND (scheduledDate IS NULL 
+           OR scheduledDate = 'null' 
+           OR scheduledDate = 'NULL' 
+           OR scheduledDate <= :today)
+    ORDER BY
+        CASE urgency
+            WHEN 'خیلی زیاد' THEN 1
+            WHEN 'زیاد' THEN 2
+            ELSE 3
+        END ASC,
+        priority DESC,
+        id DESC
+""")
+    fun getTodayTasks(today: String): Flow<List<TaskEntity>>
+    // ================================================================
+    // تب ۳: «ارجاع نشده» — همه‌ی status=1 (آسان‌گیرانه)
+    // ================================================================
+    @Query("""
+        SELECT * FROM tasks
+        WHERE isDeleted = 0
+          AND status = '1'
+        ORDER BY
+            CASE urgency
+                WHEN 'خیلی زیاد' THEN 1
+                WHEN 'زیاد' THEN 2
+                ELSE 3
+            END ASC,
+            priority DESC,
+            id DESC
+    """)
+    fun getQueueTasks(): Flow<List<TaskEntity>>
+
+    // ================================================================
+    // بایگانی
+    // ================================================================
+    @Query("SELECT * FROM tasks WHERE status = '5' AND isDeleted = 0 ORDER BY id DESC")
+    fun getArchived(): Flow<List<TaskEntity>>
+
+    // ================================================================
+    // HomeActivity
+    // ================================================================
+    @Query("""
+        SELECT * FROM tasks
+        WHERE isDeleted = 0
+          AND responsible = :userId
+          AND status = '2'
         ORDER BY priority DESC, id DESC
     """)
-    fun getMyCartableForSupervisor(userId: String): Flow<List<TaskEntity>>
-
-    /** کارهایی که کاربر مسئولشونه و در حال انجامه (برای HomeActivity) */
-    @Query("SELECT * FROM tasks WHERE responsible = :userId AND status = '2' AND isDeleted = 0 ORDER BY priority DESC, id DESC")
     fun getResponsibleTasks(userId: String): Flow<List<TaskEntity>>
 
-    // ========== نوشتن ==========
-
+    // ================================================================
+    // نوشتن
+    // ================================================================
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(tasks: List<TaskEntity>)
 
@@ -74,23 +199,12 @@ interface TaskDao {
     @Update
     suspend fun update(task: TaskEntity)
 
-    @Query("DELETE FROM tasks")
-    suspend fun clearAll()
-
     @Query("DELETE FROM tasks WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<String>)
 
+    @Query("DELETE FROM tasks")
+    suspend fun clearAll()
 
-    @Query("SELECT * FROM tasks WHERE isDeleted = 0")
-    suspend fun getAllOnce(): List<TaskEntity>
-
-    @Query("SELECT * FROM tasks WHERE id IN (:ids)")
-    suspend fun getByIds(ids: List<String>): List<TaskEntity>
-
-    @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
-    suspend fun getByIdOnce(id: String): TaskEntity?
-
-    /** ← بایگانی: بدون تغییر (id DESC) */
-    @Query("SELECT * FROM tasks WHERE status = '5' AND isDeleted = 0 ORDER BY id DESC")
-    fun getArchived(): Flow<List<TaskEntity>>
+    @Query("SELECT MAX(CAST(id AS INTEGER)) FROM tasks WHERE id NOT LIKE 'tmp-%'")
+    suspend fun getMaxNumericId(): Int?
 }

@@ -153,6 +153,28 @@
                             android:textColor="#333333" />
                     </LinearLayout>
 
+                    <!-- تاییدکننده -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+                        <TextView
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:text="تاییدکننده:"
+                            android:textSize="13sp"
+                            android:textColor="#666666" />
+                        <TextView
+                            android:id="@+id/tvApprover"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="—"
+                            android:textSize="13sp"
+                            android:textColor="#333333" />
+                    </LinearLayout>
+
                     <!-- واحد -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -177,6 +199,7 @@
 
                     <!-- زیرواحد -->
                     <LinearLayout
+                        android:id="@+id/layoutSubUnit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -199,6 +222,7 @@
 
                     <!-- تجهیز -->
                     <LinearLayout
+                        android:id="@+id/layoutEquipment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -239,6 +263,51 @@
                             android:textSize="14sp"
                             android:textColor="#FF9800"
                             android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- وضعیت -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+                        <TextView
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:text="وضعیت:"
+                            android:textSize="13sp"
+                            android:textColor="#666666" />
+                        <TextView
+                            android:id="@+id/tvStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="جاری"
+                            android:textSize="13sp"
+                            android:textColor="#2196F3"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- مرحله -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+                        <TextView
+                            android:layout_width="80dp"
+                            android:layout_height="wrap_content"
+                            android:text="مرحله:"
+                            android:textSize="13sp"
+                            android:textColor="#666666" />
+                        <TextView
+                            android:id="@+id/tvStage"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="—"
+                            android:textSize="13sp"
+                            android:textColor="#333333" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

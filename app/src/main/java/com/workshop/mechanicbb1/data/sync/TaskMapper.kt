@@ -15,19 +15,15 @@ object TaskMapper {
             status = model.status,
             assignedTo = model.assignedTo,
             responsible = model.responsible,
-            pendingInvites = model.pendingInvites,
-            unit = model.unit,
             priority = model.priority,
-            subUnit = model.sub_unit,
-            declarationMethod = model.declaration_method,
-            requester = model.requester,
-            requestDate = model.request_date,
             urgency = model.urgency,
-            initialReview = model.initial_review,
-            systemRequestNumber = model.system_request_number,
             referredBy = model.referredBy,
             seenBy = model.seenBy.joinToString(","),
             hasUnseenReport = model.hasUnseenReport,
+            // ✅ محافظت نهایی
+            scheduledDate = model.scheduledDate?.takeIf {
+                it.isNotEmpty() && it != "null" && it != "NULL"
+            },
             version = 1,
             lastSyncedAt = System.currentTimeMillis()
         )
@@ -43,23 +39,19 @@ object TaskMapper {
             status = entity.status,
             assignedTo = entity.assignedTo,
             responsible = entity.responsible,
-            pendingInvites = entity.pendingInvites,
-            unit = entity.unit,
             priority = entity.priority,
-            sub_unit = entity.subUnit,
-            declaration_method = entity.declarationMethod,
-            requester = entity.requester,
-            request_date = entity.requestDate,
             urgency = entity.urgency,
-            initial_review = entity.initialReview,
-            system_request_number = entity.systemRequestNumber,
             referredBy = entity.referredBy,
             seenBy = if (entity.seenBy.isEmpty() || entity.seenBy == "[]") {
                 emptyList()
             } else {
                 entity.seenBy.split(",").filter { it.isNotBlank() }
             },
-            hasUnseenReport = entity.hasUnseenReport
+            hasUnseenReport = entity.hasUnseenReport,
+            // ✅ محافظت نهایی: "null" (رشته) → null (واقعی)
+            scheduledDate = entity.scheduledDate?.takeIf {
+                it.isNotEmpty() && it != "null" && it != "NULL"
+            }
         )
     }
 }

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tvWoNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WO-196"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#1565C0"
+                android:background="#E3F2FD"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp" />
+
+            <TextView
+                android:id="@+id/tvWoTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="تعویض پایلوت فلر"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#333"
+                android:layout_marginStart="8dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/tvWoClass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="کلاس ۱۴"
+                android:textSize="11sp"
+                android:textColor="#666" />
+
+            <TextView
+                android:id="@+id/tvWoUnit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=" | بهره‌برداری"
+                android:textSize="11sp"
+                android:textColor="#666" />
+
+            <TextView
+                android:id="@+id/tvWoProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="۷۰٪"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

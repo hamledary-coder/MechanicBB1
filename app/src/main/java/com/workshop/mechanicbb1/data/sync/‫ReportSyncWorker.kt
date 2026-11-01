@@ -49,6 +49,12 @@ class ReportSyncWorker(
         }
     }
 
+    // ✅ data class برای response
+    private data class SyncResult(
+        val success: Boolean,
+        val responseBody: String = ""
+    )
+
     override suspend fun doWork(): Result {
         Log.d(TAG, "=== doWork started ===")
 
@@ -64,11 +70,16 @@ class ReportSyncWorker(
         var hasFailure = false
 
         for (item in pending) {
-            val success = sendToServer(item)
+            val result = sendToServer(item)
 
-            if (success) {
+            if (result.success) {
                 // موفق → done
                 db.outboxDao().update(item.copy(status = "done"))
+
+                // ✅ createTask → آپدیت id موقت
+                if (item.action == "createTask") {
+                    updateTempIdAfterCreate(db, item, result.responseBody)
+                }
 
                 // آپدیت گزارش به synced
                 if (item.action == "addTaskLog") {
@@ -125,7 +136,7 @@ class ReportSyncWorker(
     /**
      * ارسال یه آیتم به سرور
      */
-    private fun sendToServer(item: OutboxEntity): Boolean {
+    private fun sendToServer(item: OutboxEntity): SyncResult {
         return try {
             val (url, body) = when (item.action) {
                 // ===== Delete (GET) =====
@@ -150,10 +161,12 @@ class ReportSyncWorker(
                         "updateTaskStatus" -> "${Config.BASE_URL}?action=updateTaskStatus"
                         "updateEvaluation" -> "${Config.BASE_URL}?action=updateEvaluation"
                         "updateTask" -> "${Config.BASE_URL}?action=update"
+                        "createTask" -> "${Config.BASE_URL}?action=createTask"
+                        "updateTaskWorkOrders" -> "${Config.BASE_URL}?action=updateTaskWorkOrders"
                         "updateTaskPriority" -> "${Config.BASE_URL}?action=updateTaskPriority"
                         "createWorkOrder" -> "${Config.BASE_URL}?action=createWorkOrder"
                         "updateWorkOrder" -> "${Config.BASE_URL}?action=updateWorkOrder"
-                        else -> return false
+                        else -> return SyncResult(false)
                     }
                     postUrl to item.payload.toRequestBody("application/json; charset=utf-8".toMediaType())
                 }
@@ -171,14 +184,94 @@ class ReportSyncWorker(
 
             Log.d(TAG, "Response: ${response.code} - $responseBody")
 
-            (response.isSuccessful && responseBody.contains("success")) || response.code == 409
+            SyncResult(
+                success = (response.isSuccessful && responseBody.contains("success")) || response.code == 409,
+                responseBody = responseBody
+            )
 
         } catch (e: IOException) {
             Log.e(TAG, "Network error: ${e.message}")
-            false
+            SyncResult(false)
         } catch (e: Exception) {
             Log.e(TAG, "Error: ${e.message}")
-            false
+            SyncResult(false)
+        }
+    }
+
+    /**
+     * ✅ آپدیت id موقت (tmp-...) به id واقعی از سرور
+     */
+    private suspend fun updateTempIdAfterCreate(
+        db: AppDatabase,
+        item: OutboxEntity,
+        responseBody: String
+    ) {
+        try {
+            val payload = JSONObject(item.payload)
+            val tempId = payload.optString("id", "")
+            if (!tempId.startsWith("tmp-")) return
+
+            val response = JSONObject(responseBody)
+            val realId = response.optString("id", "")
+            if (realId.isEmpty() || realId == tempId) return
+
+            Log.d(TAG, "Updating temp id: $tempId → $realId")
+
+            // ۱. TaskEntity
+            val task = db.taskDao().getById(tempId)
+            if (task != null) {
+                db.taskDao().deleteByIds(listOf(tempId))
+                db.taskDao().insert(task.copy(id = realId))
+                Log.d(TAG, "Task updated: $tempId → $realId")
+            }
+
+            // ۲. MappingEntity
+            val mappings = db.taskWorkOrderMappingDao().getByTaskOnce(tempId)
+            if (mappings.isNotEmpty()) {
+                db.taskWorkOrderMappingDao().deleteByTask(tempId)
+                mappings.forEach { m ->
+                    db.taskWorkOrderMappingDao().insert(
+                        m.copy(
+                            id = "m_${realId}_${m.workOrderId}",
+                            taskId = realId
+                        )
+                    )
+                }
+                Log.d(TAG, "Mappings updated: ${mappings.size} items")
+            }
+
+            // ۳. ReportEntity (اگه هست)
+            val reports = db.reportDao().getByTaskOnce(tempId)
+            if (reports.isNotEmpty()) {
+                reports.forEach { r ->
+                    db.reportDao().deleteById(r.id)
+                    db.reportDao().insert(
+                        r.copy(
+                            id = "${realId}-${r.id.substringAfterLast("-")}",
+                            taskId = realId
+                        )
+                    )
+                }
+                Log.d(TAG, "Reports updated: ${reports.size} items")
+            }
+
+            // ۴. Outboxهای pending (اگه هستن)
+            val pendingOutbox = db.outboxDao().getPending()
+            pendingOutbox.forEach { o ->
+                if (o.targetId == tempId || o.payload.contains(tempId)) {
+                    db.outboxDao().update(
+                        o.copy(
+                            targetId = if (o.targetId == tempId) realId else o.targetId,
+                            payload = o.payload.replace(tempId, realId)
+                        )
+                    )
+                }
+            }
+
+            Log.d(TAG, "✅ Temp id updated: $tempId → $realId")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error updating temp id: ${e.message}", e)
         }
     }
 

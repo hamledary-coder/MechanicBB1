@@ -12,77 +12,50 @@ class WorkOrderLocalRepository(context: Context) {
     private val dao = db.workOrderDao()
 
     /**
-     * دریافت لیست WorkOrderها (Flow)
-     * - unit خالی + class خالی → همه
-     * - unit پر + class خالی → فیلتر واحد
-     * - unit خالی + class پر → فیلتر کلاس
-     * - unit پر + class پر → فیلتر هر دو
+     * دریافت لیست WorkOrderها با فیلتر
+     * @param status "" | "open" | "archived" (به external_status نگاشت می‌شه)
      */
-    fun getWorkOrders(unit: String, requestClass: String): Flow<List<WorkOrderModel>> {
-        val flow = when {
-            unit.isEmpty() && requestClass.isEmpty() -> dao.getAll()
-            unit.isNotEmpty() && requestClass.isEmpty() -> dao.getByUnit(unit)
-            unit.isEmpty() && requestClass.isNotEmpty() -> dao.getByClass(requestClass)
-            else -> dao.getByUnitAndClass(unit, requestClass)
-        }
-        return flow.map { entities -> entities.map { it.toModel() } }
+    fun getWorkOrders(
+        unit: String,
+        requestClass: String,
+        status: String = "",
+        search: String = ""        // ← جدید
+    ): Flow<List<WorkOrderModel>> {
+        return dao.getFiltered(unit, requestClass, status, search)
+            .map { entities -> entities.map { it.toModel() } }
     }
 
-    /**
-     * دریافت یک WorkOrder (Flow)
-     */
     fun getWorkOrderById(id: String): Flow<WorkOrderModel?> {
         return dao.getByIdFlow(id).map { it?.toModel() }
     }
 
-    /**
-     * دریافت یک WorkOrder (suspend)
-     */
     suspend fun getWorkOrderByIdOnce(id: String): WorkOrderModel? {
         return dao.getById(id)?.toModel()
     }
 
-    /**
-     * ذخیره لیست (از sync)
-     */
     suspend fun saveWorkOrders(workOrders: List<WorkOrderEntity>) {
         dao.insertAll(workOrders)
     }
 
-    /**
-     * ذخیره یکی
-     */
     suspend fun saveWorkOrder(workOrder: WorkOrderEntity) {
         dao.insert(workOrder)
     }
 
-    /**
-     * آپدیت
-     */
     suspend fun updateWorkOrder(workOrder: WorkOrderEntity) {
         dao.update(workOrder)
     }
 
-    /**
-     * حذف
-     */
     suspend fun deleteWorkOrder(id: String) {
         dao.deleteById(id)
     }
 
-    /**
-     * پاک کردن همه
-     */
     suspend fun clearAll() {
         dao.deleteAll()
     }
 
-    /**
-     * تعداد
-     */
     suspend fun count(): Int = dao.count()
 
-    // ============ Extension: Entity → Model ============
+    // ============ Mapping ============
     private fun WorkOrderEntity.toModel(): WorkOrderModel {
         return WorkOrderModel(
             id = id,
@@ -91,18 +64,19 @@ class WorkOrderLocalRepository(context: Context) {
             requestClass = requestClass,
             requestDate = requestDate,
             requester = requester,
+            approver = approver ?: "",
             unit = unit,
             subUnit = subUnit,
             equipmentName = equipmentName,
             description = description,
             externalStatus = externalStatus,
-            source = source,
-            progress = progress
+            progress = progress,
+            source = source
         )
     }
 }
 
-// ============ Extension: Model → Entity (برای استفاده تو Activityها) ============
+// ============ Extension ============
 fun WorkOrderModel.toEntity(): WorkOrderEntity {
     return WorkOrderEntity(
         id = id,
@@ -111,12 +85,13 @@ fun WorkOrderModel.toEntity(): WorkOrderEntity {
         requestClass = requestClass,
         requestDate = requestDate,
         requester = requester,
+        approver = approver.ifEmpty { null },    // ← جدید
         unit = unit,
         subUnit = subUnit,
         equipmentName = equipmentName,
         description = description,
         externalStatus = externalStatus,
-        source = source,
-        progress = progress
+        progress = progress,
+        source = source
     )
 }

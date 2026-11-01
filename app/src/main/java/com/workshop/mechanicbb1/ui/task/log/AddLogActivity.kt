@@ -129,16 +129,12 @@ class AddLogActivity : AppCompatActivity() {
             status = "1",
             assignedTo = intent.getStringExtra("ASSIGNED_TO") ?: "",
             responsible = intent.getStringExtra("RESPONSIBLE") ?: "",
-            pendingInvites = "",
-            unit = intent.getStringExtra("UNIT") ?: "",
             priority = intent.getIntExtra("PRIORITY", 50),
-            sub_unit = intent.getStringExtra("SUB_UNIT") ?: "",
-            declaration_method = intent.getStringExtra("DECLARATION_METHOD") ?: "",
-            requester = intent.getStringExtra("REQUESTER") ?: "",
-            request_date = intent.getStringExtra("REQUEST_DATE") ?: "",
             urgency = intent.getStringExtra("URGENCY") ?: "",
-            initial_review = intent.getStringExtra("INITIAL_REVIEW") ?: "",
-            system_request_number = intent.getStringExtra("SYSTEM_REQUEST_NUMBER") ?: ""
+            referredBy = "",
+            scheduledDate = null
+            // ← حذف: pendingInvites, unit, sub_unit, declaration_method,
+            //        requester, request_date, initial_review, system_request_number
         )
         currentGroupIds = task?.assignedTo ?: ""
     }

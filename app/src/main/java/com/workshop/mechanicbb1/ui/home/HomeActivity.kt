@@ -13,9 +13,11 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.workshop.mechanicbb1.R
+import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.data.sync.TaskSyncer
+import com.workshop.mechanicbb1.data.sync.WorkOrderSyncer
 import com.workshop.mechanicbb1.notifications.NotificationPermissionManager
 import com.workshop.mechanicbb1.ui.archive.ArchiveActivity
 import com.workshop.mechanicbb1.ui.cartable.CartableActivity
@@ -48,7 +50,6 @@ class HomeActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_CODE = 1001
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -79,7 +80,7 @@ class HomeActivity : AppCompatActivity() {
         cardCartable = findViewById(R.id.cardCartable)
         cardArchive = findViewById(R.id.cardArchive)
         cardSettings = findViewById(R.id.cardSettings)
-        cardWorkOrders = findViewById(R.id.cardWorkOrders)    // ← جدید
+        cardWorkOrders = findViewById(R.id.cardWorkOrders)
         cardQuickLog = findViewById(R.id.cardQuickLog)
         cardPersonnelReport = findViewById(R.id.cardPersonnelReport)
     }
@@ -107,10 +108,31 @@ class HomeActivity : AppCompatActivity() {
             }
 
             val userId = sharedPref.getString(Config.PrefKeys.USER_ROW_ID, "") ?: ""
+
+            // ⬇️ Fix یه‌بارمصرف: تبدیل scheduledDate="null" به null واقعی ⬇️
+            lifecycleScope.launch {
+                val db = AppDatabase.getInstance(this@HomeActivity)
+                val all = db.taskDao().getAllOnce()
+                var fixed = 0
+                all.forEach { task ->
+                    if (task.scheduledDate == "null" || task.scheduledDate == "NULL") {
+                        db.taskDao().update(task.copy(scheduledDate = null))
+                        fixed++
+                    }
+                }
+                if (fixed > 0) Log.d("FIX_SCHEDULED", "Fixed $fixed tasks")
+            }
+            // ⬆️ پایان Fix ⬆️
+
             TaskSyncer.syncTasksFromServer(this, userId) { count ->
                 Log.d("HomeActivity", "Synced $count tasks to Room")
+
+                // ✅ sync WorkOrderها (همه)
+                WorkOrderSyncer.syncWorkOrdersFromServer(this) { woCount ->
+                    Log.d("HomeActivity", "Synced $woCount work orders to Room")
+                }
             }
-        }
+        }   // ✅ این آکولاد رو اضافه کن (بسته‌شدن UserCache.loadAllUsers)
     }
 
     // ====== متد کمکی برای تغییر وضعیت کارت ======
@@ -160,6 +182,7 @@ class HomeActivity : AppCompatActivity() {
 
         cardWorkOrders.setOnClickListener {
             startActivity(Intent(this, WorkOrderListActivity::class.java))
+        }
 
         cardPersonnelReport.setOnClickListener {
             startActivity(Intent(this, PersonnelReportActivity::class.java))
@@ -174,28 +197,26 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    }
-
     private fun showLoading(show: Boolean) {
         progressBar.visibility = if (show) android.view.View.VISIBLE else android.view.View.GONE
     }
 
     private fun disableCards(disable: Boolean) {
-            val cards = listOf(
-                cardQuickLog,
-                cardReports,
-                cardCartable,
-                cardArchive,
-                cardSettings,
-                cardWorkOrders,        // ← جایگزین cardChat
-                cardPersonnelReport
-            )
-            val alpha = if (disable) 0.5f else 1.0f
-            cards.forEach { card ->
-                card.isEnabled = !disable
-                card.alpha = alpha
-            }
+        val cards = listOf(
+            cardQuickLog,
+            cardReports,
+            cardCartable,
+            cardArchive,
+            cardSettings,
+            cardWorkOrders,
+            cardPersonnelReport
+        )
+        val alpha = if (disable) 0.5f else 1.0f
+        cards.forEach { card ->
+            card.isEnabled = !disable
+            card.alpha = alpha
         }
+    }
 
     private fun requestNotificationPermission() {
         if (!NotificationPermissionManager.hasPermission(this)) {

@@ -33,7 +33,7 @@ class BossReportsLocalRepository(context: Context) {
                     taskId = taskId,
                     taskTitle = task?.title ?: "",
                     taskDescription = task?.description ?: "",
-                    taskUnit = task?.unit ?: "",
+                    taskUnit = "",
                     taskUrgency = task?.urgency ?: "",
                     taskStatus = task?.status ?: "",
                     taskResponsible = task?.responsible ?: "",

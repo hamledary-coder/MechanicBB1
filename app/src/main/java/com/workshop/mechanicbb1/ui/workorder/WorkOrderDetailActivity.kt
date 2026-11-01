@@ -32,12 +32,18 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     private lateinit var tvClass: TextView
     private lateinit var tvDate: TextView
     private lateinit var tvRequester: TextView
+    private lateinit var tvApprover: TextView
     private lateinit var tvUnit: TextView
     private lateinit var tvSubUnit: TextView
     private lateinit var tvEquipment: TextView
     private lateinit var tvDescription: TextView
     private lateinit var tvProgress: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var tvStatus: TextView
+    private lateinit var tvStage: TextView
+
+    private lateinit var layoutSubUnit: View
+    private lateinit var layoutEquipment: View
 
     private lateinit var localRepository: WorkOrderLocalRepository
     private var workOrderId: String = ""
@@ -81,12 +87,17 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         tvClass = findViewById(R.id.tvClass)
         tvDate = findViewById(R.id.tvDate)
         tvRequester = findViewById(R.id.tvRequester)
+        tvApprover = findViewById(R.id.tvApprover)
         tvUnit = findViewById(R.id.tvUnit)
         tvSubUnit = findViewById(R.id.tvSubUnit)
         tvEquipment = findViewById(R.id.tvEquipment)
         tvDescription = findViewById(R.id.tvDescription)
         tvProgress = findViewById(R.id.tvProgress)
         progressBar = findViewById(R.id.progressBar)
+        tvStatus = findViewById(R.id.tvStatus)
+        tvStage = findViewById(R.id.tvStage)
+        layoutSubUnit = findViewById(R.id.layoutSubUnit)
+        layoutEquipment = findViewById(R.id.layoutEquipment)
     }
 
     private fun setupToolbar() {
@@ -129,19 +140,52 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     }
 
     private fun bindWorkOrder(wo: WorkOrderModel) {
+        // هدر
         tvWoNumber.text = wo.id
         tvTitle.text = wo.title.ifEmpty { "بدون عنوان" }
+
+        // کلاس
         tvClass.text = wo.classText
         tvClass.setTextColor(wo.classColor)
-        tvDate.text = wo.requestDate.ifEmpty { "—" }
-        tvRequester.text = wo.requester.ifEmpty { "—" }
-        tvUnit.text = wo.unit.ifEmpty { "—" }
-        tvSubUnit.text = wo.subUnit.ifEmpty { "—" }
-        tvEquipment.text = wo.equipmentName.ifEmpty { "—" }
-        tvDescription.text = wo.description.ifEmpty { "توضیحاتی ثبت نشده" }
 
+        // تاریخ
+        tvDate.text = wo.requestDate.ifEmpty { "—" }
+
+        // صادرکننده
+        tvRequester.text = wo.requester.ifEmpty { "—" }
+
+        // تاییدکننده
+        tvApprover.text = wo.approver.ifEmpty { "—" }
+
+
+        // واحد
+        tvUnit.text = wo.unit.ifEmpty { "—" }
+
+        // ============ زیرواحد (مخفی اگه خالی) ============
+        if (wo.subUnit.isNotEmpty() && wo.subUnit != "null") {
+            layoutSubUnit.visibility = View.VISIBLE
+            tvSubUnit.text = wo.subUnit
+        } else {
+            layoutSubUnit.visibility = View.GONE
+        }
+
+        // ============ تجهیز (مخفی اگه خالی) ============
+        if (wo.equipmentName.isNotEmpty() && wo.equipmentName != "null") {
+            layoutEquipment.visibility = View.VISIBLE
+            tvEquipment.text = wo.equipmentName
+        } else {
+            layoutEquipment.visibility = View.GONE
+        }
+
+        // مرحله
+        tvStage.text = "${wo.stage}. ${wo.stageText}"
+
+        // پیشرفت
         tvProgress.text = wo.progressText
         tvProgress.setTextColor(wo.progressColor)
+
+        // توضیحات
+        tvDescription.text = wo.description.ifEmpty { "توضیحاتی ثبت نشده" }
     }
 
     // ============ منو ============

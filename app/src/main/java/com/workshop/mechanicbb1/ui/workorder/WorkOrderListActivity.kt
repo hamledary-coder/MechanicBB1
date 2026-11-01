@@ -3,14 +3,14 @@ package com.workshop.mechanicbb1.ui.workorder
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.RadioGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -18,7 +18,9 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputEditText
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
@@ -35,15 +37,24 @@ class WorkOrderListActivity : AppCompatActivity() {
     private lateinit var tvFilterLabel: TextView
     private lateinit var rvWorkOrders: RecyclerView
     private lateinit var tvEmpty: TextView
-    private lateinit var progressBar: ProgressBar
     private lateinit var rgClassFilter: RadioGroup
+    private lateinit var rgStatusFilter: RadioGroup
+    private lateinit var etSearch: TextInputEditText
+    private lateinit var btnClearFilters: MaterialButton
 
     private lateinit var adapter: WorkOrderAdapter
-    private lateinit var localRepository: WorkOrderLocalRepository   // ← Room
+    private lateinit var localRepository: WorkOrderLocalRepository
     private var workOrdersJob: Job? = null
 
+    // وضعیت فیلترها
     private var currentUnit: String = "بهره‌برداری"
     private var currentClass: String = ""
+    private var currentStatus: String = ""
+    private var currentSearch: String = ""
+
+    // Debounce برای جستجو
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     private val units = listOf(
         UnitItem("بهره‌برداری", "بهره‌برداری"),
@@ -60,6 +71,7 @@ class WorkOrderListActivity : AppCompatActivity() {
         initViews()
         setupToolbar()
         setupTabs()
+        setupDrawerFilters()
         loadWorkOrders()
     }
 
@@ -70,8 +82,10 @@ class WorkOrderListActivity : AppCompatActivity() {
         tvFilterLabel = findViewById(R.id.tvFilterLabel)
         rvWorkOrders = findViewById(R.id.rvWorkOrders)
         tvEmpty = findViewById(R.id.tvEmpty)
-        progressBar = findViewById(R.id.progressBar)
         rgClassFilter = findViewById(R.id.rgClassFilter)
+        rgStatusFilter = findViewById(R.id.rgStatusFilter)
+        etSearch = findViewById(R.id.etSearch)
+        btnClearFilters = findViewById(R.id.btnClearFilters)
 
         rvWorkOrders.layoutManager = LinearLayoutManager(this)
 
@@ -82,20 +96,9 @@ class WorkOrderListActivity : AppCompatActivity() {
         )
         rvWorkOrders.adapter = adapter
 
+        // کلیک روی نوار فیلتر → باز کردن Drawer
         filterBar.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        rgClassFilter.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.rbClassAll -> currentClass = ""
-                R.id.rbClass14 -> currentClass = "14"
-                R.id.rbClass12 -> currentClass = "12"
-                R.id.rbClass12P -> currentClass = "12P"
-            }
-            updateFilterLabel()
-            drawerLayout.closeDrawers()
-            loadWorkOrders()
         }
     }
 
@@ -129,28 +132,89 @@ class WorkOrderListActivity : AppCompatActivity() {
         })
     }
 
+    private fun setupDrawerFilters() {
+        // ============ فیلتر کلاس ============
+        rgClassFilter.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbClassAll -> currentClass = ""
+                R.id.rbClass14 -> currentClass = "14"
+                R.id.rbClass12 -> currentClass = "12"
+                R.id.rbClass12P -> currentClass = "12P"
+                R.id.rbClass15 -> currentClass = "15"
+            }
+            updateFilterLabel()
+            drawerLayout.closeDrawers()
+            loadWorkOrders()
+        }
+
+        // ============ فیلتر وضعیت ============
+        rgStatusFilter.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbStatusAll -> currentStatus = ""
+                R.id.rbStatusOpen -> currentStatus = "open"
+                R.id.rbStatusArchived -> currentStatus = "archived"
+            }
+            updateFilterLabel()
+            drawerLayout.closeDrawers()
+            loadWorkOrders()
+        }
+
+        // ============ جستجو (با debounce) ============
+        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+                searchRunnable = Runnable {
+                    currentSearch = s?.toString()?.trim() ?: ""
+                    loadWorkOrders()
+                }
+                searchHandler.postDelayed(searchRunnable!!, 300)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        // ============ پاک کردن فیلترها ============
+        btnClearFilters.setOnClickListener {
+            rgClassFilter.check(R.id.rbClassAll)
+            rgStatusFilter.check(R.id.rbStatusAll)
+            etSearch.setText("")
+            // اینا خودکار listener رو صدا می‌زنن
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private fun updateFilterLabel() {
         val classText = when (currentClass) {
             "14" -> "کلاس ۱۴"
             "12" -> "کلاس ۱۲"
             "12P" -> "پیشگیرانه"
-            else -> "همه‌ی کلاس‌ها"
+            "15" -> "کلاس ۱۵"
+            else -> "همه"
         }
-        tvFilterLabel.text = "🔖 کلاس: $classText"
+        val statusText = when (currentStatus) {
+            "open" -> "جاری"
+            "archived" -> "بایگانی"
+            else -> "همه"
+        }
+        tvFilterLabel.text = "🔖 کلاس: $classText | وضعیت: $statusText"
     }
 
     // ============ بارگذاری (Offline-First) ============
     private fun loadWorkOrders() {
-        // ۱. اول sync از سرور (پس‌زمینه)
+        // ۱. sync از سرور
         WorkOrderSyncer.syncWorkOrdersFromServer(this, currentUnit) { count ->
             Log.d("WorkOrderList", "Synced $count work orders")
         }
 
-        // ۲. از Room بخون (Flow خودکار آپدیت می‌شه)
+        // ۲. از Room بخون
         workOrdersJob?.cancel()
         workOrdersJob = lifecycleScope.launch {
-            localRepository.getWorkOrders(currentUnit, currentClass).collectLatest { list ->
+            localRepository.getWorkOrders(
+                unit = currentUnit,
+                requestClass = currentClass,
+                status = currentStatus,
+                search = currentSearch
+            ).collectLatest { list ->
                 if (list.isEmpty()) {
                     rvWorkOrders.visibility = View.GONE
                     tvEmpty.visibility = View.VISIBLE

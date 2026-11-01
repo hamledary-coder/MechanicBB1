@@ -11,12 +11,13 @@ data class WorkOrderEntity(
     val requestClass: String?,
     val requestDate: String,
     val requester: String,
+    val approver: String?,
     val unit: String,
     val subUnit: String,
     val equipmentName: String,
     val description: String,
     val externalStatus: String?,
+    val progress: Int = 0,
     val source: String,
-    val progress: Int,
     val lastSyncedAt: Long = System.currentTimeMillis()
 )

@@ -121,21 +121,27 @@ object WorkOrderSyncer {
     }
 
     // ============ Parse ============
-    private fun parseEntity(obj: JSONObject): WorkOrderEntity {
+    fun parseEntity(obj: JSONObject): WorkOrderEntity {
         return WorkOrderEntity(
             id = obj.optString("id", ""),
             requestNumber = obj.optString("request_number", ""),
             title = obj.optString("title", ""),
             requestClass = if (obj.isNull("request_class")) null else obj.optString("request_class", ""),
             requestDate = obj.optString("request_date", ""),
-            requester = obj.optString("requester", ""),
-            unit = obj.optString("unit", ""),
-            subUnit = obj.optString("sub_unit", ""),
-            equipmentName = obj.optString("equipment_name", ""),
-            description = obj.optString("description", ""),
+            requester = obj.optStringOrEmpty("requester"),
+            approver = if (obj.isNull("approver")) null else obj.optString("approver", ""),
+            unit = obj.optStringOrEmpty("unit"),
+            subUnit = obj.optStringOrEmpty("sub_unit"),
+            equipmentName = obj.optStringOrEmpty("equipment_name"),
+            description = obj.optStringOrEmpty("description"),
             externalStatus = if (obj.isNull("external_status")) null else obj.optString("external_status", ""),
-            source = obj.optString("source", "manual"),
-            progress = obj.optInt("progress", 0)
+            progress = obj.optInt("progress", 0),
+            source = obj.optString("source", "manual")
         )
+    }
+
+    // Extension:
+    fun JSONObject.optStringOrEmpty(key: String): String {
+        return if (isNull(key)) "" else optString(key, "")
     }
 }

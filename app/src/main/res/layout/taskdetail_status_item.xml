@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/statusSection"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#F5F5F5"
+    android:layout_marginBottom="12dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📊 وضعیت کار"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvStatusLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ادامه دارد"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#1565C0"
+        android:layout_gravity="center"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="6dp"
+        android:background="@drawable/bg_status_label"
+        android:layout_marginBottom="8dp" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/sliderStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:valueFrom="0"
+        android:valueTo="2"
+        android:stepSize="1"
+        android:value="0"
+        app:thumbRadius="20dp"
+        app:trackHeight="6dp"
+        app:trackColorActive="#1565C0"
+        app:trackColorInactive="#DDDDDD"
+        app:thumbColor="#1565C0"
+        app:tickVisible="true"
+        app:tickColorActive="#1565C0"
+        app:tickColorInactive="#DDDDDD" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ادامه"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            android:textColor="#1565C0" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="متوقف"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            android:textColor="#C62828" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="اتمام"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            android:textColor="#2E7D32" />
+    </LinearLayout>
+
+</LinearLayout>

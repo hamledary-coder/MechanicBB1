@@ -32,7 +32,7 @@
             app:tabSelectedTextColor="@android:color/white"
             app:tabIndicatorColor="@android:color/white" />
 
-        <!-- نوار فیلتر کلاس -->
+        <!-- نوار فیلتر کلاس + وضعیت (همیشه دیده می‌شه) -->
         <LinearLayout
             android:id="@+id/filterBar"
             android:layout_width="match_parent"
@@ -49,7 +49,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🔖 کلاس: همه‌ی کلاس‌ها"
+                android:text="🔖 کلاس: همه | وضعیت: همه"
                 android:textSize="13sp"
                 android:textColor="#333333" />
 
@@ -82,73 +82,161 @@
             android:textSize="14sp"
             android:textColor="#999999"
             android:visibility="gone" />
-
-        <!-- Progress -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
     </LinearLayout>
 
-    <!-- Drawer (از راست، تو RTL = start) -->
-    <LinearLayout
-        android:layout_width="280dp"
+    <!-- ============ Drawer (از راست) ============ -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@android:color/white">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📋 فیلتر کلاس"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:paddingBottom="12dp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#DDDDDD"
-            android:layout_marginBottom="8dp" />
+            <!-- هدر -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📋 فیلترها"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:paddingBottom="12dp" />
 
-        <RadioGroup
-            android:id="@+id/rgClassFilter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD"
+                android:layout_marginBottom="16dp" />
 
-            <RadioButton
-                android:id="@+id/rbClassAll"
+            <!-- ============ جستجو ============ -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="همه‌ی کلاس‌ها"
-                android:checked="true"
-                android:padding="8dp" />
+                android:layout_marginBottom="16dp"
+                android:hint="جستجو (شماره یا عنوان)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:startIconDrawable="@android:drawable/ic_menu_search">
 
-            <RadioButton
-                android:id="@+id/rbClass14"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ============ کلاس ============ -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📋 کلاس"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:paddingBottom="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rgClassFilter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="کلاس ۱۴ (غیرمترقبه)"
-                android:padding="8dp" />
+                android:layout_marginBottom="16dp">
 
-            <RadioButton
-                android:id="@+id/rbClass12"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="کلاس ۱۲ (برنامه‌ای)"
-                android:padding="8dp" />
+                <RadioButton
+                    android:id="@+id/rbClassAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="همه‌ی کلاس‌ها"
+                    android:checked="true"
+                    android:padding="6dp" />
 
-            <RadioButton
-                android:id="@+id/rbClass12P"
+                <RadioButton
+                    android:id="@+id/rbClass14"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="کلاس ۱۴ (غیرمترقبه)"
+                    android:padding="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rbClass12"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="کلاس ۱۲ (برنامه‌ای)"
+                    android:padding="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rbClass12P"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="پیشگیرانه (۱۲-P)"
+                    android:padding="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rbClass15"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="کلاس ۱۵ (اقدام اصلاحی)"
+                    android:padding="6dp" />
+            </RadioGroup>
+
+            <!-- جداکننده -->
+            <View
                 android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD"
+                android:layout_marginBottom="12dp" />
+
+            <!-- ============ وضعیت ============ -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="پیشگیرانه (۱۲-P)"
-                android:padding="8dp" />
-        </RadioGroup>
-    </LinearLayout>
+                android:text="📊 وضعیت"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:paddingBottom="8dp" />
+
+            <RadioGroup
+                android:id="@+id/rgStatusFilter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/rbStatusAll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="همه"
+                    android:checked="true"
+                    android:padding="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rbStatusOpen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="جاری"
+                    android:padding="6dp" />
+
+                <RadioButton
+                    android:id="@+id/rbStatusArchived"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="بایگانی"
+                    android:padding="6dp" />
+            </RadioGroup>
+
+            <!-- دکمه پاک کردن فیلترها -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearFilters"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:text="پاک کردن فیلترها"
+                android:textSize="14sp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.drawerlayout.widget.DrawerLayout>

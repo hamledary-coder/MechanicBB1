@@ -55,8 +55,8 @@ class QuickLogTaskAdapter(
             }
             viewStatusDot.setBackgroundColor(statusColor)
 
-            val unitText = Config.UnitCode.getText(task.unit)
-            tvUnit.text = if (unitText.isNotEmpty() && task.unit.isNotEmpty()) "🏢 $unitText" else ""
+            //val unitText = Config.UnitCode.getText(task.unit)
+            //tvUnit.text = if (unitText.isNotEmpty() && task.unit.isNotEmpty()) "🏢 $unitText" else ""
 
             itemView.setOnClickListener {
                 onItemClick(task)

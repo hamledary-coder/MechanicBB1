@@ -1,9 +1,12 @@
 package com.workshop.mechanicbb1.ui.workorder
 
-import android.app.DatePickerDialog
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.ProgressBar
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
@@ -15,18 +18,23 @@ import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.ReportSyncWorker
 import com.workshop.mechanicbb1.utils.DateUtils
+import ir.hamsaa.persiandatepicker.PersianDatePickerDialog
+import ir.hamsaa.persiandatepicker.api.PersianPickerDate
+import ir.hamsaa.persiandatepicker.api.PersianPickerListener
 import kotlinx.coroutines.launch
-import java.util.Calendar
+import java.util.Locale
 
 class CreateWorkOrderActivity : AppCompatActivity() {
 
     private lateinit var etRequestNumber: TextInputEditText
     private lateinit var etTitle: TextInputEditText
     private lateinit var spinnerClass: Spinner
+    private lateinit var spinnerStatus: Spinner
     private lateinit var spinnerUnit: Spinner
     private lateinit var etSubUnit: TextInputEditText
     private lateinit var etRequestDate: TextInputEditText
     private lateinit var etRequester: TextInputEditText
+    private lateinit var etApprover: TextInputEditText
     private lateinit var etEquipment: TextInputEditText
     private lateinit var etDescription: TextInputEditText
     private lateinit var btnSubmit: com.google.android.material.button.MaterialButton
@@ -38,15 +46,30 @@ class CreateWorkOrderActivity : AppCompatActivity() {
     private var editWorkOrderId: String = ""
     private var currentWorkOrder: WorkOrderModel? = null
 
-    // کلاس‌ها (نمایش → مقدار دیتابیس)
+    // ============ کلاس‌ها ============
     private val classes = listOf(
         ClassItem("بدون کلاس", ""),
         ClassItem("کلاس ۱۴ (غیرمترقبه)", "14"),
         ClassItem("کلاس ۱۲ (برنامه‌ای)", "12"),
-        ClassItem("پیشگیرانه (۱۲-P)", "12P")
+        ClassItem("پیشگیرانه (۱۲-P)", "12P"),
+        ClassItem("کلاس ۱۵ (اقدام اصلاحی)", "15")
     )
 
-    // واحدها (نمایش → مقدار دیتابیس)
+    // ============ مراحل (۱۰ مرحله شرکت) ============
+    private val statuses = listOf(
+        StatusItem("ایجاد فرم", "1"),
+        StatusItem("تایید اپراتور", "2"),
+        StatusItem("تایید رییس واحد", "3"),
+        StatusItem("شماره‌گذاری برنامه‌ریز", "4"),
+        StatusItem("تایید رییس گروه", "5"),
+        StatusItem("ثبت اطلاعات تکمیلی", "6"),
+        StatusItem("تایید رییس گروه (۲)", "7"),
+        StatusItem("تایید نهایی اپراتور", "8"),
+        StatusItem("تایید نهایی رییس واحد", "9"),
+        StatusItem("بایگانی", "10")
+    )
+
+    // ============ واحدها ============
     private val units = listOf(
         UnitItem("بهره‌برداری", "بهره‌برداری"),
         UnitItem("نمکزدایی", "نمکزدایی"),
@@ -79,10 +102,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         etRequestNumber = findViewById(R.id.etRequestNumber)
         etTitle = findViewById(R.id.etTitle)
         spinnerClass = findViewById(R.id.spinnerClass)
+        spinnerStatus = findViewById(R.id.spinnerStatus)
         spinnerUnit = findViewById(R.id.spinnerUnit)
         etSubUnit = findViewById(R.id.etSubUnit)
         etRequestDate = findViewById(R.id.etRequestDate)
         etRequester = findViewById(R.id.etRequester)
+        etApprover = findViewById(R.id.etApprover)
         etEquipment = findViewById(R.id.etEquipment)
         etDescription = findViewById(R.id.etDescription)
         btnSubmit = findViewById(R.id.btnSubmit)
@@ -100,10 +125,21 @@ class CreateWorkOrderActivity : AppCompatActivity() {
     }
 
     private fun setupSpinners() {
+        // کلاس
         val classAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, classes.map { it.displayName })
         classAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerClass.adapter = classAdapter
 
+        // مرحله (۱۰ مرحله)
+        val statusAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            statuses.map { "${it.dbValue}. ${it.displayName}" }
+        )
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerStatus.adapter = statusAdapter
+
+        // واحد
         val unitAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units.map { it.displayName })
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerUnit.adapter = unitAdapter
@@ -113,13 +149,38 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         etRequestDate.setOnClickListener { showDatePicker() }
     }
 
+    // ============ تقویم فارسی ============
     private fun showDatePicker() {
-        val calendar = Calendar.getInstance()
-        val dialog = DatePickerDialog(this, { _, y, m, d ->
-            val cal = Calendar.getInstance().apply { set(y, m, d) }
-            etRequestDate.setText(DateUtils.gregorianToShamsi(cal))
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
-        dialog.show()
+        // اگه در حال ویرایش هستیم و currentWorkOrder داره، ازش استفاده کن
+        val dateStr = if (isEdit && currentWorkOrder != null && currentWorkOrder!!.requestDate.isNotEmpty()) {
+            currentWorkOrder!!.requestDate
+        } else {
+            etRequestDate.text.toString()
+        }
+
+        val currentDate = dateStr.split("/")
+        val initYear = if (currentDate.size == 3) currentDate[0].toIntOrNull() ?: 1404 else 1404
+        val initMonth = if (currentDate.size == 3) currentDate[1].toIntOrNull() ?: 1 else 1
+        val initDay = if (currentDate.size == 3) currentDate[2].toIntOrNull() ?: 1 else 1
+
+        PersianDatePickerDialog(this)
+            .setPositiveButtonString("تأیید")
+            .setNegativeButton("انصراف")
+            .setTodayButton("امروز")
+            .setTodayButtonVisible(true)
+            .setMinYear(1400)
+            .setMaxYear(PersianDatePickerDialog.THIS_YEAR + 1)
+            .setInitDate(initYear, initMonth, initDay)   // ← بعد از min/max
+            .setListener(object : PersianPickerListener {
+                override fun onDateSelected(persianPickerDate: PersianPickerDate) {
+                    val year = persianPickerDate.persianYear
+                    val month = String.format(Locale.ENGLISH, "%02d", persianPickerDate.persianMonth)
+                    val day = String.format(Locale.ENGLISH, "%02d", persianPickerDate.persianDay)
+                    etRequestDate.setText("$year/$month/$day")
+                }
+                override fun onDismissed() {}
+            })
+            .show()
     }
 
     private fun setupButtons() {
@@ -150,32 +211,19 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // ۱. اول به Room بنویس
                 localRepository.saveWorkOrder(workOrder.toEntity())
-
-                // ۲. به Outbox اضافه کن
                 OutboxHelper.enqueueCreateWorkOrder(this@CreateWorkOrderActivity, workOrder)
-
-                // ۳. Worker رو فعال کن
                 ReportSyncWorker.enqueue(this@CreateWorkOrderActivity)
 
                 showLoading(false)
-                Toast.makeText(
-                    this@CreateWorkOrderActivity,
-                    "درخواست ثبت شد",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateWorkOrderActivity, "درخواست ثبت شد", Toast.LENGTH_SHORT).show()
 
                 setResult(RESULT_OK)
                 finish()
 
             } catch (e: Exception) {
                 showLoading(false)
-                Toast.makeText(
-                    this@CreateWorkOrderActivity,
-                    "خطا: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateWorkOrderActivity, "خطا: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -188,43 +236,33 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // ۱. اول به Room بنویس
                 localRepository.updateWorkOrder(workOrder.toEntity())
-
-                // ۲. به Outbox اضافه کن
                 OutboxHelper.enqueueUpdateWorkOrder(this@CreateWorkOrderActivity, workOrder)
-
-                // ۳. Worker رو فعال کن
                 ReportSyncWorker.enqueue(this@CreateWorkOrderActivity)
 
                 showLoading(false)
-                Toast.makeText(
-                    this@CreateWorkOrderActivity,
-                    "تغییرات ذخیره شد",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateWorkOrderActivity, "تغییرات ذخیره شد", Toast.LENGTH_SHORT).show()
 
                 setResult(RESULT_OK)
                 finish()
 
             } catch (e: Exception) {
                 showLoading(false)
-                Toast.makeText(
-                    this@CreateWorkOrderActivity,
-                    "خطا: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateWorkOrderActivity, "خطا: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun buildWorkOrderModel(): WorkOrderModel {
         val classPos = spinnerClass.selectedItemPosition
+        val statusPos = spinnerStatus.selectedItemPosition
         val unitPos = spinnerUnit.selectedItemPosition
 
-        // برای ایجاد، ID جدید بساز (WO-requestNumber)
         val requestNumber = etRequestNumber.text.toString().trim()
         val newId = if (isEdit) editWorkOrderId else "WO-$requestNumber"
+
+        val selectedStatus = statuses[statusPos]
+        val isArchived = selectedStatus.dbValue == "10"
 
         return WorkOrderModel(
             id = newId,
@@ -233,14 +271,17 @@ class CreateWorkOrderActivity : AppCompatActivity() {
             requestClass = classes[classPos].dbValue.takeIf { it.isNotEmpty() },
             requestDate = etRequestDate.text.toString().trim(),
             requester = etRequester.text.toString().trim(),
+            approver = etApprover.text.toString().trim(),
             unit = units[unitPos].dbName,
             subUnit = etSubUnit.text.toString().trim(),
             equipmentName = etEquipment.text.toString().trim(),
-            description = etDescription.text.toString().trim()
+            description = etDescription.text.toString().trim(),
+            externalStatus = selectedStatus.dbValue,     // "1" تا "10"
+            progress = if (isArchived) 100 else 0
         )
     }
 
-    // ============ بارگذاری برای ویرایش (از Room) ============
+    // ============ بارگذاری برای ویرایش ============
     private fun loadWorkOrderForEdit() {
         showLoading(true)
 
@@ -252,22 +293,14 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                     currentWorkOrder = wo
                     fillForm(wo)
                 } else {
-                    Toast.makeText(
-                        this@CreateWorkOrderActivity,
-                        "درخواست یافت نشد",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@CreateWorkOrderActivity, "درخواست یافت نشد", Toast.LENGTH_SHORT).show()
                     finish()
                 }
                 showLoading(false)
 
             } catch (e: Exception) {
                 showLoading(false)
-                Toast.makeText(
-                    this@CreateWorkOrderActivity,
-                    "خطا: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateWorkOrderActivity, "خطا: ${e.message}", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
@@ -275,11 +308,12 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
     private fun fillForm(wo: WorkOrderModel) {
         etRequestNumber.setText(wo.requestNumber)
-        etRequestNumber.isEnabled = false   // شماره قابل ویرایش نیست
+        etRequestNumber.isEnabled = false
 
         etTitle.setText(wo.title)
         etSubUnit.setText(wo.subUnit)
         etRequestDate.setText(wo.requestDate)
+        etApprover.setText(wo.approver)
         etRequester.setText(wo.requester)
         etEquipment.setText(wo.equipmentName)
         etDescription.setText(wo.description)
@@ -287,6 +321,10 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         // انتخاب کلاس
         val classPos = classes.indexOfFirst { it.dbValue == (wo.requestClass ?: "") }
         if (classPos >= 0) spinnerClass.setSelection(classPos)
+
+        // انتخاب مرحله
+        val statusPos = statuses.indexOfFirst { it.dbValue == wo.externalStatus }
+        if (statusPos >= 0) spinnerStatus.setSelection(statusPos)
 
         // انتخاب واحد
         val unitPos = units.indexOfFirst { it.dbName == wo.unit }
@@ -301,5 +339,6 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
     // ============ Data Classes ============
     data class ClassItem(val displayName: String, val dbValue: String)
+    data class StatusItem(val displayName: String, val dbValue: String)
     data class UnitItem(val displayName: String, val dbName: String)
 }
