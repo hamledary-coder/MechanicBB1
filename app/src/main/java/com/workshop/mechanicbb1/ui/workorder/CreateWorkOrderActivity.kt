@@ -1,6 +1,5 @@
 package com.workshop.mechanicbb1.ui.workorder
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
@@ -12,8 +11,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.workshop.mechanicbb1.R
-import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
-import com.workshop.mechanicbb1.data.local.toEntity
+import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.toEntity
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.ReportSyncWorker

@@ -22,7 +22,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.textfield.TextInputEditText
 import com.workshop.mechanicbb1.R
-import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.sync.WorkOrderSyncer
 import kotlinx.coroutines.Job

@@ -2,7 +2,6 @@ package com.workshop.mechanicbb1.ui.task.create
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -14,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.slider.Slider
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.local.AppDatabase
-import com.workshop.mechanicbb1.data.local.TaskLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.local.entity.TaskWorkOrderMappingEntity
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.remote.Config
@@ -28,7 +27,6 @@ import ir.hamsaa.persiandatepicker.api.PersianPickerDate
 import ir.hamsaa.persiandatepicker.api.PersianPickerListener
 import kotlinx.coroutines.launch
 import java.util.Locale
-import kotlinx.coroutines.flow.first
 
 @Suppress("DEPRECATION")
 class CreateTaskActivity : AppCompatActivity() {

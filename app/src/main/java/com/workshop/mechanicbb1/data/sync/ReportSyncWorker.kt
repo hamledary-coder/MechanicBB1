@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.*
 import com.workshop.mechanicbb1.data.local.AppDatabase
-import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.local.entity.OutboxEntity
 import com.workshop.mechanicbb1.data.remote.Config
 import kotlinx.coroutines.CoroutineScope

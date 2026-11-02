@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.workshop.mechanicbb1.data.local.TaskLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.data.sync.TaskSyncer
 import com.workshop.mechanicbb1.utils.UserCache

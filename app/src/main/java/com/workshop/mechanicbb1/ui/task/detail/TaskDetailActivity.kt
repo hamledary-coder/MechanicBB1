@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.workshop.mechanicbb1.R
-import com.workshop.mechanicbb1.data.local.ReportLocalRepository
-import com.workshop.mechanicbb1.data.local.TaskLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.ReportLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.model.TaskLogModel
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.remote.Config

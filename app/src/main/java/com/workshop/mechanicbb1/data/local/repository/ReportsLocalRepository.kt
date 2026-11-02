@@ -1,6 +1,7 @@
-package com.workshop.mechanicbb1.data.local
+package com.workshop.mechanicbb1.data.local.repository
 
 import android.content.Context
+import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.model.ReportGroup
 import com.workshop.mechanicbb1.data.model.TaskLogModel
 import com.workshop.mechanicbb1.data.sync.ReportMapper

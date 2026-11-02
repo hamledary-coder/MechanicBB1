@@ -7,7 +7,6 @@ import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.ui.task.dialog.SelectGroupDialog
 import TaskModel
-import java.text.SimpleDateFormat
 import java.util.*
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -15,32 +14,22 @@ import android.util.Log
 import android.view.View
 import com.workshop.mechanicbb1.data.model.TaskLogModel
 import com.workshop.mechanicbb1.ui.task.repository.TaskLogRepository
-import java.util.Calendar
 import ir.hamsaa.persiandatepicker.PersianDatePickerDialog
 import ir.hamsaa.persiandatepicker.api.PersianPickerDate
 import ir.hamsaa.persiandatepicker.api.PersianPickerListener
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import com.workshop.mechanicbb1.data.local.ReportLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.ReportLocalRepository
 import com.workshop.mechanicbb1.data.model.Employee
 import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.ReportSyncWorker
-import com.workshop.mechanicbb1.ui.task.detail.TaskDetailActivity
 import com.workshop.mechanicbb1.ui.task.evaluation.EvaluationActivity
 import com.workshop.mechanicbb1.utils.DateUtils
-import com.workshop.mechanicbb1.utils.VolleySingleton
 import com.workshop.mechanicbb1.utils.UserCache
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-
 
 
 @Suppress("DEPRECATION")

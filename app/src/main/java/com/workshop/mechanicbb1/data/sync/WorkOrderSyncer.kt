@@ -5,7 +5,7 @@ package com.workshop.mechanicbb1.data.sync
 import android.content.Context
 import android.util.Log
 import com.android.volley.toolbox.JsonArrayRequest
-import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.local.entity.WorkOrderEntity
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.utils.VolleySingleton

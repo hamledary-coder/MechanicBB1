@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.workshop.mechanicbb1.R
-import com.workshop.mechanicbb1.data.local.TaskLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.ui.task.detail.TaskDetailActivity
 import com.workshop.mechanicbb1.ui.task.repository.TaskRepository

@@ -16,7 +16,7 @@ import com.workshop.mechanicbb1.utils.evaluation.EvaluationCache
 import com.workshop.mechanicbb1.utils.evaluation.EvaluationCalculator
 import com.workshop.mechanicbb1.utils.evaluation.EvaluationModels
 import androidx.lifecycle.lifecycleScope
-import com.workshop.mechanicbb1.data.local.ReportLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.ReportLocalRepository
 import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.ReportSyncWorker
 import kotlinx.coroutines.launch

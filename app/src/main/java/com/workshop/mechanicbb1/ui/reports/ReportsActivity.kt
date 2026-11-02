@@ -28,7 +28,7 @@ import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import com.workshop.mechanicbb1.data.local.BossReportsLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.BossReportsLocalRepository
 
 @Suppress("DEPRECATION")
 class ReportsActivity : AppCompatActivity() {

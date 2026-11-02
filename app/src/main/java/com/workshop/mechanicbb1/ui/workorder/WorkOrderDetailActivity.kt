@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.workshop.mechanicbb1.R
-import com.workshop.mechanicbb1.data.local.WorkOrderLocalRepository
+import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.data.sync.OutboxHelper
