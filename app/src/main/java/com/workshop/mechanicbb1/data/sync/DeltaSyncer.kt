@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.TaskEntity
+import com.workshop.mechanicbb1.data.local.entity.TaskEstimateEntity
 import com.workshop.mechanicbb1.data.local.entity.TaskWorkOrderMappingEntity
 import com.workshop.mechanicbb1.data.local.entity.WorkOrderEntity
 import com.workshop.mechanicbb1.data.model.TaskLogModel
@@ -12,6 +13,7 @@ import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.utils.VolleySingleton
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
+import com.workshop.mechanicbb1.data.local.entity.TaskLogWorkOrderProgressEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,10 +46,13 @@ object DeltaSyncer {
                     val deletedArray = json.optJSONArray("deleted") ?: JSONArray()
                     val workOrdersArray = json.optJSONArray("work_orders") ?: JSONArray()
                     val mappingsArray = json.optJSONArray("task_work_order_mappings") ?: JSONArray()
+                    val estimatesArray = json.optJSONArray("task_estimates") ?: JSONArray()
+                    val progressArray = json.optJSONArray("task_log_work_order_progress") ?: JSONArray()
                     val serverTime = json.optString("server_time", lastSync)
-+
+
                     Log.d(TAG, "Delta: ${tasksArray.length()} tasks, ${reportsArray.length()} reports, " +
                             "${workOrdersArray.length()} work_orders, ${mappingsArray.length()} mappings, " +
+                            "${estimatesArray.length()} estimates, " +
                             "${deletedArray.length()} deleted")
 
                     CoroutineScope(Dispatchers.IO).launch {
@@ -84,7 +89,7 @@ object DeltaSyncer {
                                 db.reportDao().insertAll(reportEntities)
                             }
 
-                            // ✅ ۳. WorkOrderها
+                            // ۳. WorkOrderها
                             val workOrderEntities = mutableListOf<WorkOrderEntity>()
                             for (i in 0 until workOrdersArray.length()) {
                                 val obj = workOrdersArray.getJSONObject(i)
@@ -95,7 +100,7 @@ object DeltaSyncer {
                                 Log.d(TAG, "Saved ${workOrderEntities.size} work_orders")
                             }
 
-                            // ✅ ۴. Mappingها
+                            // ۴. Mappingها
                             val mappingEntities = mutableListOf<TaskWorkOrderMappingEntity>()
                             for (i in 0 until mappingsArray.length()) {
                                 val obj = mappingsArray.getJSONObject(i)
@@ -113,10 +118,53 @@ object DeltaSyncer {
                                 Log.d(TAG, "Saved ${mappingEntities.size} mappings")
                             }
 
-                            // ۵. حذف‌شده‌ها
+                            // ۵. برآوردها
+                            val estimateEntities = mutableListOf<TaskEstimateEntity>()
+                            for (i in 0 until estimatesArray.length()) {
+                                val obj = estimatesArray.getJSONObject(i)
+                                val estimateId = obj.optString("id", "")
+
+                                val existing = db.taskEstimateDao().getById(estimateId)
+                                if (existing?.syncStatus == "pending") {
+                                    Log.d(TAG, "Skipping pending estimate: $estimateId")
+                                    continue
+                                }
+
+                                estimateEntities.add(EstimateMapper.fromJson(obj, "synced"))
+                            }
+                            if (estimateEntities.isNotEmpty()) {
+                                db.taskEstimateDao().insertAll(estimateEntities)
+                                Log.d(TAG, "Saved ${estimateEntities.size} estimates")
+                            }
+
+                            // ✅ ۶. task_log_work_order_progress (جدید)
+                            val progressEntities = mutableListOf<TaskLogWorkOrderProgressEntity>()
+                            for (i in 0 until progressArray.length()) {
+                                val obj = progressArray.getJSONObject(i)
+                                progressEntities.add(
+                                    TaskLogWorkOrderProgressEntity(
+                                        id = obj.optString("id", ""),
+                                        taskLogId = obj.optString("task_log_id", ""),
+                                        workOrderId = obj.optString("work_order_id", ""),
+                                        progress = obj.optInt("progress", 0),
+                                        hasDetails = obj.optInt("has_details", 0) == 1,
+                                        detailsNotes = obj.optString("details_notes", ""),
+                                        nextAction = obj.optString("next_action", ""),
+                                        createdAt = parseDateTime(obj.optString("created_at", ""))
+                                    )
+                                )
+                            }
+                            if (progressEntities.isNotEmpty()) {
+                                db.taskLogWorkOrderProgressDao().insertAll(progressEntities)
+                                Log.d(TAG, "Saved ${progressEntities.size} work order progresses")
+                            }
+
+                            // ۷. حذف‌شده‌ها (آخر — بعد از INSERT/UPDATE)
                             val deletedTaskIds = mutableListOf<String>()
                             val deletedReportIds = mutableListOf<String>()
                             val deletedMappingIds = mutableListOf<String>()
+                            val deletedEstimateIds = mutableListOf<String>()
+                            val deletedProgressIds = mutableListOf<String>()
 
                             for (i in 0 until deletedArray.length()) {
                                 val obj = deletedArray.getJSONObject(i)
@@ -126,7 +174,10 @@ object DeltaSyncer {
                                 when (tableName) {
                                     "tasks" -> deletedTaskIds.add(recordId)
                                     "task_logs" -> deletedReportIds.add(recordId)
-                                    "task_work_order_mapping" -> deletedMappingIds.add(recordId)   // ✅ جدید
+                                    "task_work_order_mapping" -> deletedMappingIds.add(recordId)
+                                    "task_estimates" -> deletedEstimateIds.add(recordId)
+                                    "task_log_work_order_progress" -> deletedProgressIds.add(recordId)
+
                                 }
                             }
 
@@ -139,11 +190,20 @@ object DeltaSyncer {
                                 Log.d(TAG, "Deleted ${deletedReportIds.size} reports")
                             }
                             if (deletedMappingIds.isNotEmpty()) {
-                                db.taskWorkOrderMappingDao().deleteByIds(deletedMappingIds)   // ✅ جدید
+                                db.taskWorkOrderMappingDao().deleteByIds(deletedMappingIds)
                                 Log.d(TAG, "Deleted ${deletedMappingIds.size} mappings")
                             }
+                            if (deletedEstimateIds.isNotEmpty()) {
+                                deletedEstimateIds.forEach { id -> db.taskEstimateDao().deleteById(id) }
+                                Log.d(TAG, "Deleted ${deletedEstimateIds.size} estimates")
+                            }
+                            if (deletedProgressIds.isNotEmpty()) {
+                                deletedProgressIds.forEach { id ->
+                                    db.taskLogWorkOrderProgressDao().deleteById(id)  // ← **`deleteById`** **نداره — اضافه **کن
+                                }
+                            }
 
-                            // ۶. ذخیره server_time
+                            // ۸. ذخیره server_time
                             prefs.edit()
                                 .putString(PREF_KEY_LAST_SYNC, serverTime)
                                 .apply()
@@ -199,7 +259,7 @@ object DeltaSyncer {
             urgency = obj.optString("urgency", ""),
             referredBy = obj.optString("referred_by", ""),
             hasUnseenReport = obj.optInt("has_unseen_report", 0) == 1,
-            scheduledDate = parseNullableString(obj, "scheduled_date")   // ✅
+            scheduledDate = parseNullableString(obj, "scheduled_date")
         )
     }
 

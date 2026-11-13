@@ -31,6 +31,13 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
 class TaskLogDetailActivity : AppCompatActivity() {
@@ -74,6 +81,11 @@ class TaskLogDetailActivity : AppCompatActivity() {
     private var userRole: String = ""
     private var isTaskArchived: Boolean = false
 
+    // WorkOrder Progress
+    private lateinit var cardWorkOrderProgress: com.google.android.material.card.MaterialCardView
+    private lateinit var tvWorkOrderProgressTitle: TextView
+    private lateinit var rvWorkOrderProgress: RecyclerView
+
     companion object {
         private const val STATUS_CONTINUE = "2"
         private const val STATUS_STOPPED = "3"
@@ -82,6 +94,16 @@ class TaskLogDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.activity_task_log_detail)
 
         initViews()
@@ -118,6 +140,13 @@ class TaskLogDetailActivity : AppCompatActivity() {
         seenByContainer = findViewById(R.id.seenByContainer)
 
         btnAddComment.setOnClickListener { showAddCommentDialog() }
+
+        // ✅ WorkOrder Progress
+        cardWorkOrderProgress = findViewById(R.id.cardWorkOrderProgress)
+        tvWorkOrderProgressTitle = findViewById(R.id.tvWorkOrderProgressTitle)
+        rvWorkOrderProgress = findViewById(R.id.rvWorkOrderProgress)
+        rvWorkOrderProgress.layoutManager = LinearLayoutManager(this)
+        rvWorkOrderProgress.isNestedScrollingEnabled = false
     }
 
     private fun setupToolbar() {
@@ -160,6 +189,7 @@ class TaskLogDetailActivity : AppCompatActivity() {
                     if (log != null) {
                         currentLog = log
                         displayLogData()
+                        loadWorkOrderProgresses(logId)
                         showLoading(false)
 
                         if (currentUserId.isNotEmpty()) {
@@ -186,6 +216,29 @@ class TaskLogDetailActivity : AppCompatActivity() {
         )
     }
 
+    private fun loadWorkOrderProgresses(logId: String) {
+        lifecycleScope.launch {
+            try {
+                val db = com.workshop.mechanicbb1.data.local.AppDatabase.getInstance(this@TaskLogDetailActivity)
+                val progresses = db.taskLogWorkOrderProgressDao().getByLogOnce(logId)
+
+                if (progresses.isEmpty()) {
+                    cardWorkOrderProgress.visibility = View.GONE
+                    return@launch
+                }
+
+                cardWorkOrderProgress.visibility = View.VISIBLE
+                tvWorkOrderProgressTitle.text = "🔗 پیشرفت درخواست‌ها (${progresses.size})"
+
+                // ✅ آداپتر برای نمایش (read-only)
+                rvWorkOrderProgress.adapter = WorkOrderProgressDetailAdapter(progresses)
+            } catch (e: Exception) {
+                android.util.Log.e("TaskLogDetail", "Error loading progresses: ${e.message}")
+                cardWorkOrderProgress.visibility = View.GONE
+            }
+        }
+    }
+
     private fun displayLogData() {
         val log = currentLog ?: return
 
@@ -201,7 +254,7 @@ class TaskLogDetailActivity : AppCompatActivity() {
         val reporterName = UserCache.getName(log.userId).takeIf { it != "نامشخص" } ?: log.userName
         tvReporter.text = "این گزارش توسط $reporterName ثبت شده"
 
-        tvActionDescription.text = log.actionDescription
+        displayActionDescriptionWithColors(log.actionDescription)
 
         // گروه انجام‌دهنده
         if (log.assignedUsers.isNotEmpty()) {
@@ -645,5 +698,55 @@ class TaskLogDetailActivity : AppCompatActivity() {
 
     private fun showLoading(show: Boolean) {
         progressBar.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun displayActionDescriptionWithColors(text: String) {
+        val spannable = android.text.SpannableString(text)
+
+        // ✅ سبز (انجام شد)
+        var index = text.indexOf("✅")
+        while (index >= 0) {
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#4CAF50")),
+                index, index + 1,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = text.indexOf("✅", index + 1)
+        }
+
+        // ⏳ نارنجی (ادامه دارد)
+        index = text.indexOf("⏳")
+        while (index >= 0) {
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#FF9800")),
+                index, index + 1,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = text.indexOf("⏳", index + 1)
+        }
+
+        // ❌ قرمز (انجام نشد)
+        index = text.indexOf("❌")
+        while (index >= 0) {
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#F44336")),
+                index, index + 1,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = text.indexOf("❌", index + 1)
+        }
+
+        // 📝 آبی (جزئیات)
+        index = text.indexOf("📝")
+        while (index >= 0) {
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#2196F3")),
+                index, index + 1,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            index = text.indexOf("📝", index + 1)
+        }
+
+        tvActionDescription.text = spannable
     }
 }

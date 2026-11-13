@@ -199,4 +199,20 @@ object DateUtils {
         calendar.add(Calendar.DAY_OF_YEAR, gregorianDayOfYear - 1)
         return calendar
     }
+
+    fun toPersianOrdinal(number: Int): String {
+        return when (number) {
+            1 -> "اول"
+            2 -> "دوم"
+            3 -> "سوم"
+            4 -> "چهارم"
+            5 -> "پنجم"
+            6 -> "ششم"
+            7 -> "هفتم"
+            8 -> "هشتم"
+            9 -> "نهم"
+            10 -> "دهم"
+            else -> "#${toPersianNumber(number.toString())}"   // > ۱۰ → #عدد
+        }
+    }
 }

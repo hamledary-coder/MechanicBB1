@@ -37,7 +37,7 @@ import com.workshop.mechanicbb1.data.local.entity.WorkOrderEntity
         CoefficientEntity::class,
         WorkOrderEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -207,6 +207,50 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // ============ Migration 8 → 9 ============
+        // گسترش task_estimates: parts + فاکتورهای ارزیابی
+        // چون جدول خالیه، DROP + CREATE مطمئن‌ترین راهه
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `task_estimates`")
+                db.execSQL(
+                    """
+            CREATE TABLE IF NOT EXISTS `task_estimates` (
+                `id` TEXT NOT NULL,
+                `taskId` TEXT NOT NULL,
+                `estimatorId` TEXT NOT NULL,
+                `estimatorName` TEXT NOT NULL,
+                `estimatedAt` TEXT NOT NULL,
+                `manpower` INTEGER NOT NULL,
+                `parts` INTEGER NOT NULL,
+                `estimatedHours` INTEGER NOT NULL,
+                `workType` TEXT NOT NULL,
+                `heatLevel` INTEGER NOT NULL,
+                `pollutionLevel` INTEGER NOT NULL,
+                `physicalDifficulty` INTEGER NOT NULL,
+                `technicalComplexity` INTEGER NOT NULL,
+                `notes` TEXT NOT NULL,
+                `syncStatus` TEXT NOT NULL,
+                `localCreatedAt` INTEGER NOT NULL,
+                `lastSyncedAt` INTEGER NOT NULL,
+                PRIMARY KEY(`id`)
+            )
+        """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_task_estimates_taskId` ON `task_estimates`(`taskId`)")
+            }
+        }
+
+        // ============ Migration 9 → 10 ============
+        // افزودن hasDetails + detailsNotes به task_log_work_order_progress
+        private val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // ✅ اسم جدول: task_log_workorder_progress (بدون underscore)
+                db.execSQL("ALTER TABLE `task_log_workorder_progress` ADD COLUMN `hasDetails` INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE `task_log_workorder_progress` ADD COLUMN `detailsNotes` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -219,7 +263,9 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_4_5,
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9,
+                        MIGRATION_9_10
                     )
                     .fallbackToDestructiveMigration(false)
                     .build()

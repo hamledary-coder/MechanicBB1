@@ -5,11 +5,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "task_log_workorder_progress")
 data class TaskLogWorkOrderProgressEntity(
-    @PrimaryKey val id: String,           // "p_{uniqid}"
-
+    @PrimaryKey val id: String,
     val taskLogId: String,
     val workOrderId: String,
     val progress: Int = 0,
+    val hasDetails: Boolean = false,       // ← جدید
+    val detailsNotes: String = "",          // ← جدید
     val nextAction: String = "",
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = 0L
 )

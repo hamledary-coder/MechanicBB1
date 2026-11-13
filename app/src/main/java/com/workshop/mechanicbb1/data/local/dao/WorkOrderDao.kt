@@ -90,4 +90,7 @@ interface WorkOrderDao {
         requestDate DESC
 """)
     suspend fun getOpenForPicker(): List<WorkOrderEntity>
+
+    @Query("UPDATE work_orders SET progress = :progress WHERE id = :workOrderId")
+    suspend fun updateProgress(workOrderId: String, progress: Int)
 }

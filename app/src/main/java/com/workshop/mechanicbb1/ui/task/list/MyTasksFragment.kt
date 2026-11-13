@@ -1,6 +1,7 @@
 package com.workshop.mechanicbb1.ui.task.list
 
 import TaskModel
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -45,6 +46,12 @@ class MyTasksFragment : Fragment() {
     private val blockedList = mutableListOf<TaskModel>()
     private val completedList = mutableListOf<TaskModel>()
 
+    private lateinit var awaitingReportSection: View
+    private lateinit var awaitingReportRecycler: RecyclerView
+    private lateinit var tvAwaitingReportCount: TextView
+
+    private val awaitingReportList = mutableListOf<TaskModel>()
+
     private var currentUserId = ""
     private var userRole = ""
 
@@ -83,6 +90,12 @@ class MyTasksFragment : Fragment() {
         blockedRecycler.layoutManager = LinearLayoutManager(context)
         completedRecycler.layoutManager = LinearLayoutManager(context)
 
+        awaitingReportSection = view.findViewById(R.id.awaitingReportSection)
+        awaitingReportRecycler = view.findViewById(R.id.rvAwaitingReport)
+        tvAwaitingReportCount = view.findViewById(R.id.tvAwaitingReportCount)
+
+        awaitingReportRecycler.layoutManager = LinearLayoutManager(context)
+
         swipeRefreshLayout.setOnRefreshListener { fetchTasks() }
 
         fetchTasks()
@@ -110,15 +123,35 @@ class MyTasksFragment : Fragment() {
 
         loadingLayout.visibility = View.VISIBLE
 
-        // ۱. sync
+        // sync
         com.workshop.mechanicbb1.data.sync.TaskSyncer.syncTasksFromServer(
             context = requireContext(),
             userId = currentUserId
         ) { count -> android.util.Log.d("MyTasksFragment", "Synced $count tasks") }
 
-        // ۲. بخش ۱: در حال انجام (همه‌ی نقش‌ها: responsible=من)
+        if (userRole == Config.RoleCode.EMPLOYEE) {
+            // ============================================
+            // نقش کارمند: ۴ بخش
+            // ============================================
+            bindEmployeeSections()
+        } else {
+            // ============================================
+            // نقش سرشیفت/مدیر: ۳ بخش (بدون تغییر)
+            // ============================================
+            bindSupervisorSections()
+        }
+
+        loadingLayout.visibility = View.GONE
+        swipeRefreshLayout.isRefreshing = false
+    }
+
+    /**
+     * ۴ بخش برای کارمند — بر اساس assignedTo
+     */
+    private fun bindEmployeeSections() {
+        // ۱. در حال انجام (status=2)
         viewLifecycleOwner.lifecycleScope.launch {
-            taskLocalRepository.getMyInProgress(currentUserId).collectLatest { tasks ->
+            taskLocalRepository.getEmployeeInProgress(currentUserId).collectLatest { tasks ->
                 inProgressList.clear()
                 inProgressList.addAll(tasks)
                 if (tasks.isNotEmpty()) UserCache.preloadFromTasks(tasks)
@@ -133,56 +166,126 @@ class MyTasksFragment : Fragment() {
             }
         }
 
-        // ۳. بخش ۲: متوقف — بسته به نقش
-        val blockedFlow = if (userRole == Config.RoleCode.EMPLOYEE) {
-            taskLocalRepository.getMyBlocked(currentUserId)
-        } else {
-            taskLocalRepository.getAllBlocked()   // سرشیفت/مدیر: همه‌ی تیم
+        // ۲. منتظر گزارش (status=21, 31)
+        viewLifecycleOwner.lifecycleScope.launch {
+            taskLocalRepository.getEmployeeAwaitingReport(currentUserId).collectLatest { tasks ->
+                awaitingReportList.clear()
+                awaitingReportList.addAll(tasks)
+                setupSection(
+                    section = awaitingReportSection,
+                    recycler = awaitingReportRecycler,
+                    countLabel = tvAwaitingReportCount,
+                    tasks = tasks,
+                    label = "⏳ منتظر گزارش"
+                )
+                checkAllEmpty()
+            }
         }
 
+        // ۳. متوقف (status=3)
         viewLifecycleOwner.lifecycleScope.launch {
-            blockedFlow.collectLatest { tasks ->
+            taskLocalRepository.getEmployeeBlocked(currentUserId).collectLatest { tasks ->
                 blockedList.clear()
                 blockedList.addAll(tasks)
-                val label = if (userRole == Config.RoleCode.EMPLOYEE) "متوقف شده" else "متوقف (تیم)"
                 setupSection(
                     section = blockedSection,
                     recycler = blockedRecycler,
                     countLabel = tvBlockedCount,
                     tasks = tasks,
-                    label = label
+                    label = "متوقف شده"
                 )
                 checkAllEmpty()
             }
         }
 
-        // ۴. بخش ۳: اتمام — بسته به نقش
-        val completedFlow = if (userRole == Config.RoleCode.EMPLOYEE) {
-            taskLocalRepository.getMyCompleted(currentUserId)
-        } else {
-            taskLocalRepository.getAllCompleted()   // سرشیفت/مدیر: همه‌ی تیم
-        }
-
+        // ۴. اتمام (status=41)
         viewLifecycleOwner.lifecycleScope.launch {
-            completedFlow.collectLatest { tasks ->
+            taskLocalRepository.getEmployeeCompleted(currentUserId).collectLatest { tasks ->
                 completedList.clear()
                 completedList.addAll(tasks)
-                val label = if (userRole == Config.RoleCode.EMPLOYEE) "به اتمام رسیده" else "اتمام (تیم)"
                 setupSection(
                     section = completedSection,
                     recycler = completedRecycler,
                     countLabel = tvCompletedCount,
                     tasks = tasks,
-                    label = label
+                    label = "به اتمام رسیده (منتظر تأیید)"
+                )
+                checkAllEmpty()
+            }
+        }
+    }
+
+    /**
+     * ۴ بخش برای سرشیفت/مدیر — تیم + خودم
+     */
+    private fun bindSupervisorSections() {
+        // ۱. در حال انجام (خودم فقط) — status=2
+        viewLifecycleOwner.lifecycleScope.launch {
+            taskLocalRepository.getSupervisorMyInProgress(currentUserId).collectLatest { tasks ->
+                inProgressList.clear()
+                inProgressList.addAll(tasks)
+                if (tasks.isNotEmpty()) UserCache.preloadFromTasks(tasks)
+                setupSection(
+                    section = inProgressSection,
+                    recycler = inProgressRecycler,
+                    countLabel = tvInProgressCount,
+                    tasks = tasks,
+                    label = "در حال انجام (خودم)"
                 )
                 checkAllEmpty()
             }
         }
 
-        loadingLayout.visibility = View.GONE
-        swipeRefreshLayout.isRefreshing = false
+        // ۲. منتظر گزارش (تیم) — status=21, 31
+        viewLifecycleOwner.lifecycleScope.launch {
+            taskLocalRepository.getTeamAwaitingReport().collectLatest { tasks ->
+                awaitingReportList.clear()
+                awaitingReportList.addAll(tasks)
+                setupSection(
+                    section = awaitingReportSection,
+                    recycler = awaitingReportRecycler,
+                    countLabel = tvAwaitingReportCount,
+                    tasks = tasks,
+                    label = "⏳ منتظر گزارش (تیم)"
+                )
+                checkAllEmpty()
+            }
+        }
+
+        // ۳. متوقف (تیم) — status=3
+        viewLifecycleOwner.lifecycleScope.launch {
+            taskLocalRepository.getTeamBlocked().collectLatest { tasks ->
+                blockedList.clear()
+                blockedList.addAll(tasks)
+                setupSection(
+                    section = blockedSection,
+                    recycler = blockedRecycler,
+                    countLabel = tvBlockedCount,
+                    tasks = tasks,
+                    label = "متوقف (تیم)"
+                )
+                checkAllEmpty()
+            }
+        }
+
+        // ۴. منتظر تأیید (تیم) — status=41
+        viewLifecycleOwner.lifecycleScope.launch {
+            taskLocalRepository.getTeamCompleted().collectLatest { tasks ->
+                completedList.clear()
+                completedList.addAll(tasks)
+                setupSection(
+                    section = completedSection,
+                    recycler = completedRecycler,
+                    countLabel = tvCompletedCount,
+                    tasks = tasks,
+                    label = "منتظر تأیید (تیم)"
+                )
+                checkAllEmpty()
+            }
+        }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupSection(
         section: View,
         recycler: RecyclerView,
@@ -198,13 +301,19 @@ class MyTasksFragment : Fragment() {
             recycler.adapter = ExpandableTaskAdapter(
                 tasks = tasks,
                 tabType = "myCartable",
+                scope = viewLifecycleOwner.lifecycleScope,
                 onItemClick = { task -> openTaskDetail(task) }
             )
         }
     }
 
     private fun checkAllEmpty() {
-        val isEmpty = inProgressList.isEmpty() && blockedList.isEmpty() && completedList.isEmpty()
+        val isEmpty = if (userRole == Config.RoleCode.EMPLOYEE) {
+            inProgressList.isEmpty() && awaitingReportList.isEmpty() &&
+                    blockedList.isEmpty() && completedList.isEmpty()
+        } else {
+            inProgressList.isEmpty() && blockedList.isEmpty() && completedList.isEmpty()
+        }
         emptyState.visibility = if (isEmpty) View.VISIBLE else View.GONE
         if (isEmpty) {
             emptyState.text = "کاری برای نمایش وجود ندارد"

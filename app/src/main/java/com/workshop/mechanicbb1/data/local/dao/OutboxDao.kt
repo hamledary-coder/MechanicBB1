@@ -18,6 +18,9 @@ interface OutboxDao {
     @Query("SELECT COUNT(*) FROM outbox WHERE status = 'pending'")
     suspend fun getPendingCount(): Int
 
+    @Query("SELECT COUNT(*) FROM outbox WHERE action = :action AND status = 'pending'")
+    suspend fun getPendingCountByAction(action: String): Int
+
     @Insert
     suspend fun insert(item: OutboxEntity): Long
 
@@ -35,4 +38,7 @@ interface OutboxDao {
 
     @Query("DELETE FROM outbox WHERE targetId IN (:targetIds) AND status = 'pending'")
     suspend fun deleteByTargetIds(targetIds: List<String>)
+
+    @Query("DELETE FROM outbox WHERE targetId LIKE :prefix || '%' AND status = 'pending'")
+    suspend fun deleteByTargetIdPrefix(prefix: String)
 }

@@ -39,4 +39,10 @@ interface TaskWorkOrderMappingDao {
 
     @Query("DELETE FROM task_workorder_mappings WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<String>)
+
+    @Query("SELECT * FROM task_workorder_mappings WHERE workOrderId = :workOrderId")
+    suspend fun getByWorkOrderOnce(workOrderId: String): List<TaskWorkOrderMappingEntity>
+
+    @Query("UPDATE task_workorder_mappings SET workOrderId = :realId WHERE workOrderId = :tempId")
+    suspend fun updateWorkOrderId(tempId: String, realId: String)
 }

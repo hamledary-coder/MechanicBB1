@@ -414,6 +414,337 @@
 
             </LinearLayout>
 
+            <!-- ========== برآورد اولیه ========== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="#F5F5F5"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- هدر (قابل کلیک) -->
+                    <LinearLayout
+                        android:id="@+id/headerEstimate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp"
+                        android:gravity="center_vertical"
+                        android:background="?attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📋 برآورد اولیه"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0" />
+
+                        <TextView
+                            android:id="@+id/tvEstimateStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ثبت نشده"
+                            android:textSize="11sp"
+                            android:textColor="#999"
+                            android:layout_marginEnd="8dp" />
+
+                        <ImageView
+                            android:id="@+id/ivExpandEstimate"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_down"
+                            android:rotation="0" />
+                    </LinearLayout>
+
+                    <!-- محتوا (باز/بسته) -->
+                    <LinearLayout
+                        android:id="@+id/contentEstimate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:paddingTop="0dp"
+                        android:visibility="gone">
+
+                        <!-- حالت خالی -->
+                        <LinearLayout
+                            android:id="@+id/layoutEstimateEmpty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="⚠️ هنوز برآوردی ثبت نشده است"
+                                android:textSize="13sp"
+                                android:textColor="#FF9800"
+                                android:layout_marginBottom="12dp" />
+
+                            <Button
+                                android:id="@+id/btnAddEstimateEmpty"
+                                android:layout_width="match_parent"
+                                android:layout_height="44dp"
+                                android:text="+ افزودن برآورد"
+                                android:backgroundTint="#2196F3"
+                                android:textSize="13sp"
+                                android:textColor="#FFFFFF"
+                                android:visibility="gone" />
+                        </LinearLayout>
+
+                        <!-- حالت پر -->
+                        <LinearLayout
+                            android:id="@+id/layoutEstimateData"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <!-- نفرات + قسمت‌ها -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="👥 نفرات:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateManpower"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="1"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- قسمت‌ها + ساعت -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="🔄 قسمت‌ها:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateParts"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="1 × 1 ساعت"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- کل بازه -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="📊 کل بازه:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateTotalHours"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="1 ساعت"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#1565C0" />
+                            </LinearLayout>
+
+                            <!-- نفر-ساعت -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="🧮 نفر-ساعت:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateManHours"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="1"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#2E7D32" />
+                            </LinearLayout>
+
+                            <!-- نوع کار -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="🔧 نوع کار:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateWorkType"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="تجهیزات ثابت"
+                                    android:textSize="13sp"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- سختی / پیچیدگی -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="💪 سختی:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimatePhysical"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="3/5"
+                                    android:textSize="13sp"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- دما / آلودگی -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="🌡️ دما/آلودگی:"
+                                    android:textSize="12sp"
+                                    android:textColor="#666" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateConditions"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="40°C / 20 ppm"
+                                    android:textSize="13sp"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- یادداشت -->
+                            <TextView
+                                android:id="@+id/tvEstimateNotes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:textSize="12sp"
+                                android:textColor="#555"
+                                android:layout_marginTop="6dp"
+                                android:visibility="gone" />
+
+                            <!-- ثبت‌کننده -->
+                            <TextView
+                                android:id="@+id/tvEstimateMeta"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="📅 1405/08/09 — سرشیفت: نام"
+                                android:textSize="11sp"
+                                android:textColor="#999"
+                                android:layout_marginTop="8dp" />
+
+                            <!-- دکمه‌ها -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="12dp">
+
+                                <Button
+                                    android:id="@+id/btnAddEstimate"
+                                    android:layout_width="0dp"
+                                    android:layout_height="40dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="4dp"
+                                    android:text="+ افزودن (بازنگری)"
+                                    android:backgroundTint="#2196F3"
+                                    android:textSize="12sp"
+                                    android:textColor="#FFFFFF"
+                                    android:visibility="gone" />
+
+                                <Button
+                                    android:id="@+id/btnDeleteEstimate"
+                                    android:layout_width="0dp"
+                                    android:layout_height="40dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="4dp"
+                                    android:text="🗑 حذف"
+                                    android:backgroundTint="#F44336"
+                                    android:textSize="12sp"
+                                    android:textColor="#FFFFFF"
+                                    android:visibility="gone" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- ========== مشاهده‌کنندگان ========== -->
             <LinearLayout
                 android:id="@+id/seenByContainer"

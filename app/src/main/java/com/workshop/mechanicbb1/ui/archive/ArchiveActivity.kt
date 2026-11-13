@@ -12,6 +12,9 @@ import com.workshop.mechanicbb1.ui.task.list.ExpandableTaskAdapter
 import com.workshop.mechanicbb1.utils.UserCache
 import TaskModel
 import android.util.Log
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import kotlinx.coroutines.flow.collectLatest
@@ -26,6 +29,16 @@ class ArchiveActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.activity_archive)
 
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
@@ -67,7 +80,9 @@ class ArchiveActivity : AppCompatActivity() {
         adapter = ExpandableTaskAdapter(
             tasks = tasksList,
             tabType = "archived",
-        ) { task -> openTaskDetail(task) }
+            scope = lifecycleScope,   // ← جدید
+            onItemClick = { task -> openTaskDetail(task) }
+        )
         recyclerView.adapter = adapter
     }
 

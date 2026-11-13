@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardViewRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ===== نوار بالایی (فوریت) ===== -->
+        <View
+            android:id="@+id/topColorStrip"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:visibility="gone" />
+
+        <!-- ===== محتوای اصلی + نوار کناری ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layoutDirection="rtl">
+
+            <!-- نوار کناری وضعیت (سمت راست) -->
+            <View
+                android:id="@+id/colorStrip"
+                android:layout_width="6dp"
+                android:layout_height="match_parent"
+                android:background="#2E7D32" />
+
+            <!-- محتوا -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!-- ===== هدر (کلیک‌پذیر) ===== -->
+                <LinearLayout
+                    android:id="@+id/headerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <!-- ردیف ۱: ID + Badge وضعیت + اولویت (چپ) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/tvTaskId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="#۱۲۳"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#666"
+                            android:background="#F0F0F0"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="2dp"
+                            android:layout_marginEnd="8dp" />
+
+                        <TextView
+                            android:id="@+id/tvStatusBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="در حال انجام"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:background="#E8F5E9"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <!-- اولویت (چپ) -->
+                        <TextView
+                            android:id="@+id/tvTaskPriority"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🎯 ۸۰"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0"
+                            android:background="#E3F2FD"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp" />
+
+                    </LinearLayout>
+
+                    <!-- ردیف ۲: عنوان -->
+                    <TextView
+                        android:id="@+id/tvTaskTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="عنوان کار"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A1A"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- ردیف ۳: Quick Info -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvTaskResponsible"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="👤 مسئول: ..."
+                            android:textSize="12sp"
+                            android:textColor="#555"
+                            android:layout_marginBottom="3dp" />
+
+                        <TextView
+                            android:id="@+id/tvTaskAssignees"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="👥 گروه: ..."
+                            android:textSize="12sp"
+                            android:textColor="#555"
+                            android:layout_marginBottom="3dp" />
+
+                        <TextView
+                            android:id="@+id/tvRequestDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="📅 ..."
+                            android:textSize="12sp"
+                            android:textColor="#555" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- ===== Divider (بین هدر و detail) ===== -->
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E8E8E8"
+                    android:visibility="gone" />
+
+                <!-- ===== Detail (بازشونده) ===== -->
+                <LinearLayout
+                    android:id="@+id/detailLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:background="#FAFAFA"
+                    android:visibility="gone">
+
+                    <!-- ۱. توضیحات -->
+                    <TextView
+                        android:id="@+id/tvTaskDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="توضیحات..."
+                        android:textSize="13sp"
+                        android:textColor="#333"
+                        android:lineSpacingExtra="4dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- ۲. فوریت -->
+                    <TextView
+                        android:id="@+id/tvTaskUrgencyDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="فوریت: ..."
+                        android:textSize="13sp"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginVertical="8dp" />
+
+                    <!-- ۳. درخواست‌های مرتبط (WorkOrders) -->
+                    <LinearLayout
+                        android:id="@+id/workOrdersSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvWorkOrdersTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="🔗 درخواست‌های مرتبط (۰)"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0"
+                            android:layout_marginBottom="6dp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvWorkOrders"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginVertical="8dp" />
+
+                    <!-- ۴. جدول کارکرد -->
+                    <TextView
+                        android:id="@+id/tvPerformanceTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📊 کارکرد نفرات"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0"
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone" />
+
+                    <!-- هدر جدول -->
+                    <LinearLayout
+                        android:id="@+id/tableHeader"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="#E8E8E8"
+                        android:padding="8dp"
+                        android:layout_marginBottom="4dp"
+                        android:weightSum="4.5"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.2"
+                            android:text="نام"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="#555" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="خام"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#555"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:id="@+id/headerResponsibility"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="مسئولیت"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/headerPhysical"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="فیزیکی"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/headerTechnical"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="فنی"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/headerInspection"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="بررسی"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvTaskPerformance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvEmptyPerformance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="کارکردی ثبت نشده"
+                        android:textSize="12sp"
+                        android:textColor="#888"
+                        android:gravity="center"
+                        android:padding="12dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+                <!-- ===== «بیشتر» پایین (کلیک‌پذیر) ===== -->
+                <LinearLayout
+                    android:id="@+id/moreButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/tvMoreText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="مشاهده جزئیات ▼"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

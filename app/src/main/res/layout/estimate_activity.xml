@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
+    android:layoutDirection="rtl">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:titleTextColor="@android:color/white" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ====== کارت 1: اطلاعات کار ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📋 اطلاعات کار"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="عنوان کار"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📅 تاریخ ایجاد: ..."
+                        android:textSize="13sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvTaskDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="📄 توضیحات: ..."
+                        android:textSize="13sp"
+                        android:textColor="#555" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت 2: منابع مورد نیاز ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👥 منابع مورد نیاز *"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#D32F2F"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- تعداد نفرات -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="تعداد نفرات"
+                        android:textSize="12sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/etManpower"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="1"
+                        android:inputType="number"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- تعداد قسمت‌ها -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="تعداد قسمت‌ها"
+                        android:textSize="12sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/etParts"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="1"
+                        android:inputType="number"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- مدت هر قسمت -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="مدت هر قسمت (ساعت)"
+                        android:textSize="12sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <EditText
+                        android:id="@+id/etEstimatedHours"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="1"
+                        android:inputType="number"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- نمایش خودکار -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="#E3F2FD"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:id="@+id/tvTotalHours"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="📊 کل بازه: ۱ ساعت"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#1565C0"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/tvManHours"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="🧮 نفر-ساعت: ۱"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت 3: نوع کار ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📌 نوع کار پیش‌بینی‌شده *"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#D32F2F"
+                        android:layout_marginBottom="12dp" />
+
+                    <RadioGroup
+                        android:id="@+id/rgWorkType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <RadioButton
+                            android:id="@+id/rbFixedEquipment"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="تجهیزات ثابت"
+                            android:textSize="14sp"
+                            android:paddingStart="12dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbRotatingEquipment"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="عیب‌یابی تجهیزات دوار"
+                            android:textSize="14sp"
+                            android:paddingStart="12dp" />
+
+                        <RadioButton
+                            android:id="@+id/rbInspection"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="بررسی"
+                            android:textSize="14sp"
+                            android:paddingStart="12dp" />
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت 4: سختی فیزیکی ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardEvaluation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvEvaluationTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💪 میزان سختی کار فیزیکی"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#673AB7"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderEvaluation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:valueFrom="1"
+                        android:valueTo="5"
+                        android:stepSize="1"
+                        android:value="3"
+                        app:thumbRadius="16dp"
+                        app:trackHeight="6dp"
+                        app:labelBehavior="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:id="@+id/tvSliderMinLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="خیلی سبک"
+                            android:textSize="11sp"
+                            android:textColor="#888" />
+
+                        <TextView
+                            android:id="@+id/tvSliderMidLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="متوسط"
+                            android:textSize="11sp"
+                            android:textColor="#888"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:id="@+id/tvSliderMaxLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="خیلی سنگین"
+                            android:textSize="11sp"
+                            android:textColor="#888"
+                            android:gravity="end" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvSelectedValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="مقدار انتخاب شده: متوسط"
+                        android:textSize="13sp"
+                        android:textColor="#673AB7"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- پیچیدگی فنی -->
+                    <LinearLayout
+                        android:id="@+id/layoutTechnical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="16dp"
+                        android:visibility="gone">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#E0E0E0"
+                            android:layout_marginBottom="16dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔧 پیچیدگی فنی"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#FF9800"
+                            android:layout_marginBottom="12dp" />
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderTechnical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="1"
+                            android:valueTo="5"
+                            android:stepSize="1"
+                            android:value="3"
+                            app:thumbRadius="16dp"
+                            app:trackHeight="6dp"
+                            app:labelBehavior="gone" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:id="@+id/tvTechMinLabel"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="خیلی کم"
+                                android:textSize="11sp"
+                                android:textColor="#888" />
+
+                            <TextView
+                                android:id="@+id/tvTechMidLabel"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="متوسط"
+                                android:textSize="11sp"
+                                android:textColor="#888"
+                                android:gravity="center" />
+
+                            <TextView
+                                android:id="@+id/tvTechMaxLabel"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="خیلی زیاد"
+                                android:textSize="11sp"
+                                android:textColor="#888"
+                                android:gravity="end" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvTechSelected"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="مقدار انتخاب شده: متوسط"
+                            android:textSize="13sp"
+                            android:textColor="#FF9800"
+                            android:gravity="center"
+                            android:layout_marginTop="8dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت 5: شرایط محیط ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardWorkCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌡️ شرایط محیط کار (پیش‌بینی)"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#607D8B"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="دما"
+                        android:textSize="12sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarHeat"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="25"
+                        android:progress="0"
+                        android:progressTint="#FF5722"
+                        android:thumbTint="#FF5722" />
+
+                    <TextView
+                        android:id="@+id/tvHeatValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="۳۰ درجه"
+                        android:textSize="12sp"
+                        android:textColor="#FF5722"
+                        android:gravity="end"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="آلودگی"
+                        android:textSize="12sp"
+                        android:textColor="#666"
+                        android:layout_marginBottom="4dp" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarPollution"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressTint="#795548"
+                        android:thumbTint="#795548" />
+
+                    <TextView
+                        android:id="@+id/tvPollutionValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="۰ ppm"
+                        android:textSize="12sp"
+                        android:textColor="#795548"
+                        android:gravity="end" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت 6: توضیحات ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📝 توضیحات تکمیلی"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etNotes"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:hint="توضیحات اضافی..."
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:padding="12dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== دکمه‌ها ====== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="32dp">
+
+                <Button
+                    android:id="@+id/btnSubmit"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="✅ ثبت برآورد"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:backgroundTint="#2E7D32"
+                    android:stateListAnimator="@null" />
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="❌ انصراف"
+                    android:textSize="14sp"
+                    android:backgroundTint="#9E9E9E"
+                    android:stateListAnimator="@null" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

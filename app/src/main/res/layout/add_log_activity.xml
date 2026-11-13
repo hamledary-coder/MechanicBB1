@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layoutDirection="rtl"
+    android:background="#F0F2F5">
+
+    <!-- ====== Toolbar ====== -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#1565C0"
+        app:titleTextColor="#FFFFFF"
+        app:elevation="0dp" />
+
+    <!-- ====== محتوای اسکرول‌شونده ====== -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ====== کارت 1: زمان و تاریخ ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📅 زمان و تاریخ"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0"
+                        android:layout_marginBottom="12dp"
+                        tools:ignore="HardcodedText" />
+
+                    <!-- تاریخ -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="تاریخ انجام *"
+                        android:textSize="12sp"
+                        android:textColor="#999"
+                        android:layout_marginBottom="4dp"
+                        tools:ignore="HardcodedText" />
+
+                    <EditText
+                        android:id="@+id/etDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="۱۴۰۴/۰۲/۲۵ (شنبه)"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:cursorVisible="false"
+                        android:inputType="none"
+                        android:clickable="true"
+                        android:longClickable="false"
+                        android:background="@drawable/bg_edittext_rounded"
+                        android:padding="12dp"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- زمان شروع و پایان -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="زمان شروع"
+                                android:textSize="12sp"
+                                android:textColor="#999"
+                                android:layout_marginBottom="4dp" />
+
+                            <EditText
+                                android:id="@+id/etStartTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:hint="۰۹:۰۰"
+                                android:focusable="false"
+                                android:cursorVisible="false"
+                                android:background="@drawable/bg_edittext_rounded"
+                                android:padding="12dp"
+                                android:gravity="center" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginStart="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="زمان پایان"
+                                android:textSize="12sp"
+                                android:textColor="#999"
+                                android:layout_marginBottom="4dp" />
+
+                            <EditText
+                                android:id="@+id/etEndTime"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:hint="۱۲:۰۰"
+                                android:focusable="false"
+                                android:cursorVisible="false"
+                                android:background="@drawable/bg_edittext_rounded"
+                                android:padding="12dp"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- مدت زمان -->
+                    <TextView
+                        android:id="@+id/tvDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏱ مدت زمان: ۰ ساعت و ۰ دقیقه"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#2E7D32"
+                        android:padding="8dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ============================================ -->
+            <!-- WORK ORDER PROGRESS SECTION                  -->
+            <!-- ============================================ -->
+            <LinearLayout
+                android:id="@+id/cardWorkOrderProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <!-- عنوان -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingVertical="8dp"
+                    android:paddingHorizontal="4dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔗 پیشرفت درخواست‌ها"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#1565C0" />
+
+                    <TextView
+                        android:id="@+id/tvWorkOrderProgressCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="(۰)"
+                        android:textSize="13sp"
+                        android:textColor="#888"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- RecyclerView (هر درخواست = یه کارت) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvWorkOrderProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+
+
+            <!-- ====== کارت: شرح اقدام برای کارهای درخواست‌ها (همیشه باز) ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- عنوان -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📝 گزارش کارهای انجام شده بدون درخواست‌"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- محتوا (همیشه VISIBLE) -->
+                    <LinearLayout
+                        android:id="@+id/contentNotes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <EditText
+                            android:id="@+id/etNotes"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:hint="توضیحات کارهای بدون درخواست..."
+                            android:gravity="top"
+                            android:inputType="textMultiLine"
+                            android:background="@drawable/bg_edittext_rounded"
+                            android:padding="12dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ====== کارت: تیم اجرایی (همیشه باز) ====== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTeam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- عنوان -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👥 تیم اجرایی"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#666"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- محتوا (همیشه VISIBLE) -->
+                    <LinearLayout
+                        android:id="@+id/contentTeam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvGroupValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="در حال بارگیری..."
+                            android:textSize="14sp"
+                            android:textColor="#333"
+                            android:padding="12dp"
+                            android:background="@drawable/bg_edittext_rounded"
+                            android:layout_marginBottom="12dp" />
+
+                        <Button
+                            android:id="@+id/btnEditGroup"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_gravity="end"
+                            android:text="✏️ ویرایش"
+                            android:backgroundTint="#FF9800"
+                            android:textSize="12sp"
+                            android:paddingHorizontal="20dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- ====== Sticky Bottom Bar ====== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:padding="12dp"
+        android:layoutDirection="rtl">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:text="بازگشت"
+            android:backgroundTint="#E0E0E0"
+            android:textColor="#333"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="2"
+            android:layout_marginStart="6dp"
+            android:text="✓ ثبت گزارش"
+            android:backgroundTint="#2E7D32"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

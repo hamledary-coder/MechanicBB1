@@ -4,6 +4,8 @@ import android.content.Context
 import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.ReportEntity
 import com.workshop.mechanicbb1.data.model.TaskLogModel
+import com.workshop.mechanicbb1.data.model.WorkOrderModel
+import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.ReportMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -54,10 +56,46 @@ class ReportLocalRepository(private val context: Context) {
         val entity = db.reportDao().getById(reportId) ?: return false
         val wasSynced = entity.syncStatus == "synced"
 
-        // حذف از Room
+        // ۱. ذخیره‌ی workOrderIdها قبل از حذف (برای آپدیت progress)
+        val affectedWorkOrders = db.taskLogWorkOrderProgressDao().getByLogOnce(reportId)
+            .map { it.workOrderId }
+
+        // ۲. حذف progressهای این گزارش
+        db.taskLogWorkOrderProgressDao().deleteByLog(reportId)
+
+        // ۳. حذف گزارش از Room
         db.reportDao().deleteById(reportId)
 
-        // اگه pending بود، Outbox های مربوطه رو هم پاک کن
+        // ۴. ✅ آپدیت work_orders.progress (از آخرین گزارش باقی‌مونده)
+        affectedWorkOrders.forEach { workOrderId ->
+            val latestRemaining = db.taskLogWorkOrderProgressDao().getLatestForWorkOrderByDate(workOrderId)
+            val newProgress = latestRemaining?.progress ?: 0
+            db.workOrderDao().updateProgress(workOrderId, newProgress)
+
+            // ✅ Outbox → سرور (updateWorkOrder)
+            val woEntity = db.workOrderDao().getById(workOrderId)
+            if (woEntity != null) {
+                val woModel = WorkOrderModel(
+                    id = woEntity.id,
+                    requestNumber = woEntity.requestNumber ?: "",
+                    title = woEntity.title,
+                    requestClass = woEntity.requestClass,
+                    requestDate = woEntity.requestDate,
+                    requester = woEntity.requester,
+                    approver = woEntity.approver ?: "",
+                    unit = woEntity.unit,
+                    subUnit = woEntity.subUnit,
+                    equipmentName = woEntity.equipmentName,
+                    description = woEntity.description,
+                    externalStatus = woEntity.externalStatus,
+                    progress = newProgress,
+                    source = woEntity.source
+                )
+                OutboxHelper.enqueueUpdateWorkOrder(context, woModel)
+            }
+        }
+
+        // ۵. اگه pending بود، Outboxهای مربوطه رو هم پاک کن
         if (!wasSynced) {
             db.outboxDao().deleteByTargetId(reportId)
         }

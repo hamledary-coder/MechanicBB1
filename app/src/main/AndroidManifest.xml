@@ -129,6 +129,10 @@
             android:exported="false"
             android:label="درخواست جدید" />
 
+        <activity
+            android:name=".ui.task.estimate.EstimateActivity"
+            android:exported="false" />
+
         <!-- FileProvider -->
         <provider
             android:name="androidx.core.content.FileProvider"

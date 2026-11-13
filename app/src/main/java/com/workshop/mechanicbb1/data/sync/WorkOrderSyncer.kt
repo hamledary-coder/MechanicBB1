@@ -124,7 +124,7 @@ object WorkOrderSyncer {
     fun parseEntity(obj: JSONObject): WorkOrderEntity {
         return WorkOrderEntity(
             id = obj.optString("id", ""),
-            requestNumber = obj.optString("request_number", ""),
+            requestNumber = if (obj.isNull("request_number")) null else obj.optString("request_number", ""),
             title = obj.optString("title", ""),
             requestClass = if (obj.isNull("request_class")) null else obj.optString("request_class", ""),
             requestDate = obj.optString("request_date", ""),

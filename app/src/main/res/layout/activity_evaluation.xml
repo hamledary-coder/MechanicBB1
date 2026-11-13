@@ -452,33 +452,41 @@
                         android:textColor="#607D8B"
                         android:layout_marginBottom="12dp" />
 
-                    <!-- دما -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="دما"
-                        android:textSize="12sp"
-                        android:textColor="#666"
-                        android:layout_marginBottom="4dp" />
-
-                    <SeekBar
-                        android:id="@+id/seekBarHeat"
+                    <!-- ===== دما (با id برای مخفی کردن فصلی) ===== -->
+                    <LinearLayout
+                        android:id="@+id/layoutHeatSection"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:max="25"
-                        android:progress="0"
-                        android:progressTint="#FF5722"
-                        android:thumbTint="#FF5722" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvHeatValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="۳۰ درجه"
-                        android:textSize="12sp"
-                        android:textColor="#FF5722"
-                        android:gravity="end"
-                        android:layout_marginBottom="12dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="دما"
+                            android:textSize="12sp"
+                            android:textColor="#666"
+                            android:layout_marginBottom="4dp" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarHeat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:max="25"
+                            android:progress="0"
+                            android:progressTint="#FF5722"
+                            android:thumbTint="#FF5722" />
+
+                        <TextView
+                            android:id="@+id/tvHeatValue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="۳۰ درجه"
+                            android:textSize="12sp"
+                            android:textColor="#FF5722"
+                            android:gravity="end"
+                            android:layout_marginBottom="12dp" />
+
+                    </LinearLayout>
 
                     <!-- آلودگی -->
                     <TextView

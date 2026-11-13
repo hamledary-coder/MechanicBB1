@@ -13,8 +13,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.workshop.mechanicbb1.R
+import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import com.workshop.mechanicbb1.data.remote.Config
@@ -65,6 +69,16 @@ class WorkOrderDetailActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.workorder_activity_detail)
 
         localRepository = WorkOrderLocalRepository(this)
@@ -221,14 +235,35 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     private fun confirmDelete() {
         val wo = currentWorkOrder ?: return
 
-        AlertDialog.Builder(this)
-            .setTitle("حذف درخواست")
-            .setMessage("آیا از حذف «${wo.id} - ${wo.title}» مطمئن هستید؟")
-            .setPositiveButton("حذف") { _, _ ->
-                deleteWorkOrder(wo)
+        lifecycleScope.launch {
+            try {
+                val db = AppDatabase.getInstance(this@WorkOrderDetailActivity)
+                val mappings = db.taskWorkOrderMappingDao().getByWorkOrderOnce(wo.id)
+
+                if (mappings.isNotEmpty()) {
+                    val taskIds = mappings.map { it.taskId }.joinToString("، ")
+                    AlertDialog.Builder(this@WorkOrderDetailActivity)
+                        .setTitle("هشدار حذف")
+                        .setMessage("این درخواست به کار(های) «$taskIds» متصل است.\n\nآیا از حذف درخواست و لینک‌های مرتبط مطمئن هستید؟")
+                        .setPositiveButton("بله، حذف کن") { _, _ ->
+                            deleteWorkOrderWithMappings(wo)
+                        }
+                        .setNegativeButton("انصراف", null)
+                        .show()
+                } else {
+                    AlertDialog.Builder(this@WorkOrderDetailActivity)
+                        .setTitle("حذف درخواست")
+                        .setMessage("آیا از حذف «${wo.id} - ${wo.title}» مطمئن هستید؟")
+                        .setPositiveButton("حذف") { _, _ ->
+                            deleteWorkOrder(wo)
+                        }
+                        .setNegativeButton("انصراف", null)
+                        .show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@WorkOrderDetailActivity, "خطا: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("انصراف", null)
-            .show()
+        }
     }
 
     private fun deleteWorkOrder(wo: WorkOrderModel) {
@@ -260,6 +295,31 @@ class WorkOrderDetailActivity : AppCompatActivity() {
                     "خطا: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
+            }
+        }
+    }
+
+    private fun deleteWorkOrderWithMappings(wo: WorkOrderModel) {
+        lifecycleScope.launch {
+            try {
+                val db = AppDatabase.getInstance(this@WorkOrderDetailActivity)
+
+                // ۱. حذف Mappingها (Room + Outbox)
+                val mappings = db.taskWorkOrderMappingDao().getByWorkOrderOnce(wo.id)
+                mappings.forEach { mapping ->
+                    OutboxHelper.enqueueDeleteTaskWorkOrderMapping(this@WorkOrderDetailActivity, mapping.id)
+                }
+                db.taskWorkOrderMappingDao().deleteByWorkOrder(wo.id)
+
+                // ۲. حذف WorkOrder (Room + Outbox)
+                localRepository.deleteWorkOrder(wo.id)
+                OutboxHelper.enqueueDeleteWorkOrder(this@WorkOrderDetailActivity, wo.id)
+                ReportSyncWorker.enqueue(this@WorkOrderDetailActivity)
+
+                Toast.makeText(this@WorkOrderDetailActivity, "درخواست و لینک‌ها حذف شد", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@WorkOrderDetailActivity, "خطا: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

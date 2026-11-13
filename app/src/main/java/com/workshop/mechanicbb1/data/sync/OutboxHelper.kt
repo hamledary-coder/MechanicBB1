@@ -4,6 +4,8 @@ import TaskModel
 import android.content.Context
 import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.OutboxEntity
+import com.workshop.mechanicbb1.data.local.entity.TaskEstimateEntity
+import com.workshop.mechanicbb1.data.local.entity.TaskLogWorkOrderProgressEntity
 import com.workshop.mechanicbb1.data.model.TaskLogModel
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +21,11 @@ object OutboxHelper {
     // TaskLog
     // ============================================
 
-    suspend fun enqueueAddTaskLog(context: Context, log: TaskLogModel) {
+    suspend fun enqueueAddTaskLog(
+        context: Context,
+        log: TaskLogModel,
+        workOrderProgresses: List<TaskLogWorkOrderProgressEntity> = emptyList()
+    ) {
         val payload = JSONObject().apply {
             put("id", log.id)
             put("taskId", log.taskId)
@@ -32,6 +38,22 @@ object OutboxHelper {
             put("assignedUsers", log.assignedUsers)
             put("newStatus", log.newStatus)
             put("notes", log.notes)
+
+            // ✅ جدید
+            if (workOrderProgresses.isNotEmpty()) {
+                val progressesArray = org.json.JSONArray()
+                workOrderProgresses.forEach { p ->
+                    val pObj = JSONObject().apply {
+                        put("workOrderId", p.workOrderId)
+                        put("progress", p.progress)
+                        put("hasDetails", p.hasDetails)
+                        put("detailsNotes", p.detailsNotes)
+                        put("nextAction", p.nextAction)
+                    }
+                    progressesArray.put(pObj)
+                }
+                put("workOrderProgresses", progressesArray)
+            }
         }
 
         val entity = OutboxEntity(
@@ -207,7 +229,7 @@ object OutboxHelper {
             put("request_class", workOrder.requestClass ?: JSONObject.NULL)
             put("request_date", workOrder.requestDate)
             put("requester", workOrder.requester)
-            put("approver", if (workOrder.approver.isNotEmpty()) workOrder.approver else JSONObject.NULL)   // ← جدید
+            put("approver", workOrder.approver.ifEmpty { JSONObject.NULL })   // ← جدید
             put("unit", workOrder.unit)
             put("sub_unit", workOrder.subUnit)
             put("equipment_name", workOrder.equipmentName)
@@ -235,17 +257,18 @@ object OutboxHelper {
     suspend fun enqueueUpdateWorkOrder(context: Context, workOrder: WorkOrderModel) {
         val payload = JSONObject().apply {
             put("workOrderId", workOrder.id)
+            put("request_number", workOrder.requestNumber)   // ← جدید
             put("title", workOrder.title)
             put("request_class", workOrder.requestClass ?: JSONObject.NULL)
             put("request_date", workOrder.requestDate)
             put("requester", workOrder.requester)
-            put("approver", if (workOrder.approver.isNotEmpty()) workOrder.approver else JSONObject.NULL)   // ← جدید
+            put("approver", workOrder.approver.ifEmpty { JSONObject.NULL })
             put("unit", workOrder.unit)
             put("sub_unit", workOrder.subUnit)
             put("equipment_name", workOrder.equipmentName)
             put("description", workOrder.description)
-            put("external_status", workOrder.externalStatus ?: "1")   // ← جدید
-            put("progress", workOrder.progress)                       // ← جدید
+            put("external_status", workOrder.externalStatus ?: "1")
+            put("progress", workOrder.progress)
         }
 
         val entity = OutboxEntity(
@@ -330,6 +353,88 @@ object OutboxHelper {
             action = "updateTaskWorkOrders",
             payload = payload.toString(),
             targetId = taskId,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    // ============================================
+    // TaskEstimate
+    // ============================================
+
+    suspend fun enqueueAddEstimate(context: Context, estimate: TaskEstimateEntity) {
+        val payload = JSONObject().apply {
+            put("id", estimate.id)
+            put("taskId", estimate.taskId)
+            put("task_id", estimate.taskId)
+            put("estimatorId", estimate.estimatorId)
+            put("estimator_id", estimate.estimatorId)
+            put("estimatorName", estimate.estimatorName)
+            put("estimator_name", estimate.estimatorName)
+            put("estimatedAt", estimate.estimatedAt)
+            put("estimated_at", estimate.estimatedAt)
+            put("manpower", estimate.manpower)
+            put("parts", estimate.parts)
+            put("estimatedHours", estimate.estimatedHours)
+            put("estimated_hours", estimate.estimatedHours)
+            put("workType", estimate.workType)
+            put("work_type", estimate.workType)
+            put("heatLevel", estimate.heatLevel)
+            put("heat_level", estimate.heatLevel)
+            put("pollutionLevel", estimate.pollutionLevel)
+            put("pollution_level", estimate.pollutionLevel)
+            put("physicalDifficulty", estimate.physicalDifficulty)
+            put("physical_difficulty", estimate.physicalDifficulty)
+            put("technicalComplexity", estimate.technicalComplexity)
+            put("technical_complexity", estimate.technicalComplexity)
+            put("notes", estimate.notes)
+        }
+
+        val entity = OutboxEntity(
+            action = "addEstimate",
+            payload = payload.toString(),
+            targetId = estimate.id,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    suspend fun enqueueDeleteEstimate(context: Context, estimateId: String) {
+        val payload = JSONObject().apply {
+            put("estimateId", estimateId)
+            put("estimate_id", estimateId)
+        }
+
+        val entity = OutboxEntity(
+            action = "deleteEstimate",
+            payload = payload.toString(),
+            targetId = estimateId,
+            expectedVersion = -1,
+            status = "pending"
+        )
+
+        withContext(Dispatchers.IO) {
+            AppDatabase.getInstance(context).outboxDao().insert(entity)
+        }
+    }
+
+    suspend fun enqueueDeleteTaskWorkOrderMapping(context: Context, mappingId: String) {
+        val payload = JSONObject().apply {
+            put("mappingId", mappingId)
+        }
+
+        val entity = OutboxEntity(
+            action = "deleteTaskWorkOrderMapping",
+            payload = payload.toString(),
+            targetId = mappingId,
             expectedVersion = -1,
             status = "pending"
         )

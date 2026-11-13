@@ -3,7 +3,6 @@
 package com.workshop.mechanicbb1.ui.settings
 
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -14,13 +13,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.ui.auth.LoginActivity
 import com.workshop.mechanicbb1.utils.UserCache
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import org.json.JSONObject
 
 @Suppress("DEPRECATION")
@@ -38,6 +39,16 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.activity_settings)
 
         initViews()
@@ -80,7 +91,7 @@ class SettingsActivity : AppCompatActivity() {
         val personnelId = sharedPref.getString(Config.PrefKeys.PERSONNEL_ID, "") ?: ""
 
         tvUserName.text = userName
-        tvPersonnelId.text = "$personnelId"
+        tvPersonnelId.text = personnelId
     }
 
     private fun displayAppVersion() {

@@ -28,6 +28,7 @@ import com.workshop.mechanicbb1.ui.task.repository.TaskRepository
 import com.workshop.mechanicbb1.utils.UserCache
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Suppress("DEPRECATION")
 class WorkListFragment : Fragment() {
@@ -150,7 +151,7 @@ class WorkListFragment : Fragment() {
         // ⬇️⬇️⬇️ چک Room بعد از sync ⬇️⬇️⬇️
         viewLifecycleOwner.lifecycleScope.launch {
             // یه تأخیر کوچیک تا sync کامل شه
-            kotlinx.coroutines.delay(1500)
+            kotlinx.coroutines.delay(1500.milliseconds)
 
             val db = com.workshop.mechanicbb1.data.local.AppDatabase.getInstance(requireContext())
             val all = db.taskDao().getAllOnce()
@@ -211,6 +212,7 @@ class WorkListFragment : Fragment() {
                 "queue" -> "queue"
                 else -> "myCartable"
             },
+            scope = viewLifecycleOwner.lifecycleScope,
             onItemClick = { task -> openTaskDetail(task) }
         )
         recyclerView.adapter = adapter

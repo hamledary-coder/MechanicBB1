@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- بولت رنگی -->
+        <View
+            android:id="@+id/woColorBullet"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#F44336" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <!-- عنوان -->
+            <TextView
+                android:id="@+id/tvWoTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="تعویض پایلوت فلر"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="4dp" />
+
+            <!-- اطلاعات -->
+            <TextView
+                android:id="@+id/tvWoInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="کلاس ۱۴ | بهره‌برداری | ۳۰٪ (قبلی)"
+                android:textSize="11sp"
+                android:textColor="#888"
+                android:layout_marginBottom="14dp" />
+
+            <!-- ============================================ -->
+            <!-- ۳ گزینه (افقی)                               -->
+            <!-- ============================================ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp"
+                android:baselineAligned="false">
+
+                <!-- گزینه ۱: انجام شد -->
+                <LinearLayout
+                    android:id="@+id/layoutCompleted"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingVertical="8dp">
+
+                    <ImageView
+                        android:id="@+id/ivCompleted"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/checkbox_off_background"
+                        android:backgroundTint="#4CAF50" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="انجام شد"
+                        android:textSize="12sp"
+                        android:textColor="#4CAF50"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- گزینه ۲: ادامه دارد -->
+                <LinearLayout
+                    android:id="@+id/layoutInProgress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingVertical="8dp">
+
+                    <ImageView
+                        android:id="@+id/ivInProgress"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/checkbox_off_background"
+                        android:backgroundTint="#FF9800" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ادامه دارد"
+                        android:textSize="12sp"
+                        android:textColor="#FF9800"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- گزینه ۳: انجام نشد -->
+                <LinearLayout
+                    android:id="@+id/layoutNotCompleted"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:paddingVertical="8dp">
+
+                    <ImageView
+                        android:id="@+id/ivNotCompleted"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@android:drawable/checkbox_off_background"
+                        android:backgroundTint="#F44336" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="انجام نشد"
+                        android:textSize="12sp"
+                        android:textColor="#F44336"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- RadioGroup (نامرئی — برای grouping) -->
+            <RadioGroup
+                android:id="@+id/rgStatus"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
+            <!-- ============================================ -->
+            <!-- Slider (فقط برای «ادامه دارد»)              -->
+            <!-- ============================================ -->
+            <LinearLayout
+                android:id="@+id/layoutProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F8F9FA"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvProgressLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="میزان پیشرفت: ۰٪"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:gravity="center"
+                    android:layout_marginBottom="4dp" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="10"
+                    android:valueTo="90"
+                    android:stepSize="10"
+                    android:value="10"
+                    app:trackHeight="6dp"
+                    app:trackColorActive="#FF9800"
+                    app:trackColorInactive="#E0E0E0"
+                    app:thumbRadius="14dp" />
+            </LinearLayout>
+
+            <!-- ✅ شرح جزئیات قبلی (فقط‌خواندنی) -->
+            <LinearLayout
+                android:id="@+id/layoutPreviousDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF3E0"
+                android:padding="10dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📝 شرح جزئیات قبلی:"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#E65100"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvPreviousDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="..."
+                    android:textSize="12sp"
+                    android:textColor="#555" />
+            </LinearLayout>
+
+            <!-- ============================================ -->
+            <!-- چک‌باکس «شرح جزئیات»                          -->
+            <!-- ============================================ -->
+            <CheckBox
+                android:id="@+id/cbHasDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📝 شرح جزئیات"
+                android:textSize="16sp"
+                android:textColor="#555"
+                android:buttonTint="#2196F3"
+                android:paddingVertical="4dp" />
+
+            <!-- ============================================ -->
+            <!-- یادداشت (فقط وقتی تیک خورد)                  -->
+            <!-- ============================================ -->
+            <LinearLayout
+                android:id="@+id/layoutDetailsNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/etDetailsNotes"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:hint="توضیحات اضافه..."
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:padding="1dp"
+                    android:background="@drawable/bg_edittext_rounded"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

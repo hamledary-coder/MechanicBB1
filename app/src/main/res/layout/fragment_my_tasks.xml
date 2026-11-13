@@ -66,6 +66,33 @@
                 android:background="#DDDDDD"
                 android:layout_marginVertical="8dp" />
 
+            <!-- بخش ۱.۵: منتظر گزارش (فقط کارمند) -->
+            <LinearLayout
+                android:id="@+id/awaitingReportSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvAwaitingReportCount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ منتظر گزارش"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#E65100"
+                    android:padding="10dp"
+                    android:background="#FFF3E0" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvAwaitingReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
+
             <!-- بخش ۲: متوقف -->
             <LinearLayout
                 android:id="@+id/blockedSection"

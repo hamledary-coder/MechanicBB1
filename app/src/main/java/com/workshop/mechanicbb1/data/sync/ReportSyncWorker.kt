@@ -91,7 +91,36 @@ class ReportSyncWorker(
 
                 // آپدیت WorkOrder در Room
                 when (item.action) {
-                    "createWorkOrder", "updateWorkOrder" -> {
+                    "createWorkOrder" -> {
+                        try {
+                            val payload = JSONObject(item.payload)
+                            val tempWoId = payload.optString("id", "")
+                            val response = JSONObject(result.responseBody)
+                            val realWoId = response.optString("id", "")
+
+                            if (tempWoId.startsWith("tmp-") && realWoId.isNotEmpty() && realWoId != tempWoId) {
+                                // ✅ task_log_workorder_progress
+                                db.taskLogWorkOrderProgressDao().updateWorkOrderId(tempWoId, realWoId)
+
+                                // ✅ task_workorder_mappings (جدید)
+                                db.taskWorkOrderMappingDao().updateWorkOrderId(tempWoId, realWoId)
+
+                                Log.d(TAG, "✅ workOrderId updated: $tempWoId → $realWoId")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error: ${e.message}")
+                        }
+
+
+                        // ✅ دوم: WorkOrder رو sync کن
+                        WorkOrderSyncer.syncSingleWorkOrder(
+                            applicationContext,
+                            item.targetId
+                        ) { ok ->
+                            Log.d(TAG, "WorkOrder ${item.targetId} synced: $ok")
+                        }
+                    }
+                    "updateWorkOrder" -> {
                         WorkOrderSyncer.syncSingleWorkOrder(
                             applicationContext,
                             item.targetId
@@ -110,6 +139,11 @@ class ReportSyncWorker(
                             }
                         }
                     }
+                }
+
+                // آپدیت برآورد به synced
+                if (item.action == "addEstimate") {
+                    markEstimateSynced(db, item.targetId)
                 }
 
                 Log.d(TAG, "✅ ${item.action} - ${item.targetId} sent")
@@ -152,6 +186,14 @@ class ReportSyncWorker(
                     val woId = JSONObject(item.payload).optString("workOrderId", "")
                     "${Config.BASE_URL}?action=deleteWorkOrder&workOrderId=$woId" to null
                 }
+                "deleteEstimate" -> {
+                    val estimateId = JSONObject(item.payload).optString("estimateId", "")
+                    "${Config.BASE_URL}?action=deleteEstimate&estimateId=$estimateId" to null
+                }
+                "deleteTaskWorkOrderMapping" -> {
+                    val mappingId = JSONObject(item.payload).optString("mappingId", "")
+                    "${Config.BASE_URL}?action=deleteTaskWorkOrderMapping&mappingId=$mappingId" to null
+                }
 
                 // ===== Create/Update (POST) =====
                 else -> {
@@ -166,6 +208,7 @@ class ReportSyncWorker(
                         "updateTaskPriority" -> "${Config.BASE_URL}?action=updateTaskPriority"
                         "createWorkOrder" -> "${Config.BASE_URL}?action=createWorkOrder"
                         "updateWorkOrder" -> "${Config.BASE_URL}?action=updateWorkOrder"
+                        "addEstimate" -> "${Config.BASE_URL}?action=addEstimate"
                         else -> return SyncResult(false)
                     }
                     postUrl to item.payload.toRequestBody("application/json; charset=utf-8".toMediaType())
@@ -268,6 +311,21 @@ class ReportSyncWorker(
                 }
             }
 
+            // ۵. TaskEstimateEntity (اگه هست)
+            val estimates = db.taskEstimateDao().getByTaskOnce(tempId)
+            if (estimates.isNotEmpty()) {
+                estimates.forEach { e ->
+                    db.taskEstimateDao().deleteById(e.id)
+                    db.taskEstimateDao().insert(
+                        e.copy(
+                            id = "est_${realId}_${e.id.substringAfterLast("_")}",
+                            taskId = realId
+                        )
+                    )
+                }
+                Log.d(TAG, "Estimates updated: ${estimates.size} items")
+            }
+
             Log.d(TAG, "✅ Temp id updated: $tempId → $realId")
 
         } catch (e: Exception) {
@@ -296,6 +354,19 @@ class ReportSyncWorker(
         val report = db.reportDao().getById(reportId) ?: return
         db.reportDao().update(
             report.copy(
+                syncStatus = "synced",
+                lastSyncedAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    private suspend fun markEstimateSynced(
+        db: AppDatabase,
+        estimateId: String
+    ) {
+        val estimate = db.taskEstimateDao().getById(estimateId) ?: return
+        db.taskEstimateDao().update(
+            estimate.copy(
                 syncStatus = "synced",
                 lastSyncedAt = System.currentTimeMillis()
             )

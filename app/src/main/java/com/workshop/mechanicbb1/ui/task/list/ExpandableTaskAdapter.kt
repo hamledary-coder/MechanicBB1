@@ -1,176 +1,248 @@
 package com.workshop.mechanicbb1.ui.task.list
 
 import TaskModel
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
-import android.graphics.Color
-import android.text.Spannable
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.workshop.mechanicbb1.R
+import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
+import com.workshop.mechanicbb1.ui.task.detail.viewholder.WorkOrderMiniAdapter
+import com.workshop.mechanicbb1.ui.workorder.WorkOrderDetailActivity
 import com.workshop.mechanicbb1.utils.DateUtils
 import com.workshop.mechanicbb1.utils.UserCache
 import com.workshop.mechanicbb1.utils.evaluation.EvaluationCache
 import com.workshop.mechanicbb1.utils.evaluation.EvaluationCalculator
 import com.workshop.mechanicbb1.utils.evaluation.EvaluationRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
+/**
+ * Adapter قابل‌گسترش برای لیست کارها.
+ *
+ * ساختار هر کارت:
+ *   ┌─ نوار بالایی (فوریت) ──────────────────┐
+ *   │ ┌─ هدر (کلیک‌پذیر → TaskDetailActivity) │
+ *   │ │ ID + Badge وضعیت + اولویت            │
+ *   │ │ عنوان                                 │
+ *   │ │ مسئول + گروه + تاریخ                 │
+ *   │ └───────────────────────────────────────┘
+ *   │ ┌─ detailLayout (فقط وقتی بازه) ────────┐
+ *   │ │ توضیحات + فوریت                       │
+ *   │ │ درخواست‌های مرتبط (WorkOrders)        │
+ *   │ │ جدول کارکرد                           │
+ *   │ └───────────────────────────────────────┘
+ *   │ [ مشاهده جزئیات ▼ ]  ← moreButton        │
+ *   └─────────────────────────────────────────┘
+ *
+ * @param tasks لیست کارها
+ * @param tabType نوع تب ("myCartable" | "inProgress" | "queue" | "archived")
+ * @param scope CoroutineScope برای لود WorkOrders (از Fragment پاس داده می‌شه)
+ * @param onItemClick کلیک روی هدر → TaskDetailActivity
+ */
 class ExpandableTaskAdapter(
     private val tasks: List<TaskModel>,
     private val tabType: String,
+    private val scope: CoroutineScope,
     private val onItemClick: ((TaskModel) -> Unit)? = null
 ) : RecyclerView.Adapter<ExpandableTaskAdapter.ViewHolder>() {
 
+    /** موقعیت‌های بازشده (فقط یکی می‌تونه باز باشه) */
     private val expandedPosition = mutableSetOf<Int>()
+
+    /** نقش کاربر (EMPLOYEE / SUPERVISOR / MANAGER) */
     private lateinit var userRole: String
+
+    /** کش جدول کارکرد برای هر position */
     private val performanceCache = mutableMapOf<Int, List<TaskPerformanceItem>>()
 
+    /** کش WorkOrders برای هر task ID */
+    private val workOrdersCache = mutableMapOf<String, List<com.workshop.mechanicbb1.data.model.WorkOrderModel>>()
+
+    // =========================================================================
+    // ViewHolder
+    // =========================================================================
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Header
+        // ===== هدر =====
         val tvId: TextView = itemView.findViewById(R.id.tvTaskId)
         val tvTitle: TextView = itemView.findViewById(R.id.tvTaskTitle)
-        val ivExpand: ImageView = itemView.findViewById(R.id.ivExpand)
+        val tvStatusBadge: TextView = itemView.findViewById(R.id.tvStatusBadge)
+        val tvTaskPriority: TextView = itemView.findViewById(R.id.tvTaskPriority)
+        val tvResponsible: TextView = itemView.findViewById(R.id.tvTaskResponsible)
+        val tvAssignees: TextView = itemView.findViewById(R.id.tvTaskAssignees)
+        val tvRequestDate: TextView = itemView.findViewById(R.id.tvRequestDate)
+        val tvMoreText: TextView = itemView.findViewById(R.id.tvMoreText)
+        val moreButton: View = itemView.findViewById(R.id.moreButton)
 
+        // ===== Divider + detail =====
         val divider: View = itemView.findViewById(R.id.divider)
         val detailLayout: View = itemView.findViewById(R.id.detailLayout)
 
-        // Detail
+        // ===== detail: توضیحات + فوریت =====
         val tvDescription: TextView = itemView.findViewById(R.id.tvTaskDescription)
-        val tvResponsible: TextView = itemView.findViewById(R.id.tvTaskResponsible)
-        val tvAssignees: TextView = itemView.findViewById(R.id.tvTaskAssignees)
-        val tvUnit: TextView = itemView.findViewById(R.id.tvTaskUnit)
-        val tvPriority: TextView = itemView.findViewById(R.id.tvTaskPriority)
-        val tvRequestDate: TextView = itemView.findViewById(R.id.tvRequestDate)
-        val tvRequester: TextView = itemView.findViewById(R.id.tvRequester)
-        val tvDeclarationMethod: TextView = itemView.findViewById(R.id.tvDeclarationMethod)
-        val tvSystemNumber: TextView = itemView.findViewById(R.id.tvSystemNumber)
-        val tvInitialReview: TextView = itemView.findViewById(R.id.tvInitialReview)
+        val tvTaskUrgencyDetail: TextView = itemView.findViewById(R.id.tvTaskUrgencyDetail)
 
-        // جدول کارکرد
+        // ===== detail: WorkOrders =====
+        val workOrdersSection: View = itemView.findViewById(R.id.workOrdersSection)
+        val tvWorkOrdersTitle: TextView = itemView.findViewById(R.id.tvWorkOrdersTitle)
+        val rvWorkOrders: RecyclerView = itemView.findViewById(R.id.rvWorkOrders)
+
+        // ===== detail: جدول کارکرد =====
         val rvTaskPerformance: RecyclerView = itemView.findViewById(R.id.rvTaskPerformance)
         val tvEmptyPerformance: TextView = itemView.findViewById(R.id.tvEmptyPerformance)
     }
 
+    // =========================================================================
+    // Lifecycle
+    // =========================================================================
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_task_expandable, parent, false)
+            .inflate(R.layout.task_expandable_item, parent, false)
 
-        val sharedPref = view.context.getSharedPreferences(Config.PrefKeys.USER_PREFS, Context.MODE_PRIVATE)
-        userRole = sharedPref.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
+        val prefs = view.context.getSharedPreferences(Config.PrefKeys.USER_PREFS, Context.MODE_PRIVATE)
+        userRole = prefs.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
 
         return ViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val task = tasks[position]
         val isExpanded = expandedPosition.contains(position)
 
+        // ===== هدر =====
         holder.tvId.text = "#${task.id}"
         holder.tvTitle.text = task.title
+        applyStatusStyle(holder, task)   // badge + نوار کناری + اولویت
+        setTopStripColor(holder, task)   // نوار بالایی (فوریت، فقط برای کارهای جاری)
+        bindQuickInfo(holder, task)      // مسئول + گروه + تاریخ
 
-        setStripColor(holder, task)
-        setTopStripColor(holder, task)
+        // ===== «مشاهده جزئیات» / «بستن» =====
+        holder.tvMoreText.text = if (isExpanded) "بستن ▲" else "مشاهده جزئیات ▼"
 
-        holder.rvTaskPerformance.layoutManager = LinearLayoutManager(holder.itemView.context)
-
+        // ===== Divider + detail =====
+        holder.divider.visibility = View.VISIBLE
         if (isExpanded) {
-            holder.ivExpand.setImageResource(R.drawable.ic_chevron_up)
-            holder.divider.visibility = View.VISIBLE
             holder.detailLayout.visibility = View.VISIBLE
             showAllFields(holder, task)
-
-            holder.itemView.findViewById<TextView>(R.id.tvPerformanceTitle).visibility = View.VISIBLE
-            holder.itemView.findViewById<View>(R.id.tableHeader).visibility = View.VISIBLE
-            holder.rvTaskPerformance.visibility = View.VISIBLE
-
-            if (!performanceCache.containsKey(position)) {
-                loadTaskPerformance(task.id, position, holder)
-            } else {
-                updateTaskPerformance(position, performanceCache[position]!!, holder)
-            }
-        }  else {
-        holder.ivExpand.setImageResource(R.drawable.ic_chevron_down)
-        holder.divider.visibility = View.VISIBLE
-
-        holder.itemView.findViewById<TextView>(R.id.tvPerformanceTitle).visibility = View.GONE
-        holder.itemView.findViewById<View>(R.id.tableHeader).visibility = View.GONE
-        holder.rvTaskPerformance.visibility = View.GONE
-        holder.tvEmptyPerformance.visibility = View.GONE
-
-        when (tabType) {
-            "archived", "queue" -> {
-                // ✅ یه خطی (فقط عنوان + ID)
-                holder.detailLayout.visibility = View.GONE
-            }
-            else -> {
-                // ✅ چند خطی (کارهای من، کارهای امروز)
-                holder.detailLayout.visibility = View.VISIBLE
-                showCollapsedFields(holder, task)
-            }
+            loadWorkOrders(holder, task)            // ← درخواست‌های مرتبط
+            loadTaskPerformance(task.id, position, holder)   // ← جدول کارکرد
+        } else {
+            holder.detailLayout.visibility = View.GONE
+            holder.workOrdersSection.visibility = View.GONE
+            holder.itemView.findViewById<TextView>(R.id.tvPerformanceTitle).visibility = View.GONE
+            holder.itemView.findViewById<View>(R.id.tableHeader).visibility = View.GONE
+            holder.rvTaskPerformance.visibility = View.GONE
+            holder.tvEmptyPerformance.visibility = View.GONE
         }
-    }
 
+        // ===== کلیک‌ها =====
+        // هدر → TaskDetailActivity
         holder.itemView.findViewById<View>(R.id.headerLayout).setOnClickListener {
-            if (isExpanded) {
-                expandedPosition.remove(position)
-            } else {
-                expandedPosition.clear()
-                expandedPosition.add(position)
-            }
-            notifyDataSetChanged()
+            onItemClick?.invoke(task)
         }
-
-        if (onItemClick != null) {
-            holder.itemView.setOnClickListener {
-                onItemClick?.invoke(task)
-            }
+        // «مشاهده جزئیات» → باز/بسته inline
+        holder.moreButton.setOnClickListener {
+            toggleExpansion(position)
         }
     }
 
-    private fun setStripColor(holder: ViewHolder, task: TaskModel) {
+    override fun getItemCount(): Int = tasks.size
+
+    // =========================================================================
+    // بخش ۱: هدر — وضعیت (Badge + نوار + اولویت)
+    // =========================================================================
+
+    /** اطلاعات بصری هر وضعیت */
+    private data class StatusStyle(
+        val label: String,
+        val color: Int,       // رنگ نوار کناری
+        val bgColor: Int      // پس‌زمینه‌ی badge
+    )
+
+    /**
+     * استایل وضعیت رو برمی‌گردونه.
+     * اولویت: اگه گزارش جدید (unseen) داره → آبی، وگرنه بر اساس status.
+     */
+    private fun getStatusStyle(task: TaskModel): StatusStyle {
+        // ۱. گزارش جدید (سرشیفت/مدیر)
+        if (task.hasUnseenReport &&
+            (userRole == Config.RoleCode.SUPERVISOR || userRole == Config.RoleCode.MANAGER)) {
+            return StatusStyle(
+                label = "🔵 گزارش جدید",
+                color = Color.parseColor("#2196F3"),
+                bgColor = Color.parseColor("#E3F2FD")
+            )
+        }
+
+        // ۲. بر اساس status
+        return when (task.status) {
+            "2" -> StatusStyle("در حال انجام", Color.parseColor("#2E7D32"), Color.parseColor("#E8F5E9"))
+            "21", "31" -> StatusStyle("⏳ منتظر گزارش", Color.parseColor("#E65100"), Color.parseColor("#FFF3E0"))
+            "3" -> StatusStyle("⛔ متوقف", Color.parseColor("#C62828"), Color.parseColor("#FFEBEE"))
+            "41" -> StatusStyle("✓ اتمام", Color.parseColor("#1565C0"), Color.parseColor("#E3F2FD"))
+            "1" -> StatusStyle("ارجاع نشده", Color.parseColor("#757575"), Color.parseColor("#F5F5F5"))
+            else -> StatusStyle(Config.StatusCode.getText(task.status), Color.parseColor("#9E9E9E"), Color.parseColor("#EEEEEE"))
+        }
+    }
+
+    /**
+     * رنگ نوار کناری + badge وضعیت + اولویت (با رنگ‌بندی).
+     */
+    private fun applyStatusStyle(holder: ViewHolder, task: TaskModel) {
+        val style = getStatusStyle(task)
+
+        // نوار کناری
         val colorStrip = holder.itemView.findViewById<View>(R.id.colorStrip)
-        val sharedPref = holder.itemView.context.getSharedPreferences(Config.PrefKeys.USER_PREFS, Context.MODE_PRIVATE)
-        val userRole = sharedPref.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
+        colorStrip.setBackgroundColor(style.color)
+        colorStrip.visibility = View.VISIBLE
 
-        if (task.status == "41" && userRole == Config.RoleCode.EMPLOYEE) {
-            colorStrip.visibility = View.GONE
-            return
+        // Badge
+        holder.tvStatusBadge.text = style.label
+        holder.tvStatusBadge.setTextColor(style.color)
+        holder.tvStatusBadge.background.setTint(style.bgColor)
+
+        // اولویت (با رنگ‌بندی بر اساس مقدار)
+        holder.tvTaskPriority.text = "🎯 ${task.priority}"
+        val (priorityColor, priorityBg) = when {
+            task.priority >= 80 -> "#C62828" to "#FFEBEE"   // قرمز
+            task.priority >= 60 -> "#E65100" to "#FFF3E0"   // نارنجی
+            task.priority >= 40 -> "#1565C0" to "#E3F2FD"   // آبی
+            else -> "#666666" to "#F5F5F5"                  // خاکستری
         }
-
-        if (task.hasUnseenReport && (userRole == Config.RoleCode.SUPERVISOR || userRole == Config.RoleCode.MANAGER)) {
-            colorStrip.setBackgroundColor(Color.parseColor("#2196F3"))
-            colorStrip.visibility = View.VISIBLE
-            return
-        }
-
-        if (task.status == "41" && userRole == Config.RoleCode.SUPERVISOR) {
-            colorStrip.setBackgroundColor(Color.parseColor("#9C27B0"))
-            colorStrip.visibility = View.VISIBLE
-            return
-        }
-
-        colorStrip.visibility = View.GONE
+        holder.tvTaskPriority.setTextColor(priorityColor.toColorInt())
+        holder.tvTaskPriority.background.setTint(priorityBg.toColorInt())
     }
 
+    /**
+     * نوار بالایی (فوریت) — فقط برای کارهای جاری.
+     * برای 4 (اتمام درخواست)، 41 (ارسال به سرشیفت)، 5 (بایگانی) نمایش داده نمی‌شه.
+     */
     private fun setTopStripColor(holder: ViewHolder, task: TaskModel) {
         val topStrip = holder.itemView.findViewById<View>(R.id.topColorStrip)
 
-        val urgency = task.urgency
+        // ❌ برای وضعیت‌های پایانی، نوار بالایی معنی نداره
+        if (task.status in listOf("4", "41", "5")) {
+            topStrip.visibility = View.GONE
+            return
+        }
 
-        when {
-            urgency == "خیلی زیاد" -> {
+        // ✅ بر اساس فوریت
+        when (task.urgency) {
+            "خیلی زیاد" -> {
                 topStrip.setBackgroundColor("#F44336".toColorInt())
                 topStrip.visibility = View.VISIBLE
             }
-            urgency == "زیاد" -> {
+            "زیاد" -> {
                 topStrip.setBackgroundColor("#FFCC80".toColorInt())
                 topStrip.visibility = View.VISIBLE
             }
@@ -178,126 +250,16 @@ class ExpandableTaskAdapter(
                 topStrip.visibility = View.GONE
             }
         }
-
-        if (task.status == "41" && userRole == Config.RoleCode.EMPLOYEE) {
-            topStrip.setBackgroundColor(Color.parseColor("#4CAF50"))
-            topStrip.visibility = View.VISIBLE
-            return
-        }
     }
 
-    // ============================================================
-    // نمایش فیلدها در حالت بسته (همه‌ی تب‌ها)
-    // ============================================================
-    private fun showCollapsedFields(holder: ViewHolder, task: TaskModel) {
-        // مخفی کردن فیلدهای منسوخ (حذف‌شده از Task)
-        holder.tvDescription.visibility = View.GONE
-        holder.tvRequester.visibility = View.GONE
-        holder.tvDeclarationMethod.visibility = View.GONE
-        holder.tvSystemNumber.visibility = View.GONE
-        holder.tvInitialReview.visibility = View.GONE
-        holder.itemView.findViewById<View>(R.id.dividerDescription)?.visibility = View.GONE
-
+    /**
+     * Quick Info تو هدر: مسئول + گروه + تاریخ برنامه‌ریزی.
+     */
+    @SuppressLint("SetTextI18n")
+    private fun bindQuickInfo(holder: ViewHolder, task: TaskModel) {
         // مسئول
         if (task.responsible.isNotEmpty() && task.responsible != "0") {
-            val responsibleName = UserCache.getName(task.responsible)
-            holder.tvResponsible.text = "مسئول: $responsibleName"
-            holder.tvResponsible.visibility = View.VISIBLE
-        } else {
-            holder.tvResponsible.visibility = View.GONE
-        }
-
-        // گروه انجام‌دهنده
-        if (task.assignedTo.isNotEmpty() && task.assignedTo != "0") {
-            val assigneeNames = task.assignedTo.split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() && it != "0" }
-                .map { UserCache.getName(it) }
-            if (assigneeNames.isNotEmpty()) {
-                holder.tvAssignees.text = "گروه: ${assigneeNames.joinToString("، ")}"
-                holder.tvAssignees.visibility = View.VISIBLE
-                holder.itemView.findViewById<View>(R.id.dividerAssignee)?.visibility = View.VISIBLE
-            } else {
-                holder.tvAssignees.visibility = View.GONE
-                holder.itemView.findViewById<View>(R.id.dividerAssignee)?.visibility = View.GONE
-            }
-        } else {
-            holder.tvAssignees.visibility = View.GONE
-            holder.itemView.findViewById<View>(R.id.dividerAssignee)?.visibility = View.GONE
-        }
-
-        // واحد (حذف شده)
-        holder.tvUnit.visibility = View.GONE
-
-        // ⬇️⬇️⬇️ scheduledDate ⬇️⬇️⬇️
-        if (!task.scheduledDate.isNullOrEmpty()) {
-            val today = DateUtils.gregorianToShamsi()
-            val dayName = DateUtils.getDayNameFromDate(task.scheduledDate)
-            val dateDisplay = if (dayName.isNotEmpty()) {
-                "${task.scheduledDate} ($dayName)"
-            } else {
-                task.scheduledDate
-            }
-
-            val (label, color) = when {
-                task.scheduledDate == today -> "📅 امروز: $dateDisplay" to "#2E7D32"
-                task.scheduledDate < today -> "📅 عقب‌افتاده: $dateDisplay" to "#FF9800"
-                else -> "📅 برنامه‌ریزی: $dateDisplay" to "#2196F3"
-            }
-
-            holder.tvRequestDate.text = label
-            holder.tvRequestDate.setTextColor(color.toColorInt())
-            holder.tvRequestDate.visibility = View.VISIBLE
-        } else {
-            holder.tvRequestDate.visibility = View.GONE
-        }
-        // ⬆️⬆️⬆️ پایان scheduledDate ⬆️⬆️⬆️
-
-        // فوریت
-        if (task.urgency.isNotEmpty() && task.urgency != "null" && task.urgency != "عادی") {
-            holder.tvPriority.text = "فوریت: ${task.urgency}"
-            when (task.urgency) {
-                "خیلی زیاد" -> holder.tvPriority.setTextColor("#F44336".toColorInt())
-                "زیاد" -> holder.tvPriority.setTextColor("#FF9800".toColorInt())
-                else -> holder.tvPriority.setTextColor("#666666".toColorInt())
-            }
-            holder.tvPriority.visibility = View.VISIBLE
-        } else {
-            holder.tvPriority.visibility = View.GONE
-        }
-    }
-
-    // ============================================================
-    // نمایش همه‌ی فیلدها در حالت باز
-    // ============================================================
-    private fun showAllFields(holder: ViewHolder, task: TaskModel) {
-        // توضیحات
-        holder.tvDescription.text = task.description.ifEmpty { "توضیحاتی وارد نشده" }
-        holder.tvDescription.visibility = View.VISIBLE
-
-        holder.itemView.findViewById<View>(R.id.dividerDescription)?.visibility = View.VISIBLE
-        holder.itemView.findViewById<View>(R.id.dividerAssignee)?.visibility = View.VISIBLE
-
-        // مسئول
-        if (task.responsible.isNotEmpty() && task.responsible != "0") {
-            val responsibleName = UserCache.getName(task.responsible)
-
-            val text = SpannableStringBuilder("مسئول انجام کار: ")
-            text.setSpan(
-                ForegroundColorSpan(Color.parseColor("#1565C0")),
-                0, text.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-
-            val nameSpan = SpannableStringBuilder(responsibleName)
-            nameSpan.setSpan(
-                ForegroundColorSpan(Color.parseColor("#333333")),
-                0, nameSpan.length,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            text.append(nameSpan)
-
-            holder.tvResponsible.text = text
+            holder.tvResponsible.text = "👤 مسئول: ${UserCache.getName(task.responsible)}"
             holder.tvResponsible.visibility = View.VISIBLE
         } else {
             holder.tvResponsible.visibility = View.GONE
@@ -305,12 +267,12 @@ class ExpandableTaskAdapter(
 
         // گروه
         if (task.assignedTo.isNotEmpty() && task.assignedTo != "0") {
-            val assigneeNames = task.assignedTo.split(",")
+            val names = task.assignedTo.split(",")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() && it != "0" }
                 .map { UserCache.getName(it) }
-            if (assigneeNames.isNotEmpty()) {
-                holder.tvAssignees.text = "گروه انجام دهنده: ${assigneeNames.joinToString("، ")}"
+            if (names.isNotEmpty()) {
+                holder.tvAssignees.text = "👥 گروه: ${names.joinToString("، ")}"
                 holder.tvAssignees.visibility = View.VISIBLE
             } else {
                 holder.tvAssignees.visibility = View.GONE
@@ -319,10 +281,7 @@ class ExpandableTaskAdapter(
             holder.tvAssignees.visibility = View.GONE
         }
 
-        // واحد (حذف شده)
-        holder.tvUnit.visibility = View.GONE
-
-        // scheduledDate
+        // تاریخ برنامه‌ریزی
         if (!task.scheduledDate.isNullOrEmpty()) {
             val today = DateUtils.gregorianToShamsi()
             val dayName = DateUtils.getDayNameFromDate(task.scheduledDate)
@@ -331,46 +290,105 @@ class ExpandableTaskAdapter(
             } else {
                 task.scheduledDate
             }
-
             val (label, color) = when {
-                task.scheduledDate == today -> "📅 تاریخ برنامه‌ریزی: امروز ($dateDisplay)" to "#2E7D32"
-                task.scheduledDate < today -> "📅 تاریخ برنامه‌ریزی: عقب‌افتاده ($dateDisplay)" to "#FF9800"
-                else -> "📅 تاریخ برنامه‌ریزی: آینده ($dateDisplay)" to "#2196F3"
+                task.scheduledDate == today -> "📅 امروز: $dateDisplay" to "#2E7D32"
+                task.scheduledDate < today -> "📅 عقب‌افتاده: $dateDisplay" to "#FF9800"
+                else -> "📅 برنامه‌ریزی: $dateDisplay" to "#2196F3"
             }
-
             holder.tvRequestDate.text = label
             holder.tvRequestDate.setTextColor(color.toColorInt())
             holder.tvRequestDate.visibility = View.VISIBLE
         } else {
-            holder.tvRequestDate.text = "📅 تاریخ برنامه‌ریزی: تعیین نشده"
-            holder.tvRequestDate.setTextColor("#999999".toColorInt())
-            holder.tvRequestDate.visibility = View.VISIBLE
+            holder.tvRequestDate.visibility = View.GONE
         }
-
-        // فوریت
-        if (task.urgency.isNotEmpty() && task.urgency != "null" && task.urgency != "عادی") {
-            holder.tvPriority.text = "فوریت: ${task.urgency}"
-            when (task.urgency) {
-                "خیلی زیاد" -> holder.tvPriority.setTextColor("#F44336".toColorInt())
-                "زیاد" -> holder.tvPriority.setTextColor("#FF9800".toColorInt())
-                else -> holder.tvPriority.setTextColor("#666666".toColorInt())
-            }
-            holder.tvPriority.visibility = View.VISIBLE
-        } else {
-            holder.tvPriority.visibility = View.GONE
-        }
-
-        // فیلدهای منسوخ
-        holder.tvRequester.visibility = View.GONE
-        holder.tvDeclarationMethod.visibility = View.GONE
-        holder.tvSystemNumber.visibility = View.GONE
-        holder.tvInitialReview.visibility = View.GONE
     }
 
-    // ===== جدول کارکرد =====
-    private fun loadTaskPerformance(taskId: String, position: Int, holder: ViewHolder) {
-        val repository = EvaluationRepository(holder.itemView.context)
+    // =========================================================================
+    // بخش ۲: detail — توضیحات + فوریت
+    // =========================================================================
 
+    @SuppressLint("SetTextI18n")
+    private fun showAllFields(holder: ViewHolder, task: TaskModel) {
+        // توضیحات
+        holder.tvDescription.text = task.description.ifEmpty { "توضیحاتی وارد نشده" }
+
+        // فوریت (تو detail)
+        if (task.urgency.isNotEmpty() && task.urgency != "null" && task.urgency != "عادی") {
+            holder.tvTaskUrgencyDetail.text = "فوریت: ${task.urgency}"
+            when (task.urgency) {
+                "خیلی زیاد" -> holder.tvTaskUrgencyDetail.setTextColor("#F44336".toColorInt())
+                "زیاد" -> holder.tvTaskUrgencyDetail.setTextColor("#FF9800".toColorInt())
+                else -> holder.tvTaskUrgencyDetail.setTextColor("#666666".toColorInt())
+            }
+            holder.tvTaskUrgencyDetail.visibility = View.VISIBLE
+        } else {
+            holder.tvTaskUrgencyDetail.visibility = View.GONE
+        }
+    }
+
+    // =========================================================================
+    // بخش ۳: detail — WorkOrders (درخواست‌های مرتبط)
+    // =========================================================================
+
+    /**
+     * لود WorkOrders مرتبط با کار.
+     * از کش استفاده می‌کنه (اگه قبلاً لود شده).
+     */
+    private fun loadWorkOrders(holder: ViewHolder, task: TaskModel) {
+        // از کش
+        val cached = workOrdersCache[task.id]
+        if (cached != null) {
+            bindWorkOrders(holder, cached)
+            return
+        }
+
+        // لود از Room
+        scope.launch {
+            try {
+                val repo = TaskLocalRepository(holder.itemView.context)
+                val workOrders = repo.getWorkOrdersForTaskOnce(task.id)
+                workOrdersCache[task.id] = workOrders
+                bindWorkOrders(holder, workOrders)
+            } catch (e: Exception) {
+                holder.workOrdersSection.visibility = View.GONE
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun bindWorkOrders(holder: ViewHolder, workOrders: List<com.workshop.mechanicbb1.data.model.WorkOrderModel>) {
+        if (workOrders.isEmpty()) {
+            holder.workOrdersSection.visibility = View.GONE
+            return
+        }
+
+        holder.workOrdersSection.visibility = View.VISIBLE
+        holder.tvWorkOrdersTitle.text = "🔗 درخواست‌های مرتبط (${workOrders.size})"
+
+        holder.rvWorkOrders.layoutManager = LinearLayoutManager(holder.itemView.context)
+        holder.rvWorkOrders.adapter = WorkOrderMiniAdapter(
+            items = workOrders,
+            onClick = { wo ->
+                val intent = Intent(holder.itemView.context, WorkOrderDetailActivity::class.java).apply {
+                    putExtra("WORK_ORDER_ID", wo.id)
+                }
+                holder.itemView.context.startActivity(intent)
+            }
+        )
+    }
+
+    // =========================================================================
+    // بخش ۴: detail — جدول کارکرد
+    // =========================================================================
+
+    private fun loadTaskPerformance(taskId: String, position: Int, holder: ViewHolder) {
+        // از کش
+        if (performanceCache.containsKey(position)) {
+            updateTaskPerformance(position, performanceCache[position]!!, holder)
+            return
+        }
+
+        val repository = EvaluationRepository(holder.itemView.context)
         repository.getTasks(listOf(taskId)) { tasks ->
             repository.getTaskLogs(taskId) { logs ->
                 if (logs.isEmpty()) {
@@ -381,8 +399,8 @@ class ExpandableTaskAdapter(
 
                 EvaluationCache.getCoefficients(holder.itemView.context) { coefficients ->
                     if (coefficients == null) {
-                        holder.tvEmptyPerformance.visibility = View.VISIBLE
                         holder.tvEmptyPerformance.text = "خطا در دریافت ضرایب"
+                        holder.tvEmptyPerformance.visibility = View.VISIBLE
                         return@getCoefficients
                     }
 
@@ -407,11 +425,11 @@ class ExpandableTaskAdapter(
         }
     }
 
-    private fun updateTaskPerformance(
-        position: Int,
-        data: List<TaskPerformanceItem>,
-        holder: ViewHolder
-    ) {
+    private fun updateTaskPerformance(position: Int, data: List<TaskPerformanceItem>, holder: ViewHolder) {
+        // نمایش عنوان + هدر جدول
+        holder.itemView.findViewById<TextView>(R.id.tvPerformanceTitle).visibility = View.VISIBLE
+        holder.itemView.findViewById<View>(R.id.tableHeader).visibility = View.VISIBLE
+
         if (data.isEmpty()) {
             holder.rvTaskPerformance.visibility = View.GONE
             holder.tvEmptyPerformance.visibility = View.VISIBLE
@@ -421,6 +439,7 @@ class ExpandableTaskAdapter(
         holder.rvTaskPerformance.visibility = View.VISIBLE
         holder.tvEmptyPerformance.visibility = View.GONE
 
+        // تعیین ستون‌های قابل نمایش
         val visibility = EvaluationCalculator.ColumnVisibility(
             showResponsibility = data.any { it.responsibility.isNotEmpty() && it.responsibility != "00:00" && it.responsibility != "-" },
             showPhysical = data.any { it.physical.isNotEmpty() && it.physical != "00:00" && it.physical != "-" },
@@ -437,16 +456,34 @@ class ExpandableTaskAdapter(
         holder.itemView.findViewById<TextView>(R.id.headerInspection).visibility =
             if (visibility.showInspection) View.VISIBLE else View.GONE
 
-        val adapter = TaskPerformanceAdapter(data, visibility)
-        holder.rvTaskPerformance.adapter = adapter
+        holder.rvTaskPerformance.layoutManager = LinearLayoutManager(holder.itemView.context)
+        holder.rvTaskPerformance.adapter = TaskPerformanceAdapter(data, visibility)
     }
 
+    // =========================================================================
+    // بخش ۵: expand/collapse
+    // =========================================================================
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun toggleExpansion(position: Int) {
+        if (expandedPosition.contains(position)) {
+            expandedPosition.remove(position)
+        } else {
+            expandedPosition.clear()   // فقط یکی باز
+            expandedPosition.add(position)
+        }
+        notifyDataSetChanged()
+    }
+
+    // =========================================================================
+    // Adapter داخلی: جدول کارکرد
+    // =========================================================================
     inner class TaskPerformanceAdapter(
         private val data: List<TaskPerformanceItem>,
         private val visibility: EvaluationCalculator.ColumnVisibility
-    ) : RecyclerView.Adapter<TaskPerformanceAdapter.ViewHolder>() {
+    ) : RecyclerView.Adapter<TaskPerformanceAdapter.VH>() {
 
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        inner class VH(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val tvName: TextView = itemView.findViewById(R.id.tvPerfName)
             val tvRawTime: TextView = itemView.findViewById(R.id.tvPerfRawTime)
             val tvResponsibility: TextView = itemView.findViewById(R.id.tvPerfResponsibility)
@@ -455,13 +492,13 @@ class ExpandableTaskAdapter(
             val tvInspection: TextView = itemView.findViewById(R.id.tvPerfInspection)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_task_performance, parent, false)
-            return ViewHolder(view)
+            return VH(view)
         }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: VH, position: Int) {
             val item = data[position]
             holder.tvName.text = item.userName
             holder.tvRawTime.text = item.rawTime
@@ -471,15 +508,18 @@ class ExpandableTaskAdapter(
             holder.tvTechnical.visibility = if (visibility.showTechnical) View.VISIBLE else View.GONE
             holder.tvInspection.visibility = if (visibility.showInspection) View.VISIBLE else View.GONE
 
-            holder.tvResponsibility.text = if (item.responsibility.isEmpty()) "-" else item.responsibility
-            holder.tvPhysical.text = if (item.physical.isEmpty()) "-" else item.physical
-            holder.tvTechnical.text = if (item.technical.isEmpty()) "-" else item.technical
-            holder.tvInspection.text = if (item.inspection.isEmpty()) "-" else item.inspection
+            holder.tvResponsibility.text = item.responsibility.ifEmpty { "-" }
+            holder.tvPhysical.text = item.physical.ifEmpty { "-" }
+            holder.tvTechnical.text = item.technical.ifEmpty { "-" }
+            holder.tvInspection.text = item.inspection.ifEmpty { "-" }
         }
 
         override fun getItemCount(): Int = data.size
     }
 
+    // =========================================================================
+    // Model داخلی: یه ردیف جدول کارکرد
+    // =========================================================================
     data class TaskPerformanceItem(
         val userId: String,
         val userName: String,
@@ -490,7 +530,8 @@ class ExpandableTaskAdapter(
         val inspection: String
     )
 
+    // =========================================================================
+    // Extension
+    // =========================================================================
     fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
-
-    override fun getItemCount() = tasks.size
 }

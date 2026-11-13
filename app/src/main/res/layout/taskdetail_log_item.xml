@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardLog"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -15,25 +15,75 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ====== هدر ====== -->
+        <!-- ====== هدر (سه سطر) ====== -->
         <LinearLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="16dp"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
 
+            <!-- سطر ۱: شماره گزارش -->
             <TextView
-                android:id="@+id/tvLogSummary"
+                android:id="@+id/tvLogNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📋 گزارش #۱"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#1565C0"
+                android:layout_marginBottom="4dp"
+                tools:ignore="HardcodedText" />
+
+            <!-- سطر ۲: تاریخ + روز هفته -->
+            <TextView
+                android:id="@+id/tvLogDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 1405/08/19 (شنبه)"
+                android:textSize="16sp"
+                android:textColor="#333"
+                android:layout_marginBottom="4dp"
+                tools:ignore="HardcodedText" />
+
+            <!-- سطر ۳: ساعت + مسئول -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="گزارش ۱۴۰۴/۰۲/۲۵ - علی رضایی"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#1A237E"
-                android:gravity="start"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvLogTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏰ 09:00 - 11:00"
+                    android:textSize="12sp"
+                    android:textColor="#666"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  |  "
+                    android:textSize="12sp"
+                    android:textColor="#CCCCCC"
+                    android:layout_marginHorizontal="4dp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/tvLogUser"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="👤 علی رضایی"
+                    android:textSize="12sp"
+                    android:textColor="#555555"
+                    tools:ignore="HardcodedText" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -41,7 +91,7 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#E8E8E8"/>
+            android:background="#E8E8E8" />
 
         <!-- ====== جزئیات ====== -->
         <LinearLayout
@@ -51,7 +101,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- شرح اقدام با پس‌زمینه ملایم -->
+            <!-- شرح اقدام -->
             <TextView
                 android:id="@+id/tvActionDescription"
                 android:layout_width="match_parent"
@@ -62,16 +112,16 @@
                 android:background="#FFE8E7"
                 android:padding="14dp"
                 android:layout_marginBottom="12dp"
-                android:lineSpacingExtra="4dp"/>
+                android:lineSpacingExtra="4dp"
+                tools:ignore="HardcodedText" />
 
             <View
                 android:id="@+id/dividerDescription"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#E8E8E8"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="12dp" />
 
-            <!-- مدت زمان -->
             <TextView
                 android:id="@+id/tvDuration"
                 android:layout_width="match_parent"
@@ -80,9 +130,9 @@
                 android:textSize="13sp"
                 android:textColor="#555555"
                 android:layout_marginBottom="4dp"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
 
-            <!-- گروه انجام‌دهنده -->
             <TextView
                 android:id="@+id/tvWorkers"
                 android:layout_width="match_parent"
@@ -91,7 +141,8 @@
                 android:textSize="13sp"
                 android:textColor="#555555"
                 android:layout_marginBottom="4dp"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
 
             <View
                 android:id="@+id/dividerWorkers"
@@ -100,9 +151,8 @@
                 android:background="#E8E8E8"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
-            <!-- وضعیت جدید با آیکون دایره -->
             <LinearLayout
                 android:id="@+id/statusContainer"
                 android:layout_width="match_parent"
@@ -117,7 +167,7 @@
                     android:layout_width="10dp"
                     android:layout_height="10dp"
                     android:background="@drawable/circle_indicator"
-                    android:layout_marginEnd="8dp"/>
+                    android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:id="@+id/tvNewStatus"
@@ -125,7 +175,8 @@
                     android:layout_height="wrap_content"
                     android:text="وضعیت جدید: ..."
                     android:textSize="13sp"
-                    android:textColor="#555555"/>
+                    android:textColor="#555555"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
 
             <View
@@ -134,9 +185,9 @@
                 android:layout_height="1dp"
                 android:background="#E8E8E8"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
-            <!-- ====== بخش ارزیابی (اکسپندبل) ====== -->
+            <!-- ====== ارزیابی (اکسپندبل) ====== -->
             <LinearLayout
                 android:id="@+id/evaluationContainer"
                 android:layout_width="match_parent"
@@ -163,14 +214,16 @@
                         android:text="📊 ارزیابی گزارش"
                         android:textSize="13sp"
                         android:textStyle="bold"
-                        android:textColor="#555555"/>
+                        android:textColor="#555555"
+                        tools:ignore="HardcodedText" />
 
                     <ImageView
                         android:id="@+id/ivEvaluationExpand"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_chevron_down"
-                        app:tint="#888888"/>
+                        app:tint="#888888"
+                        tools:ignore="ContentDescription" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -190,7 +243,8 @@
                         android:textSize="13sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="2dp"
-                        android:visibility="gone"/>
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/tvPollutionLevel"
@@ -200,7 +254,8 @@
                         android:textSize="13sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="2dp"
-                        android:visibility="gone"/>
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/tvPhysicalDifficulty"
@@ -210,7 +265,8 @@
                         android:textSize="13sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="2dp"
-                        android:visibility="gone"/>
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText" />
 
                     <TextView
                         android:id="@+id/tvTechnicalComplexity"
@@ -219,7 +275,8 @@
                         android:text="🔧 پیچیدگی فنی: ..."
                         android:textSize="13sp"
                         android:textColor="#555555"
-                        android:visibility="gone"/>
+                        android:visibility="gone"
+                        tools:ignore="HardcodedText" />
                 </LinearLayout>
 
                 <View
@@ -229,7 +286,7 @@
                     android:background="#E8E8E8"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="12dp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- ====== نظرات ====== -->
@@ -243,7 +300,8 @@
                 android:textColor="#37474F"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
 
             <LinearLayout
                 android:id="@+id/commentsContainer"
@@ -251,9 +309,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="8dp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
-            <!-- دکمه ثبت نظر -->
             <Button
                 android:id="@+id/btnAddComment"
                 android:layout_width="wrap_content"
@@ -264,7 +321,8 @@
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                tools:ignore="HardcodedText" />
 
             <View
                 android:id="@+id/dividerButtons"
@@ -272,7 +330,7 @@
                 android:layout_height="1dp"
                 android:background="#E8E8E8"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <!-- ====== دکمه‌های عملیاتی ====== -->
             <LinearLayout
@@ -294,7 +352,8 @@
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#303F9F"
                     android:layout_marginEnd="4dp"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    tools:ignore="ButtonStyle,HardcodedText" />
 
                 <Button
                     android:id="@+id/btnEdit"
@@ -308,7 +367,8 @@
                     android:backgroundTint="#FBC02D"
                     android:layout_marginStart="4dp"
                     android:layout_marginEnd="4dp"
-                    android:visibility="gone"/>
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText" />
 
                 <Button
                     android:id="@+id/btnDelete"
@@ -321,8 +381,8 @@
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#C62828"
                     android:layout_marginStart="4dp"
-                    android:visibility="gone"/>
-
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText" />
             </LinearLayout>
 
             <!-- مشاهده‌کنندگان -->
@@ -332,7 +392,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="2dp"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
         </LinearLayout>
 

@@ -21,15 +21,32 @@ object Config {
         const val SENT_TO_SUPERVISOR = "41"   // اضافه کن
         const val ARCHIVED = "5"              // اضافه کن
 
+        // ✅ جدید: «منتظر گزارش»
+        const val AWAITING_REPORT_PROGRESS = "21"   // در حال انجام + منتظر گزارش
+        const val AWAITING_REPORT_BLOCKED = "31"    // متوقف + منتظر گزارش
+
         fun getText(code: String): String {
             return when (code) {
                 NOT_ACTIONED -> "اقدام نشده"
                 IN_PROGRESS -> "در حال انجام"
                 BLOCKED -> "متوقف"
+                AWAITING_REPORT_PROGRESS -> "در حال انجام - منتظر گزارش"
+                AWAITING_REPORT_BLOCKED -> "متوقف - منتظر گزارش"
                 SENT_TO_SUPERVISOR -> "ارسال به سرشیفت"
                 ARCHIVED -> "بایگانی"
                 else -> "نامشخص"
             }
+        }
+
+        /** آیا این وضعیت، حالت «منتظر گزارش» هست؟ */
+        fun isAwaitingReport(code: String): Boolean =
+            code == AWAITING_REPORT_PROGRESS || code == AWAITING_REPORT_BLOCKED
+
+        /** برگرداندن وضعیت «پایه» از روی وضعیت منتظر-گزارش */
+        fun unwrapAwaitingReport(code: String): String = when (code) {
+            AWAITING_REPORT_PROGRESS -> IN_PROGRESS
+            AWAITING_REPORT_BLOCKED -> BLOCKED
+            else -> code
         }
     }
 

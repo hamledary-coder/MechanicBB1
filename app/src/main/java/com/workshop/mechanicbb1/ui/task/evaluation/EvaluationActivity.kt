@@ -8,6 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.workshop.mechanicbb1.R
@@ -78,6 +81,8 @@ class EvaluationActivity : AppCompatActivity() {
     private var existingPhysicalDifficulty = 0
     private var existingTechnicalComplexity = 0
     private var existingHeatLevel = 30
+    // ===== ویوهای شرایط محیط =====
+    private lateinit var layoutHeatSection: LinearLayout   // ← جدید
     private var existingPollutionLevel = 0
     private var existingWorkType = "1"
     private var existingNotes = ""
@@ -105,6 +110,16 @@ class EvaluationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.activity_evaluation)
 
         // ===== اول initViews رو صدا بزن =====
@@ -112,6 +127,7 @@ class EvaluationActivity : AppCompatActivity() {
         getIntentData()
         initViews()  // ← اینجا rvTeamMembers مقداردهی میشه
         loadTeamMembers()
+        applyHeatSeasonVisibility()
 
 
         // ===== بعد ضرایب رو بگیر =====
@@ -185,6 +201,7 @@ class EvaluationActivity : AppCompatActivity() {
         seekBarPollution = findViewById(R.id.seekBarPollution)
         tvHeatValue = findViewById(R.id.tvHeatValue)
         tvPollutionValue = findViewById(R.id.tvPollutionValue)
+        layoutHeatSection = findViewById(R.id.layoutHeatSection)
 
         etNotes = findViewById(R.id.etNotes)
         btnSubmit = findViewById(R.id.btnSubmit)
@@ -320,7 +337,7 @@ class EvaluationActivity : AppCompatActivity() {
         // دریافت مقادیر از ویوها
         val physicalValue = selectedEvaluationValue
         val technicalValue = technicalComplexityValue
-        val heatProgress = seekBarHeat.progress
+        val heatProgress = if (isHeatSeason()) seekBarHeat.progress else 0
         val pollutionProgress = seekBarPollution.progress
 
         // محاسبه ضرایب با استفاده از EvaluationCalculator
@@ -578,6 +595,32 @@ class EvaluationActivity : AppCompatActivity() {
         etNotes.setText(existingNotes)
 
         updateTeamTable()
+    }
+
+    /**
+     * آیا دما باید نمایش داده بشه؟
+     * فقط از اول اردیبهشت تا اول آبان (بر اساس تاریخ انجام کار)
+     */
+    private fun isHeatSeason(): Boolean {
+        if (taskDate.isEmpty()) return true
+        val year = taskDate.split("/").getOrNull(0) ?: return true
+        val startDate = "$year/02/01"
+        val endDate = "$year/08/01"
+        return taskDate >= startDate && taskDate <= endDate
+    }
+
+    /**
+     * مخفی/نمایش دمای محیط بر اساس فصل
+     */
+    private fun applyHeatSeasonVisibility() {
+        if (isHeatSeason()) {
+            layoutHeatSection.visibility = View.VISIBLE
+        } else {
+            layoutHeatSection.visibility = View.GONE
+            // ✅ دما = پیش‌فرض ۳۰ (بدون تأثیر)
+            seekBarHeat.progress = 0
+            tvHeatValue.text = "30 درجه"
+        }
     }
 
     // ===== Adapter =====

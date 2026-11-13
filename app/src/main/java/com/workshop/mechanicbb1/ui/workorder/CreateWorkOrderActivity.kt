@@ -8,6 +8,9 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
 import com.workshop.mechanicbb1.R
@@ -77,6 +80,16 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            WindowInsetsCompat.CONSUMED
+        }
         setContentView(R.layout.workorder_activity_create)
 
         localRepository = WorkOrderLocalRepository(this)
@@ -191,10 +204,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
     }
 
     private fun validateForm(): Boolean {
-        if (etRequestNumber.text.isNullOrBlank()) {
-            Toast.makeText(this, "شماره درخواست الزامی است", Toast.LENGTH_SHORT).show()
-            return false
-        }
+        // شماره درخواست دیگه الزامی نیست (چون ممکنه هنوز صادر نشده باشه)
         if (etTitle.text.isNullOrBlank()) {
             Toast.makeText(this, "عنوان الزامی است", Toast.LENGTH_SHORT).show()
             return false
@@ -253,12 +263,22 @@ class CreateWorkOrderActivity : AppCompatActivity() {
     }
 
     private fun buildWorkOrderModel(): WorkOrderModel {
+        val requestNumber = etRequestNumber.text.toString().trim()
+
+        // اگه شماره خالیه → id موقت
+        val newId = if (isEdit) {
+            editWorkOrderId
+        } else {
+            if (requestNumber.isNotEmpty()) {
+                "WO-$requestNumber"          // id از شماره
+            } else {
+                "tmp-${System.currentTimeMillis()}"   // id موقت
+            }
+        }
+
         val classPos = spinnerClass.selectedItemPosition
         val statusPos = spinnerStatus.selectedItemPosition
         val unitPos = spinnerUnit.selectedItemPosition
-
-        val requestNumber = etRequestNumber.text.toString().trim()
-        val newId = if (isEdit) editWorkOrderId else "WO-$requestNumber"
 
         val selectedStatus = statuses[statusPos]
         val isArchived = selectedStatus.dbValue == "10"
@@ -275,7 +295,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
             subUnit = etSubUnit.text.toString().trim(),
             equipmentName = etEquipment.text.toString().trim(),
             description = etDescription.text.toString().trim(),
-            externalStatus = selectedStatus.dbValue,     // "1" تا "10"
+            externalStatus = selectedStatus.dbValue,   // "1" تا "10"
             progress = if (isArchived) 100 else 0
         )
     }

@@ -60,7 +60,7 @@ class WorkOrderLocalRepository(context: Context) {
     private fun WorkOrderEntity.toModel(): WorkOrderModel {
         return WorkOrderModel(
             id = id,
-            requestNumber = requestNumber,
+            requestNumber = requestNumber ?: "",   // ← String? → String
             title = title,
             requestClass = requestClass,
             requestDate = requestDate,
@@ -81,12 +81,12 @@ class WorkOrderLocalRepository(context: Context) {
 fun WorkOrderModel.toEntity(): WorkOrderEntity {
     return WorkOrderEntity(
         id = id,
-        requestNumber = requestNumber,
+        requestNumber = requestNumber.ifEmpty { null },   // ← String → String?
         title = title,
         requestClass = requestClass,
         requestDate = requestDate,
         requester = requester,
-        approver = approver.ifEmpty { null },    // ← جدید
+        approver = approver.ifEmpty { null },
         unit = unit,
         subUnit = subUnit,
         equipmentName = equipmentName,

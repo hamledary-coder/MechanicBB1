@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "work_orders")
 data class WorkOrderEntity(
     @PrimaryKey val id: String,
-    val requestNumber: String,
+    val requestNumber: String?,   // ← nullable
     val title: String,
     val requestClass: String?,
     val requestDate: String,

@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#83AEAFB1"
+    android:background="#F0F2F5"
     android:layoutDirection="rtl">
 
+    <!-- ====== Toolbar ====== -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#2343F0"
+        android:background="#1565C0"
         app:titleTextColor="#FFFFFF"
         app:elevation="0dp" />
 
@@ -20,12 +22,999 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewTaskDetail"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="8dp"
-            android:clipToPadding="false" />
+            android:fillViewport="true"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
+
+                <!-- ============================================ -->
+                <!-- HERO SECTION                                -->
+                <!-- ============================================ -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1565C0"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:id="@+id/tvTaskId"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="#123"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:background="#33FFFFFF"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/tvHeroStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="در حال انجام"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:background="#33FFFFFF"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="5dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvTaskTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="عنوان کار"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:lineSpacingExtra="4dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvHeroUrgency"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⚡ خیلی زیاد"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:background="#33FFFFFF"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:layout_marginEnd="8dp"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/tvHeroPriority"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🎯 80"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:background="#33FFFFFF"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- ============================================ -->
+                <!-- QUICK INFO CARD                              -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="-16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- تاریخ -->
+                        <LinearLayout
+                            android:id="@+id/rowScheduledDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📅"
+                                android:textSize="16sp"
+                                android:layout_marginEnd="10dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="تاریخ برنامه‌ریزی"
+                                    android:textSize="11sp"
+                                    android:textColor="#999" />
+
+                                <TextView
+                                    android:id="@+id/tvScheduledDate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1405/08/10 (شنبه)"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/dividerScheduledDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:visibility="gone" />
+
+                        <!-- مسئول + دکمه ارجاع -->
+                        <LinearLayout
+                            android:id="@+id/rowResponsible"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="👤"
+                                android:textSize="16sp"
+                                android:layout_marginEnd="10dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="مسئول انجام"
+                                    android:textSize="11sp"
+                                    android:textColor="#999" />
+
+                                <TextView
+                                    android:id="@+id/tvResponsible"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="علی رضایی"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+
+                            <!-- ✅ دکمه ارجاع (فقط سرشیفت/مدیر) -->
+                            <ImageButton
+                                android:id="@+id/btnReferTask"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginStart="8dp"
+                                android:src="@drawable/ic_refer"
+                                android:background="@drawable/bg_icon_circle"
+                                android:backgroundTint="#2196F3"
+                                android:contentDescription="ارجاع"
+                                android:scaleType="centerInside"
+                                android:padding="8dp"
+                                app:tint="#FFFFFF"
+                                android:visibility="gone" />
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/dividerResponsible"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:visibility="gone" />
+
+                        <!-- گروه -->
+                        <LinearLayout
+                            android:id="@+id/rowAssignees"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="👥"
+                                android:textSize="16sp"
+                                android:layout_marginEnd="10dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="گروه انجام‌دهنده"
+                                    android:textSize="11sp"
+                                    android:textColor="#999" />
+
+                                <TextView
+                                    android:id="@+id/tvAssignees"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="علی، رضا"
+                                    android:textSize="14sp"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/dividerAssignees"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="#F0F0F0"
+                            android:visibility="gone" />
+
+                        <!-- ارجاع‌دهنده -->
+                        <LinearLayout
+                            android:id="@+id/rowReferredBy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingVertical="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="↩️"
+                                android:textSize="16sp"
+                                android:layout_marginEnd="10dp" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ارجاع‌دهنده"
+                                    android:textSize="11sp"
+                                    android:textColor="#999" />
+
+                                <TextView
+                                    android:id="@+id/tvReferredBy"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="محمد"
+                                    android:textSize="14sp"
+                                    android:textColor="#333" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- DESCRIPTION CARD                             -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- نوار رنگی کنار -->
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="match_parent"
+                            android:background="#2196F3" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <!-- هدر -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="12dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="📄"
+                                    android:textSize="18sp"
+                                    android:layout_marginEnd="8dp"
+                                    tools:ignore="HardcodedText" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="شرح کار"
+                                    android:textSize="15sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#1565C0"
+                                    tools:ignore="HardcodedText" />
+                            </LinearLayout>
+
+                            <!-- متن توضیحات -->
+                            <TextView
+                                android:id="@+id/tvTaskDescription"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="..."
+                                android:textSize="16sp"
+                                android:textColor="#1A1A1A"
+                                android:lineSpacingExtra="8dp"
+                                android:lineSpacingMultiplier="1.3" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- STATUS SLIDER CARD                           -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- هدر: عنوان + برچسب وضعیت -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="📊 وضعیت کار"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#333" />
+
+                            <TextView
+                                android:id="@+id/tvStatusLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ادامه دارد"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:textColor="#1565C0"
+                                android:background="#E3F2FD"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="4dp" />
+                        </LinearLayout>
+
+                        <!-- ✅ چک‌باکس «منتظر گزارش» — بین هدر و اسلایدر -->
+                        <com.google.android.material.checkbox.MaterialCheckBox
+                            android:id="@+id/cbAwaitingReport"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="⏳ منتظر گزارش از مسئول"
+                            android:textColor="#E65100"
+                            android:textSize="14sp"
+                            android:buttonTint="#FF9800"
+                            android:visibility="gone" />
+
+                        <!-- اسلایدر وضعیت -->
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="2"
+                            android:stepSize="1"
+                            android:value="1"
+                            app:trackHeight="6dp"
+                            app:trackColorActive="#1565C0"
+                            app:trackColorInactive="#DDDDDD"
+                            app:thumbRadius="16dp"
+                            app:tickVisible="true"
+                            app:tickColorActive="#1565C0"
+                            app:tickColorInactive="#DDDDDD" />
+
+                        <!-- ✅ برچسب‌های زیر اسلایدر — با id جدید -->
+                        <LinearLayout
+                            android:id="@+id/layoutStatusLabels"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="متوقف"
+                                android:textSize="11sp"
+                                android:textAlignment="center"
+                                android:textColor="#C62828" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="ادامه"
+                                android:textSize="11sp"
+                                android:textAlignment="center"
+                                android:textColor="#1565C0" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="اتمام"
+                                android:textSize="11sp"
+                                android:textAlignment="center"
+                                android:textColor="#2E7D32" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- WORK ORDERS CARD                             -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardWorkOrders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/headerWorkOrders"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="?attr/selectableItemBackground"
+                            android:paddingVertical="4dp">
+
+                            <TextView
+                                android:id="@+id/tvWorkOrdersTitle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="🔗 درخواست‌های مرتبط"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#333" />
+
+                            <ImageView
+                                android:id="@+id/ivExpandWorkOrders"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_down"
+                                android:rotation="0" />
+                        </LinearLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvWorkOrders"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:nestedScrollingEnabled="false" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- ESTIMATE CARD                                -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/headerEstimate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="16dp"
+                            android:gravity="center_vertical"
+                            android:background="?attr/selectableItemBackground">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="📋 برآورد اولیه"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="#333" />
+
+                            <TextView
+                                android:id="@+id/tvEstimateStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ثبت نشده"
+                                android:textSize="11sp"
+                                android:textColor="#999"
+                                android:layout_marginEnd="8dp" />
+
+                            <ImageView
+                                android:id="@+id/ivExpandEstimate"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_down"
+                                android:rotation="0" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/contentEstimate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp"
+                            android:paddingTop="0dp"
+                            android:visibility="gone">
+
+                            <LinearLayout
+                                android:id="@+id/layoutEstimateEmpty"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="⚠️ هنوز برآوردی ثبت نشده است"
+                                    android:textSize="13sp"
+                                    android:textColor="#FF9800"
+                                    android:layout_marginBottom="12dp" />
+
+                                <Button
+                                    android:id="@+id/btnAddEstimateEmpty"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="44dp"
+                                    android:text="+ افزودن برآورد"
+                                    android:backgroundTint="#2196F3"
+                                    android:textSize="13sp"
+                                    android:textColor="#FFFFFF"
+                                    android:visibility="gone" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/layoutEstimateData"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:visibility="gone">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="👥 نفرات"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateManpower"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="4"
+                                            android:textSize="14sp"
+                                            android:textStyle="bold"
+                                            android:textColor="#333" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="🔄 قسمت‌ها"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateParts"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="2 × 3 ساعت"
+                                            android:textSize="14sp"
+                                            android:textStyle="bold"
+                                            android:textColor="#333" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="📊 کل بازه"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateTotalHours"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="6 ساعت"
+                                            android:textSize="14sp"
+                                            android:textStyle="bold"
+                                            android:textColor="#1565C0" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="🧮 نفر-ساعت"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateManHours"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="24"
+                                            android:textSize="14sp"
+                                            android:textStyle="bold"
+                                            android:textColor="#2E7D32" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="🔧 نوع کار"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateWorkType"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="تجهیزات ثابت"
+                                            android:textSize="14sp"
+                                            android:textColor="#333" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="💪 سختی"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimatePhysical"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="4/5"
+                                            android:textSize="14sp"
+                                            android:textColor="#333" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginBottom="8dp">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="🌡️ دما / آلودگی"
+                                            android:textSize="11sp"
+                                            android:textColor="#999" />
+
+                                        <TextView
+                                            android:id="@+id/tvEstimateConditions"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="40°C / 20 ppm"
+                                            android:textSize="14sp"
+                                            android:textColor="#333" />
+                                    </LinearLayout>
+                                </LinearLayout>
+
+                                <TextView
+                                    android:id="@+id/tvEstimateNotes"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textSize="13sp"
+                                    android:textColor="#555"
+                                    android:layout_marginTop="4dp"
+                                    android:visibility="gone" />
+
+                                <TextView
+                                    android:id="@+id/tvEstimateMeta"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="📅 1405/08/09 — سرشیفت: نام"
+                                    android:textSize="11sp"
+                                    android:textColor="#999"
+                                    android:layout_marginTop="12dp" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:layout_marginTop="12dp">
+
+                                    <Button
+                                        android:id="@+id/btnAddEstimate"
+                                        android:layout_width="0dp"
+                                        android:layout_height="40dp"
+                                        android:layout_weight="1"
+                                        android:layout_marginEnd="4dp"
+                                        android:text="+ بازنگری"
+                                        android:backgroundTint="#2196F3"
+                                        android:textSize="12sp"
+                                        android:textColor="#FFFFFF"
+                                        android:visibility="gone" />
+
+                                    <Button
+                                        android:id="@+id/btnDeleteEstimate"
+                                        android:layout_width="0dp"
+                                        android:layout_height="40dp"
+                                        android:layout_weight="1"
+                                        android:layout_marginStart="4dp"
+                                        android:text="🗑 حذف"
+                                        android:backgroundTint="#F44336"
+                                        android:textSize="12sp"
+                                        android:textColor="#FFFFFF"
+                                        android:visibility="gone" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- SEEN BY CARD                                 -->
+                <!-- ============================================ -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSeenBy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="#FFFFFF"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="👁 "
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="#666"
+                            android:layout_marginEnd="8dp" />
+
+                        <LinearLayout
+                            android:id="@+id/seenByContainer"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ============================================ -->
+                <!-- LOGS HEADER                                  -->
+                <!-- ============================================ -->
+                <LinearLayout
+                    android:id="@+id/logsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvLogsTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📝 گزارش‌ها (۰)"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#333" />
+                </LinearLayout>
+
+                <!-- ============================================ -->
+                <!-- LOGS RECYCLERVIEW                            -->
+                <!-- ============================================ -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvLogs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="8dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <TextView
+                    android:id="@+id/tvEmptyLogs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="هنوز گزارشی ثبت نشده است"
+                    android:textSize="13sp"
+                    android:textColor="#999"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -33,6 +1022,29 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone" />
+
+
     </FrameLayout>
 
+    <!-- ✅ Sticky Bottom Bar — پایین صفحه -->
+    <FrameLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btnAddLog"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="📝 ثبت گزارش جدید"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2E7D32" />
+
+    </FrameLayout>
 </LinearLayout>

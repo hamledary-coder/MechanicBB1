@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_home" android:title="خانه" />
+        <item android:id="@+id/nav_cartable" android:title="کارپوشه" />
+        <item android:id="@+id/nav_personnel_report" android:title="گزارش وضعیت کلی تقسیم کار" />
+        <item android:id="@+id/nav_reports" android:title="گزارشات روزانه" />
+    </group>
+
+    <item android:title="سایر">
+        <menu>
+            <item android:id="@+id/nav_archive" android:title="بایگانی" />
+            <item android:id="@+id/nav_work_orders" android:title="درخواست‌ها" />
+            <item android:id="@+id/nav_settings" android:title="تنظیمات" />
+        </menu>
+    </item>
+
+</menu>

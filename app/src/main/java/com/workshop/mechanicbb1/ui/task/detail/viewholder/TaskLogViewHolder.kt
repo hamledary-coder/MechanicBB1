@@ -8,13 +8,11 @@ import android.graphics.Color
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -38,9 +36,10 @@ import org.json.JSONObject
 
 class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    private val tvLogSummary: TextView = itemView.findViewById(R.id.tvLogSummary)
-    private val divider: View = itemView.findViewById(R.id.divider)
-    private val detailLayout: View = itemView.findViewById(R.id.detailLayout)
+    private val tvLogNumber: TextView = itemView.findViewById(R.id.tvLogNumber)
+    private val tvLogDate: TextView = itemView.findViewById(R.id.tvLogDate)
+    private val tvLogTime: TextView = itemView.findViewById(R.id.tvLogTime)
+    private val tvLogUser: TextView = itemView.findViewById(R.id.tvLogUser)
     private val tvActionDescription: TextView = itemView.findViewById(R.id.tvActionDescription)
     private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
     private val tvWorkers: TextView = itemView.findViewById(R.id.tvWorkers)
@@ -83,6 +82,7 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         task: TaskModel,
         currentUserId: String,
         userRole: String,
+        reportNumber: Int,
         onDelete: (TaskLogModel) -> Unit,
         onRefresh: () -> Unit
     ) {
@@ -96,13 +96,24 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             cardLog.setCardBackgroundColor(Color.parseColor("#F0F5FF"))
         }
 
-        val timeRange = if (log.startTime.isNotEmpty() || log.endTime.isNotEmpty()) {
-            " (${log.startTime} - ${log.endTime})"
-        } else ""
+        // ===== هدر =====
+        // سطر ۱: شماره
+        val reportNumberText = DateUtils.toPersianOrdinal(reportNumber)
+        tvLogNumber.text = "📋 گزارش $reportNumberText"
 
+        // سطر ۲: تاریخ
         val dayOfWeek = DateUtils.getDayNameFromDate(log.date)
         val dateDisplay = if (dayOfWeek.isNotEmpty()) "${log.date} ($dayOfWeek)" else log.date
-        tvLogSummary.text = "📋 گزارش $dateDisplay - ${log.userName}$timeRange"
+        tvLogDate.text = "📅 $dateDisplay"
+
+        // سطر ۳: ساعت + مسئول
+        if (log.startTime.isNotEmpty() || log.endTime.isNotEmpty()) {
+            tvLogTime.text = "⏰ ${log.startTime} - ${log.endTime}"
+            tvLogTime.visibility = View.VISIBLE
+        } else {
+            tvLogTime.visibility = View.GONE
+        }
+        tvLogUser.text = "👤 ${log.userName}"
 
         tvActionDescription.text = log.actionDescription
         if (log.actionDescription.contains("برگشت داده شد")) {
@@ -191,6 +202,7 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupEvaluationSection(log: TaskLogModel) {
         val hasData = log.heatLevel > 30 || log.pollutionLevel > 0 ||
                 log.physicalDifficulty > 0 || log.technicalComplexity > 0
