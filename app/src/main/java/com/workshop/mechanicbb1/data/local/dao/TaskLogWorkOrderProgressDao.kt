@@ -71,4 +71,7 @@ interface TaskLogWorkOrderProgressDao {
         workOrderId: String,
         excludeLogId: String
     ): TaskLogWorkOrderProgressEntity?
+
+    @Query("DELETE FROM task_log_workorder_progress WHERE workOrderId = :workOrderId")
+    suspend fun deleteByWorkOrder(workOrderId: String)
 }

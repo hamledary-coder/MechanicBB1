@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:paddingVertical="4dp"
     android:background="?attr/selectableItemBackground"
-    android:weightSum="4.5">  <!-- ← weightSum رو اضافه کن -->
+    android:weightSum="5.3">
 
     <TextView
         android:id="@+id/tvPerfName"
@@ -53,6 +53,19 @@
 
     <TextView
         android:id="@+id/tvPerfTechnical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:text="-"
+        android:textSize="12sp"
+        android:textColor="#2E7D32"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <!-- ⭐ جدید: مشارکت فنی -->
+    <TextView
+        android:id="@+id/tvPerfTechnicalParticipation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.8"

@@ -62,7 +62,7 @@
                 android:clipChildren="false">
 
                 <!-- ============================================ -->
-                <!-- ۱. کارت خوش‌آمدگویی (هم‌رنگ کارت آخر: کرم)   -->
+                <!-- ۱. کارت خوش‌آمدگویی + وضعیت sync              -->
                 <!-- ============================================ -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -76,74 +76,88 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
 
-                        <!-- ردیف اول: خوش آمدید + وضعیت -->
+                        <!-- ===== ستون چپ: خوش آمدید + نام ===== -->
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
                             <TextView
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:text="👋 خوش آمدید،"
                                 android:textSize="13sp"
                                 android:textColor="#8D6E63" />
 
-                            <!-- وضعیت شبکه -->
-                            <LinearLayout
-                                android:id="@+id/networkStatusLayout"
+                            <TextView
+                                android:id="@+id/tvWelcomeHome"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="end"
-                                android:layout_marginStart="8dp">
-
-                                <TextView
-                                    android:id="@+id/tvNetworkStatus"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="در حال بررسی..."
-                                    android:textSize="10sp"
-                                    android:textStyle="bold"
-                                    android:textColor="#666" />
-
-                                <TextView
-                                    android:id="@+id/tvLastOnlineLabel"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="آخرین اتصال"
-                                    android:textSize="8sp"
-                                    android:textColor="#999"
-                                    android:visibility="gone" />
-
-                                <TextView
-                                    android:id="@+id/tvLastOnlineTime"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=""
-                                    android:textSize="8sp"
-                                    android:textColor="#999"
-                                    android:visibility="gone" />
-
-                            </LinearLayout>
+                                android:layout_marginTop="4dp"
+                                android:text="کاربر عزیز"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:textColor="#E65100" />
 
                         </LinearLayout>
 
-                        <!-- نام کاربر -->
-                        <TextView
-                            android:id="@+id/tvWelcomeHome"
+                        <!-- ===== ستون راست: وضعیت sync (وسط ارتفاع) ===== -->
+                        <LinearLayout
+                            android:id="@+id/syncStatusLayout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="کاربر عزیز"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#E65100" />
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_marginStart="12dp">
+
+                            <TextView
+                                android:id="@+id/tvSyncStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="—"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:textColor="#666" />
+
+                            <TextView
+                                android:id="@+id/tvLastSyncLabel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="آخرین همگام‌سازی"
+                                android:textSize="8sp"
+                                android:textColor="#999"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tvLastSyncTime"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:textSize="8sp"
+                                android:textColor="#999"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnSync"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginTop="6dp"
+                                android:text="همگام‌سازی"
+                                android:textSize="9sp"
+                                android:paddingHorizontal="8dp"
+                                app:cornerRadius="6dp"
+                                app:backgroundTint="#1565C0"
+                                app:icon="@drawable/ic_sync"
+                                app:iconSize="12dp"
+                                app:iconGravity="textStart" />
+
+                        </LinearLayout>
 
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

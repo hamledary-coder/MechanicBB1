@@ -246,7 +246,7 @@
                         android:layout_marginBottom="8dp"
                         android:visibility="gone" />
 
-                    <!-- هدر جدول -->
+                    <!-- ===== هدر جدول (آپدیت‌شده) ===== -->
                     <LinearLayout
                         android:id="@+id/tableHeader"
                         android:layout_width="match_parent"
@@ -255,7 +255,7 @@
                         android:background="#E8E8E8"
                         android:padding="8dp"
                         android:layout_marginBottom="4dp"
-                        android:weightSum="4.5"
+                        android:weightSum="5.3"
                         android:visibility="gone">
 
                         <TextView
@@ -307,6 +307,19 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="0.8"
                             android:text="فنی"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:textColor="#2E7D32"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                        <!-- ⭐ جدید: مشارکت فنی -->
+                        <TextView
+                            android:id="@+id/headerTechnicalParticipation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.8"
+                            android:text="مشارکت"
                             android:textSize="10sp"
                             android:textStyle="bold"
                             android:textColor="#2E7D32"

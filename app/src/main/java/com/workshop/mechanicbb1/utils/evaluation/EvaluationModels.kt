@@ -23,13 +23,15 @@ object EvaluationModels {
         val userId: String,
         val userName: String,
         // ساعت خام
-        val rawResponsibility: Double = 0.0,   // ساعت مسئولیت
-        val rawTechnical: Double = 0.0,        // ساعت کار فنی
-        val rawPhysical: Double = 0.0,         // ساعت کار فیزیکی
-        val rawInspection: Double = 0.0,       // ساعت کار بررسی
+        val rawResponsibility: Double = 0.0,           // ساعت مسئولیت
+        val rawTechnical: Double = 0.0,                // کار فنی (به عنوان مسئول)
+        val rawTechnicalParticipation: Double = 0.0,   // مشارکت در کار فنی (به عنوان انجام‌دهنده)
+        val rawPhysical: Double = 0.0,                 // کار فیزیکی
+        val rawInspection: Double = 0.0,               // کار بررسی
         // ساعت با ضریب
         val finalResponsibility: Double = 0.0,
         val finalTechnical: Double = 0.0,
+        val finalTechnicalParticipation: Double = 0.0,
         val finalPhysical: Double = 0.0,
         val finalInspection: Double = 0.0
     ) {
@@ -40,10 +42,12 @@ object EvaluationModels {
                 userName = userName,
                 rawResponsibility = formatDuration(rawResponsibility),
                 rawTechnical = formatDuration(rawTechnical),
+                rawTechnicalParticipation = formatDuration(rawTechnicalParticipation),
                 rawPhysical = formatDuration(rawPhysical),
                 rawInspection = formatDuration(rawInspection),
                 finalResponsibility = formatDuration(finalResponsibility),
                 finalTechnical = formatDuration(finalTechnical),
+                finalTechnicalParticipation = formatDuration(finalTechnicalParticipation),
                 finalPhysical = formatDuration(finalPhysical),
                 finalInspection = formatDuration(finalInspection)
             )
@@ -65,10 +69,12 @@ object EvaluationModels {
         val userName: String,
         val rawResponsibility: String,
         val rawTechnical: String,
+        val rawTechnicalParticipation: String,
         val rawPhysical: String,
         val rawInspection: String,
         val finalResponsibility: String,
         val finalTechnical: String,
+        val finalTechnicalParticipation: String,
         val finalPhysical: String,
         val finalInspection: String
     )
@@ -106,10 +112,12 @@ object EvaluationModels {
         val userName: String,
         val rawResponsibility: String,
         val rawTechnical: String,
+        val rawTechnicalParticipation: String,
         val rawPhysical: String,
         val rawInspection: String,
         val finalResponsibility: String,
         val finalTechnical: String,
+        val finalTechnicalParticipation: String,
         val finalPhysical: String,
         val finalInspection: String
     )

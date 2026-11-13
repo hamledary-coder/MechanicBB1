@@ -415,6 +415,7 @@ class ExpandableTaskAdapter(
                             responsibility = item.finalResponsibility,
                             physical = item.finalPhysical,
                             technical = item.finalTechnical,
+                            technicalParticipation = item.finalTechnicalParticipation,   // ← جدید
                             inspection = item.finalInspection
                         )
                     }
@@ -426,7 +427,6 @@ class ExpandableTaskAdapter(
     }
 
     private fun updateTaskPerformance(position: Int, data: List<TaskPerformanceItem>, holder: ViewHolder) {
-        // نمایش عنوان + هدر جدول
         holder.itemView.findViewById<TextView>(R.id.tvPerformanceTitle).visibility = View.VISIBLE
         holder.itemView.findViewById<View>(R.id.tableHeader).visibility = View.VISIBLE
 
@@ -444,6 +444,7 @@ class ExpandableTaskAdapter(
             showResponsibility = data.any { it.responsibility.isNotEmpty() && it.responsibility != "00:00" && it.responsibility != "-" },
             showPhysical = data.any { it.physical.isNotEmpty() && it.physical != "00:00" && it.physical != "-" },
             showTechnical = data.any { it.technical.isNotEmpty() && it.technical != "00:00" && it.technical != "-" },
+            showTechnicalParticipation = data.any { it.technicalParticipation.isNotEmpty() && it.technicalParticipation != "00:00" && it.technicalParticipation != "-" },  // ← جدید
             showInspection = data.any { it.inspection.isNotEmpty() && it.inspection != "00:00" && it.inspection != "-" }
         )
 
@@ -453,6 +454,8 @@ class ExpandableTaskAdapter(
             if (visibility.showPhysical) View.VISIBLE else View.GONE
         holder.itemView.findViewById<TextView>(R.id.headerTechnical).visibility =
             if (visibility.showTechnical) View.VISIBLE else View.GONE
+        holder.itemView.findViewById<TextView>(R.id.headerTechnicalParticipation).visibility =
+            if (visibility.showTechnicalParticipation) View.VISIBLE else View.GONE   // ← جدید
         holder.itemView.findViewById<TextView>(R.id.headerInspection).visibility =
             if (visibility.showInspection) View.VISIBLE else View.GONE
 
@@ -489,6 +492,7 @@ class ExpandableTaskAdapter(
             val tvResponsibility: TextView = itemView.findViewById(R.id.tvPerfResponsibility)
             val tvPhysical: TextView = itemView.findViewById(R.id.tvPerfPhysical)
             val tvTechnical: TextView = itemView.findViewById(R.id.tvPerfTechnical)
+            val tvTechnicalParticipation: TextView = itemView.findViewById(R.id.tvPerfTechnicalParticipation)   // ← جدید
             val tvInspection: TextView = itemView.findViewById(R.id.tvPerfInspection)
         }
 
@@ -506,11 +510,13 @@ class ExpandableTaskAdapter(
             holder.tvResponsibility.visibility = if (visibility.showResponsibility) View.VISIBLE else View.GONE
             holder.tvPhysical.visibility = if (visibility.showPhysical) View.VISIBLE else View.GONE
             holder.tvTechnical.visibility = if (visibility.showTechnical) View.VISIBLE else View.GONE
+            holder.tvTechnicalParticipation.visibility = if (visibility.showTechnicalParticipation) View.VISIBLE else View.GONE   // ← جدید
             holder.tvInspection.visibility = if (visibility.showInspection) View.VISIBLE else View.GONE
 
             holder.tvResponsibility.text = item.responsibility.ifEmpty { "-" }
             holder.tvPhysical.text = item.physical.ifEmpty { "-" }
             holder.tvTechnical.text = item.technical.ifEmpty { "-" }
+            holder.tvTechnicalParticipation.text = item.technicalParticipation.ifEmpty { "-" }   // ← جدید
             holder.tvInspection.text = item.inspection.ifEmpty { "-" }
         }
 
@@ -527,6 +533,7 @@ class ExpandableTaskAdapter(
         val responsibility: String,
         val physical: String,
         val technical: String,
+        val technicalParticipation: String,   // ← جدید
         val inspection: String
     )
 

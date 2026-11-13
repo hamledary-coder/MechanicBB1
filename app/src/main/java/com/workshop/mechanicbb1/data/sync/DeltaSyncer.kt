@@ -1,19 +1,20 @@
 package com.workshop.mechanicbb1.data.sync
 
+
 import TaskModel
 import android.content.Context
 import android.util.Log
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
 import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.TaskEntity
 import com.workshop.mechanicbb1.data.local.entity.TaskEstimateEntity
+import com.workshop.mechanicbb1.data.local.entity.TaskLogWorkOrderProgressEntity
 import com.workshop.mechanicbb1.data.local.entity.TaskWorkOrderMappingEntity
 import com.workshop.mechanicbb1.data.local.entity.WorkOrderEntity
 import com.workshop.mechanicbb1.data.model.TaskLogModel
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.utils.VolleySingleton
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.workshop.mechanicbb1.data.local.entity.TaskLogWorkOrderProgressEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -165,6 +166,7 @@ object DeltaSyncer {
                             val deletedMappingIds = mutableListOf<String>()
                             val deletedEstimateIds = mutableListOf<String>()
                             val deletedProgressIds = mutableListOf<String>()
+                            val deletedWorkOrderIds = mutableListOf< String>()
 
                             for (i in 0 until deletedArray.length()) {
                                 val obj = deletedArray.getJSONObject(i)
@@ -177,7 +179,7 @@ object DeltaSyncer {
                                     "task_work_order_mapping" -> deletedMappingIds.add(recordId)
                                     "task_estimates" -> deletedEstimateIds.add(recordId)
                                     "task_log_work_order_progress" -> deletedProgressIds.add(recordId)
-
+                                    "work_orders" -> deletedWorkOrderIds.add(recordId)
                                 }
                             }
 
@@ -212,6 +214,7 @@ object DeltaSyncer {
 
                             onComplete?.invoke(
                                 SyncResult(
+                                    success = true,
                                     tasksCount = taskEntities.size,
                                     reportsCount = reportEntities.size,
                                     deletedCount = deletedTaskIds.size + deletedReportIds.size
@@ -220,18 +223,18 @@ object DeltaSyncer {
 
                         } catch (e: Exception) {
                             Log.e(TAG, "Error saving delta: ${e.message}", e)
-                            onComplete?.invoke(SyncResult(0, 0, 0))
+                            onComplete?.invoke(SyncResult(success = false))
                         }
                     }
 
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing delta: ${e.message}", e)
-                    onComplete?.invoke(SyncResult(0, 0, 0))
+                    onComplete?.invoke(SyncResult(success = false))
                 }
             },
             { error ->
                 Log.e(TAG, "Network error: ${error.message}")
-                onComplete?.invoke(SyncResult(0, 0, 0))
+                onComplete?.invoke(SyncResult(success = false))
             }
         )
 
@@ -319,8 +322,9 @@ object DeltaSyncer {
     }
 
     data class SyncResult(
-        val tasksCount: Int,
-        val reportsCount: Int,
-        val deletedCount: Int
+        val success: Boolean = false,
+        val tasksCount: Int = 0,
+        val reportsCount: Int = 0,
+        val deletedCount: Int = 0
     )
 }

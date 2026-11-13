@@ -6,6 +6,7 @@ import com.workshop.mechanicbb1.data.local.AppDatabase
 import com.workshop.mechanicbb1.data.local.entity.TaskEntity
 import com.workshop.mechanicbb1.data.local.entity.TaskWorkOrderMappingEntity
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
+import com.workshop.mechanicbb1.data.sync.OutboxHelper
 import com.workshop.mechanicbb1.data.sync.TaskMapper
 import com.workshop.mechanicbb1.utils.DateUtils
 import kotlinx.coroutines.flow.Flow
@@ -167,10 +168,18 @@ class TaskLocalRepository(private val context: Context) {
         // ۱. soft delete Task
         db.taskDao().update(task.copy(isDeleted = true))
 
-        // ۲. حذف Reportها (TaskLog) + progressهاشون
+        // ۲. حذف Reportها + progressهاشون
         val reports = db.reportDao().getByTaskOnce(taskId)
         val reportIds = reports.map { it.id }
+
+        // ← جدید: WorkOrderهای تأثیرپذیر رو جمع کن
+        val affectedWorkOrders = mutableSetOf<String>()
+
         reports.forEach { report ->
+            // ← جدید: progressها رو جمع کن
+            db.taskLogWorkOrderProgressDao().getByLogOnce(report.id)
+                .forEach { affectedWorkOrders.add(it.workOrderId) }
+
             db.taskLogWorkOrderProgressDao().deleteByLog(report.id)
         }
         db.reportDao().deleteAllByTaskId(taskId)
@@ -187,6 +196,35 @@ class TaskLocalRepository(private val context: Context) {
             db.outboxDao().deleteByTargetIds(reportIds)
         }
         db.outboxDao().deleteByTargetIdPrefix("est_${taskId}_")
+
+        // ← جدید: آپدیت work_orders.progress + Outbox
+        affectedWorkOrders.forEach { workOrderId ->
+            val latestRemaining = db.taskLogWorkOrderProgressDao().getLatestForWorkOrderByDate(workOrderId)
+            val newProgress = latestRemaining?.progress ?: 0
+            db.workOrderDao().updateProgress(workOrderId, newProgress)
+
+            // ✅ Outbox → سرور (updateWorkOrder)
+            val woEntity = db.workOrderDao().getById(workOrderId)
+            if (woEntity != null) {
+                val woModel = WorkOrderModel(
+                    id = woEntity.id,
+                    requestNumber = woEntity.requestNumber ?: "",
+                    title = woEntity.title,
+                    requestClass = woEntity.requestClass,
+                    requestDate = woEntity.requestDate,
+                    requester = woEntity.requester,
+                    approver = woEntity.approver ?: "",
+                    unit = woEntity.unit,
+                    subUnit = woEntity.subUnit,
+                    equipmentName = woEntity.equipmentName,
+                    description = woEntity.description,
+                    externalStatus = woEntity.externalStatus,
+                    progress = newProgress,
+                    source = woEntity.source
+                )
+                OutboxHelper.enqueueUpdateWorkOrder(context, woModel)
+            }
+        }
     }
 
     // =========================================================================

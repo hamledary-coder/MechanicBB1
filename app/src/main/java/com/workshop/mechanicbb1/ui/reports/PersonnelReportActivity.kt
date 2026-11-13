@@ -60,7 +60,7 @@ class PersonnelReportActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            title = "📊 گزارش کارکرد پرسنل"
+            title = "📊 وضعیت تقسیم کار و کارکرد پرسنل"
         }
     }
 
@@ -95,10 +95,12 @@ class PersonnelReportActivity : AppCompatActivity() {
                             userName = display.userName,
                             rawResponsibility = display.rawResponsibility,
                             rawTechnical = display.rawTechnical,
+                            rawTechnicalParticipation = display.rawTechnicalParticipation,  // ← جدید
                             rawPhysical = display.rawPhysical,
                             rawInspection = display.rawInspection,
                             finalResponsibility = display.finalResponsibility,
                             finalTechnical = display.finalTechnical,
+                            finalTechnicalParticipation = display.finalTechnicalParticipation,  // ← جدید
                             finalPhysical = display.finalPhysical,
                             finalInspection = display.finalInspection
                         )
@@ -121,16 +123,8 @@ class PersonnelReportActivity : AppCompatActivity() {
     }
 
     private fun displaySections(reports: List<PersonnelReport>) {
-        // 1. حجم کار با مسئولیت مستقیم
-        addSectionWithToggle(
-            sectionKey = "مسئولیت مستقیم",
-            title = "📋 حجم کار با مسئولیت مستقیم",
-            reports = reports,
-            rawGetter = { it.rawResponsibility },
-            finalGetter = { it.finalResponsibility }
-        )
 
-        // 2. حجم کار فیزیکی
+        // 1. حجم کار فیزیکی
         addSectionWithToggle(
             sectionKey = "کار فیزیکی",
             title = "💪 حجم کار فیزیکی",
@@ -139,16 +133,34 @@ class PersonnelReportActivity : AppCompatActivity() {
             finalGetter = { it.finalPhysical }
         )
 
-        // 3. حجم کار فنی
+        // 2. حجم کار فنی (به عنوان مسئول)
         addSectionWithToggle(
             sectionKey = "کار فنی",
-            title = "🔧 حجم کار فنی",
+            title = "🔧 کار فنی (مسئول)",
             reports = reports,
             rawGetter = { it.rawTechnical },
             finalGetter = { it.finalTechnical }
         )
 
-        // 4. کار بررسی (غیرفیزیکی)
+        // 3. مشارکت در کار فنی (به عنوان انجام‌دهنده) ← جدید
+        addSectionWithToggle(
+            sectionKey = "مشارکت در کار فنی",
+            title = "🛠️ مشارکت در کار فنی (انجام‌دهنده)",
+            reports = reports,
+            rawGetter = { it.rawTechnicalParticipation },
+            finalGetter = { it.finalTechnicalParticipation }
+        )
+
+        // 4. حجم کار با مسئولیت مستقیم
+        addSectionWithToggle(
+            sectionKey = "مسئولیت مستقیم",
+            title = "📋 حجم کار با مسئولیت مستقیم",
+            reports = reports,
+            rawGetter = { it.rawResponsibility },
+            finalGetter = { it.finalResponsibility }
+        )
+
+        // 5. کار بررسی (غیرفیزیکی)
         addSectionWithToggle(
             sectionKey = "کار بررسی",
             title = "🔍 کار بررسی (غیرفیزیکی)",
@@ -206,6 +218,7 @@ class PersonnelReportActivity : AppCompatActivity() {
 
         val sectionColor = when {
             sectionKey.contains("مسئولیت") -> ContextCompat.getColor(this, R.color.primary_blue)
+            sectionKey.contains("مشارکت") -> ContextCompat.getColor(this, R.color.priority_low)  // ← جدید (یا هر رنگی که داری)
             sectionKey.contains("فیزیکی") -> ContextCompat.getColor(this, R.color.primary_green_dark)
             sectionKey.contains("فنی") -> ContextCompat.getColor(this, R.color.priority_high)
             sectionKey.contains("بررسی") -> ContextCompat.getColor(this, R.color.priority_medium)

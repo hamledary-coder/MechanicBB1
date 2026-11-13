@@ -47,6 +47,13 @@ class WorkOrderLocalRepository(context: Context) {
     }
 
     suspend fun deleteWorkOrder(id: String) {
+        // ۱. progressها
+        db.taskLogWorkOrderProgressDao().deleteByWorkOrder(id)   // ← جدید
+
+        // ۲. mappingها
+        db.taskWorkOrderMappingDao().deleteByWorkOrder(id)       // ← جدید
+
+        // ۳. خود WorkOrder
         dao.deleteById(id)
     }
 
