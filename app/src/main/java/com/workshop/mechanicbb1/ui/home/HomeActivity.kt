@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -52,8 +56,9 @@ import java.util.Locale
  *
  * وظایف:
  *   - نمایش منوی کناری (Drawer) + کارت‌های اصلی
- *   - نمایش وضعیت همگام‌سازی (نه وضعیت اینترنت)
- *   - اجرای خودکار sync هنگام باز شدن + امکان sync دستی با دکمه
+ *   - نمایش وضعیت شبکه (لحظه‌ای) + وضعیت sync (فقط با SyncManager)
+ *   - آخرین زمان sync (حتی آفلاین)
+ *   - sync خودکار هنگام وصل شدن نت + sync دستی با دکمه
  *   - بررسی مسئول بودن کاربر برای فعال/غیرفعال کردن کارت QuickLog
  */
 class HomeActivity : AppCompatActivity() {
@@ -69,9 +74,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var tvWelcome: TextView
 
-    // بخش وضعیت sync
-    private lateinit var tvSyncStatus: TextView
-    private lateinit var tvLastSyncLabel: TextView
+    // بخش وضعیت
+    private lateinit var tvNetworkStatus: TextView
     private lateinit var tvLastSyncTime: TextView
     private lateinit var btnSync: MaterialButton
 
@@ -86,6 +90,40 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var taskLocalRepository: TaskLocalRepository
     private var responsibleTasksJob: Job? = null
     private var syncJob: Job? = null
+
+    // =========================================================================
+    // Network
+    // =========================================================================
+    private lateinit var connectivityManager: ConnectivityManager
+    private var isNetworkCallbackRegistered = false
+    private var isOnline = false
+
+    private val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .build()
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            runOnUiThread {
+                updateNetworkStatusUI(true)
+                // sync خودکار وقتی نت وصل شد
+                startSync()
+            }
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            runOnUiThread { updateNetworkStatusUI(false) }
+        }
+
+        override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
+            super.onCapabilitiesChanged(network, caps)
+            val hasInternet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            runOnUiThread { updateNetworkStatusUI(hasInternet) }
+        }
+    }
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 1001
@@ -108,18 +146,28 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.home_activity)
 
         taskLocalRepository = TaskLocalRepository(this)
+        connectivityManager = getSystemService(ConnectivityManager::class.java)
 
         initViews()
         setupToolbar()
         setupDrawer()
         setupClickListeners()
-        loadUserData()
+        loadLastSyncTime()
 
-        // وضعیت اولیه‌ی کارت QuickLog
         setQuickLogCardEnabled(false)
 
-        // شروع sync خودکار
-        startSync()
+        loadUserData()
+        checkNetworkStatusInitially()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        registerNetworkCallback()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterNetworkCallback()
     }
 
     override fun onResume() {
@@ -127,7 +175,6 @@ class HomeActivity : AppCompatActivity() {
         checkUserHasResponsibleTasks()
     }
 
-    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     @Suppress("DEPRECATION")
     @SuppressLint("GestureBackNavigation")
     override fun onBackPressed() {
@@ -149,8 +196,7 @@ class HomeActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         tvWelcome = findViewById(R.id.tvWelcomeHome)
 
-        tvSyncStatus = findViewById(R.id.tvSyncStatus)
-        tvLastSyncLabel = findViewById(R.id.tvLastSyncLabel)
+        tvNetworkStatus = findViewById(R.id.tvNetworkStatus)
         tvLastSyncTime = findViewById(R.id.tvLastSyncTime)
         btnSync = findViewById(R.id.btnSync)
 
@@ -256,13 +302,64 @@ class HomeActivity : AppCompatActivity() {
     }
 
     // =========================================================================
+    // Network
+    // =========================================================================
+    private fun registerNetworkCallback() {
+        if (isNetworkCallbackRegistered) return
+        try {
+            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+            isNetworkCallbackRegistered = true
+        } catch (e: Exception) {
+            Log.e(TAG, "registerNetworkCallback error: ${e.message}")
+        }
+    }
+
+    private fun unregisterNetworkCallback() {
+        if (!isNetworkCallbackRegistered) return
+        try {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+        } catch (e: Exception) {
+            Log.e(TAG, "unregisterNetworkCallback error: ${e.message}")
+        } finally {
+            isNetworkCallbackRegistered = false
+        }
+    }
+
+    private fun checkNetworkStatusInitially() {
+        val active = connectivityManager.activeNetwork
+        val caps = connectivityManager.getNetworkCapabilities(active)
+        val online = caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        updateNetworkStatusUI(online)
+
+        // sync خودکار اگه آنلاین بود
+        if (online) startSync()
+    }
+
+    private fun updateNetworkStatusUI(online: Boolean) {
+        isOnline = online
+
+        if (online) {
+            tvNetworkStatus.text = "🟢 آنلاین"
+            tvNetworkStatus.setTextColor(Color.parseColor("#2E7D32"))
+            btnSync.visibility = View.VISIBLE
+            btnSync.isEnabled = true
+        } else {
+            tvNetworkStatus.text = "🔴 آفلاین"
+            tvNetworkStatus.setTextColor(Color.parseColor("#C62828"))
+            btnSync.visibility = View.GONE
+        }
+    }
+
+    // =========================================================================
     // Sync
     // =========================================================================
-    /**
-     * شروع sync (خودکار یا دستی).
-     * وضعیت از طریق SyncState به UI میاد.
-     */
     private fun startSync() {
+        if (!isOnline) {
+            Toast.makeText(this, "اتصال به اینترنت برقرار نیست", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         syncJob?.cancel()
         syncJob = lifecycleScope.launch {
             SyncManager.syncAll(this@HomeActivity) { state ->
@@ -271,59 +368,39 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * به‌روزرسانی UI بر اساس وضعیت sync.
-     */
     private fun updateSyncUI(state: SyncState) {
         when (state) {
             is SyncState.Idle -> {
-                tvSyncStatus.text = "—"
-                tvSyncStatus.setTextColor(Color.parseColor("#666666"))
-                btnSync.isEnabled = true
                 progressBar.visibility = View.GONE
-                tvLastSyncLabel.visibility = View.GONE
-                tvLastSyncTime.visibility = View.GONE
             }
             is SyncState.Offline -> {
-                tvSyncStatus.text = "🔴 آفلاین"
-                tvSyncStatus.setTextColor(Color.parseColor("#C62828"))
-                btnSync.isEnabled = true   // کاربر بتونه دوباره تلاش کنه
                 progressBar.visibility = View.GONE
-                tvLastSyncLabel.visibility = View.GONE
-                tvLastSyncTime.visibility = View.GONE
             }
             is SyncState.Syncing -> {
-                tvSyncStatus.text = state.step
-                tvSyncStatus.setTextColor(Color.parseColor("#1565C0"))
                 btnSync.isEnabled = false
                 progressBar.visibility = View.VISIBLE
-                tvLastSyncLabel.visibility = View.GONE
-                tvLastSyncTime.visibility = View.GONE
             }
             is SyncState.Success -> {
-                tvSyncStatus.text = "🟢 همگام"
-                tvSyncStatus.setTextColor(Color.parseColor("#2E7D32"))
                 btnSync.isEnabled = true
                 progressBar.visibility = View.GONE
-                tvLastSyncLabel.visibility = View.VISIBLE
                 tvLastSyncTime.visibility = View.VISIBLE
-                tvLastSyncTime.text = formatSyncTime(state.timestamp)
+                tvLastSyncTime.text = "آخرین: ${formatSyncTime(state.timestamp)}"
             }
             is SyncState.Error -> {
-                tvSyncStatus.text = "🟡 خطا"
-                tvSyncStatus.setTextColor(Color.parseColor("#F57C00"))
                 btnSync.isEnabled = true
                 progressBar.visibility = View.GONE
-                tvLastSyncLabel.visibility = View.VISIBLE
-                tvLastSyncTime.visibility = View.VISIBLE
-                tvLastSyncTime.text = state.message
             }
         }
     }
 
-    /**
-     * فرمت زمان sync به شمسی + ساعت.
-     */
+    private fun loadLastSyncTime() {
+        val lastSync = SyncManager.getLastSyncTime(this)
+        if (lastSync > 0) {
+            tvLastSyncTime.visibility = View.VISIBLE
+            tvLastSyncTime.text = "آخرین: ${formatSyncTime(lastSync)}"
+        }
+    }
+
     private fun formatSyncTime(timestamp: Long): String {
         return try {
             val calendar = java.util.Calendar.getInstance().apply { timeInMillis = timestamp }
@@ -369,8 +446,6 @@ class HomeActivity : AppCompatActivity() {
                 }
                 if (fixed > 0) Log.d("FIX_SCHEDULED", "Fixed $fixed tasks")
             }
-
-            // TaskSyncer.syncTasksFromServer حذف شد — چون startSync() کار DeltaSync رو می‌کنه
         }
     }
 

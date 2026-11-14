@@ -198,6 +198,7 @@ class ExpandableTaskAdapter(
     /**
      * رنگ نوار کناری + badge وضعیت + اولویت (با رنگ‌بندی).
      */
+    @SuppressLint("SetTextI18n")
     private fun applyStatusStyle(holder: ViewHolder, task: TaskModel) {
         val style = getStatusStyle(task)
 

@@ -1,5 +1,6 @@
 package com.workshop.mechanicbb1.ui.workorder
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -153,6 +154,7 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun bindWorkOrder(wo: WorkOrderModel) {
         // هدر
         tvWoNumber.text = wo.id
@@ -204,7 +206,13 @@ class WorkOrderDetailActivity : AppCompatActivity() {
 
     // ============ منو ============
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_work_order_detail, menu)
+        val sharedPref = getSharedPreferences(Config.PrefKeys.USER_PREFS, MODE_PRIVATE)
+        val userRole = sharedPref.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
+
+        // فقط سرشیفت
+        if (userRole == Config.RoleCode.SUPERVISOR) {
+            menuInflater.inflate(R.menu.menu_work_order_detail, menu)
+        }
         return true
     }
 

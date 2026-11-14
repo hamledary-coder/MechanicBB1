@@ -115,42 +115,37 @@
                             android:gravity="center"
                             android:layout_marginStart="12dp">
 
+                            <!-- وضعیت شبکه (لحظه‌ای) -->
                             <TextView
-                                android:id="@+id/tvSyncStatus"
+                                android:id="@+id/tvNetworkStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="—"
+                                android:text="در حال بررسی..."
                                 android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:textColor="#666" />
 
-                            <TextView
-                                android:id="@+id/tvLastSyncLabel"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="آخرین همگام‌سازی"
-                                android:textSize="8sp"
-                                android:textColor="#999"
-                                android:visibility="gone" />
-
+                            <!-- آخرین sync (همیشه visible اگه timestamp هست) -->
                             <TextView
                                 android:id="@+id/tvLastSyncTime"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text=""
                                 android:textSize="8sp"
                                 android:textColor="#999"
                                 android:visibility="gone" />
 
+                            <!-- دکمه sync -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnSync"
                                 android:layout_width="wrap_content"
                                 android:layout_height="32dp"
-                                android:layout_marginTop="6dp"
+                                android:layout_marginTop="4dp"
                                 android:text="همگام‌سازی"
                                 android:textSize="9sp"
                                 android:paddingHorizontal="8dp"
+                                android:visibility="gone"
                                 app:cornerRadius="6dp"
                                 app:backgroundTint="#1565C0"
                                 app:icon="@drawable/ic_sync"

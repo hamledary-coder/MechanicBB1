@@ -27,6 +27,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.local.repository.WorkOrderLocalRepository
 import com.workshop.mechanicbb1.data.model.WorkOrderModel
+import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.data.sync.WorkOrderSyncer
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -248,7 +249,13 @@ class WorkOrderListActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_work_order_list, menu)
+        val sharedPref = getSharedPreferences(Config.PrefKeys.USER_PREFS, MODE_PRIVATE)
+        val userRole = sharedPref.getString(Config.PrefKeys.USER_ROLE, "") ?: ""
+
+        // فقط سرشیفت
+        if (userRole == Config.RoleCode.SUPERVISOR) {
+            menuInflater.inflate(R.menu.menu_work_order_list, menu)
+        }
         return true
     }
 
