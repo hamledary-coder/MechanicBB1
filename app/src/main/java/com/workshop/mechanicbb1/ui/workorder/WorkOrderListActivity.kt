@@ -62,7 +62,6 @@ class WorkOrderListActivity : AppCompatActivity() {
 
     private val units = listOf(
         UnitItem("بهره‌برداری", "بهره‌برداری" ),
-        UnitItem("بهره‌براری", "بهره برداری"),
         UnitItem("نمکزدایی", "نمکزدایی"),
         UnitItem("گاز", "تقویت فشار گاز")
     )

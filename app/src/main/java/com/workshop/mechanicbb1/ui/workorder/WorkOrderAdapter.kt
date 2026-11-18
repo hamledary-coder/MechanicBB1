@@ -13,7 +13,7 @@ import com.workshop.mechanicbb1.utils.DateUtils
 
 class WorkOrderAdapter(
     private var workOrders: List<WorkOrderModel>,
-    private val showClassHeaders: Boolean = true,   // اگه «همه‌ی کلاس‌ها» انتخاب شده
+    private var showClassHeaders: Boolean = true,   // اگه «همه‌ی کلاس‌ها» انتخاب شده
     private val onItemClick: (WorkOrderModel) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -45,7 +45,7 @@ class WorkOrderAdapter(
 
         // گروه‌بندی بر اساس کلاس (۱۴ → ۱۲ → ۱۲P → بقیه)
         val groups = workOrders.groupBy { it.requestClass ?: "other" }
-        val order = listOf("14", "12", "12P", "other")
+        val order = listOf("14", "12", "12P", "15", "other")
 
         for (classKey in order) {
             val items = groups[classKey] ?: continue
@@ -56,12 +56,15 @@ class WorkOrderAdapter(
                 "14" -> "📋 کلاس ۱۴ (غیرمترقبه)"
                 "12" -> "📋 کلاس ۱۲ (برنامه‌ای)"
                 "12P" -> "📋 پیشگیرانه (۱۲-P)"
+                "15" -> "📋 کلاس ۱۵ (اقدام اصلاحی)"
                 else -> "📋 بدون کلاس"
             }
+
             val headerColor = when (classKey) {
                 "14" -> "#D32F2F"
                 "12" -> "#FF9800"
                 "12P" -> "#4CAF50"
+                "15" -> "#9C27B0"
                 else -> "#9E9E9E"
             }
             displayList.add(DisplayItem.Header(headerText, headerColor))
@@ -76,6 +79,7 @@ class WorkOrderAdapter(
      */
     fun updateData(newList: List<WorkOrderModel>, showHeaders: Boolean = showClassHeaders) {
         workOrders = newList
+        showClassHeaders = showHeaders
         rebuildDisplayList()
         notifyDataSetChanged()
     }

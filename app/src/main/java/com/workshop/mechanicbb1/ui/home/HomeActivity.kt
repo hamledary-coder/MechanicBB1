@@ -44,6 +44,8 @@ import com.workshop.mechanicbb1.ui.task.quicklog.QuickLogActivity
 import com.workshop.mechanicbb1.ui.workorder.WorkOrderListActivity
 import com.workshop.mechanicbb1.utils.DateUtils
 import com.workshop.mechanicbb1.utils.UserCache
+import com.workshop.mechanicbb1.update.UpdateManager
+import com.workshop.mechanicbb1.update.UpdateDialog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -61,6 +63,7 @@ import java.util.Locale
  *   - sync خودکار هنگام وصل شدن نت + sync دستی با دکمه
  *   - بررسی مسئول بودن کاربر برای فعال/غیرفعال کردن کارت QuickLog
  */
+@Suppress("DEPRECATION")
 class HomeActivity : AppCompatActivity() {
 
     // =========================================================================
@@ -145,6 +148,9 @@ class HomeActivity : AppCompatActivity() {
 
         setContentView(R.layout.home_activity)
 
+        // ✅ پاک‌سازی APK قدیمی اگر نصب انجام شده
+        UpdateManager.cleanupInstalledApk(this)
+
         taskLocalRepository = TaskLocalRepository(this)
         connectivityManager = getSystemService(ConnectivityManager::class.java)
 
@@ -173,10 +179,12 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkUserHasResponsibleTasks()
+        checkForUpdate()
     }
 
-    @Suppress("DEPRECATION")
+
     @SuppressLint("GestureBackNavigation")
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         if (::drawerLayout.isInitialized && drawerLayout.isDrawerOpen(navigationView)) {
             drawerLayout.closeDrawer(navigationView)
@@ -368,6 +376,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateSyncUI(state: SyncState) {
         when (state) {
             is SyncState.Idle -> {
@@ -393,6 +402,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadLastSyncTime() {
         val lastSync = SyncManager.getLastSyncTime(this)
         if (lastSync > 0) {
@@ -474,6 +484,37 @@ class HomeActivity : AppCompatActivity() {
                 val hasTasks = tasks.isNotEmpty()
                 setQuickLogCardEnabled(hasTasks)
                 Log.d(TAG, "Responsible tasks: ${tasks.size}, card enabled: $hasTasks")
+            }
+        }
+    }
+
+    private fun checkForUpdate() {
+        // ۱. اگر APK آماده نصب داریم → دکمه نصب
+        if (UpdateManager.hasPendingApk(this)) {
+            UpdateDialog.showReadyToInstall(this) {
+                UpdateManager.installPendingApk(this)
+            }
+            return
+        }
+
+        // ۲. آیا زمان چک رسیده؟
+        if (!UpdateManager.shouldCheck(this)) return
+
+        // ۳. چک از سرور
+        UpdateManager.check(this) { result ->
+            when (result) {
+                is UpdateManager.CheckResult.NoUpdate -> { /* بی‌صدا */ }
+                is UpdateManager.CheckResult.Error -> { /* بی‌صدا */ }
+                is UpdateManager.CheckResult.Available -> {
+                    UpdateDialog.showAvailable(this, result.info) { info ->
+                        UpdateManager.download(this, info)
+                    }
+                }
+                is UpdateManager.CheckResult.Force -> {
+                    UpdateDialog.showForce(this, result.info) { info ->
+                        UpdateManager.download(this, info)
+                    }
+                }
             }
         }
     }

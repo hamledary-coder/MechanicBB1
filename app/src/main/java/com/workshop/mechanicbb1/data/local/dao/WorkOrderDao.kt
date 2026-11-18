@@ -27,7 +27,19 @@ interface WorkOrderDao {
     // status = "archived" → external_status = '10'
     @Query("""
         SELECT * FROM work_orders 
-        WHERE (:unit = '' OR unit = :unit)
+        WHERE (
+    :unit = ''
+    OR
+    REPLACE(
+        REPLACE(unit, ' ', ''),
+        CHAR(8204),
+        ''
+    ) = REPLACE(
+        REPLACE(:unit, ' ', ''),
+        CHAR(8204),
+        ''
+    )
+)
           AND (:requestClass = '' OR requestClass = :requestClass)
           AND (
                 :status = ''

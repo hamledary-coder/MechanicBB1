@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#f5f5f5"
-    android:layoutDirection="rtl">  <!-- ✅ اضافه شد: راست چین کردن کل صفحه -->
+    android:layoutDirection="rtl">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -16,7 +16,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,107 +25,98 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- اطلاعات کاربر -->
+            <!-- ==================== کارت پروفایل ==================== -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
 
+                    <!-- آواتار دایره‌ای -->
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="حساب کاربری"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#3F51B5"
-                        android:layout_marginBottom="16dp" />
+                        android:id="@+id/tvAvatar"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_avatar_circle"
+                        android:gravity="center"
+                        android:text="ع"
+                        android:textColor="@android:color/white"
+                        android:textSize="26sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="نام:"
-                            android:textColor="#666"
-                            android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvUserName"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="کاربر"
-                            android:textColor="#333"
-                            android:textSize="14sp"
+                            android:textColor="#212121"
+                            android:textSize="18sp"
                             android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="100dp"
-                            android:layout_height="wrap_content"
-                            android:text="شماره پرسنلی:"
-                            android:textColor="#666"
-                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/tvPersonnelId"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
                             android:text=""
-                            android:textColor="#333"
+                            android:textColor="#757575"
                             android:textSize="14sp" />
                     </LinearLayout>
-
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- تنظیمات -->
+            <!-- ==================== کارت تنظیمات ==================== -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="3dp"
+                app:cardBackgroundColor="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <!-- عنوان بخش -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="تنظیمات"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                        android:paddingStart="20dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="20dp"
+                        android:paddingBottom="8dp"
+                        android:text="تنظیمات عمومی"
                         android:textColor="#3F51B5"
-                        android:padding="20dp"
-                        android:paddingBottom="8dp" />
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
 
-                    <!-- تغییر رمز عبور -->
+                    <!-- ردیف: تغییر رمز عبور -->
                     <LinearLayout
                         android:id="@+id/cardChangePassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="16dp"
+                        android:gravity="center_vertical"
                         android:clickable="true"
+                        android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
 
                         <androidx.appcompat.widget.AppCompatImageView
@@ -137,32 +129,113 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:layout_marginStart="16dp"
                             android:text="تغییر رمز عبور"
-                            android:textSize="16sp"
-                            android:textColor="#333"
-                            android:layout_marginStart="16dp" />
+                            android:textColor="#212121"
+                            android:textSize="16sp" />
 
                         <androidx.appcompat.widget.AppCompatImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             app:srcCompat="@drawable/ic_chevron_left"
-                            app:tint="#999" />
-
+                            app:tint="#BDBDBD" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#eee" />
+                        android:layout_marginStart="56dp"
+                        android:background="#EEEEEE" />
 
-                    <!-- خروج از حساب -->
+                    <!-- ردیف: بررسی به‌روزرسانی (جدید) -->
+                    <LinearLayout
+                        android:id="@+id/cardCheckUpdate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_refresh"
+                            app:tint="#666" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:text="بررسی به‌روزرسانی"
+                            android:textColor="#212121"
+                            android:textSize="16sp" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            app:srcCompat="@drawable/ic_chevron_left"
+                            app:tint="#BDBDBD" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
+                        android:background="#EEEEEE" />
+
+                    <!-- ردیف: نسخه برنامه (فقط نمایش) -->
+                    <LinearLayout
+                        android:id="@+id/cardVersion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            app:srcCompat="@drawable/ic_info"
+                            app:tint="#666" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:text="نسخه برنامه"
+                            android:textColor="#212121"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvVersion"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1.0"
+                            android:textColor="#9E9E9E"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="56dp"
+                        android:background="#EEEEEE" />
+
+                    <!-- ردیف: خروج (قرمز) -->
                     <LinearLayout
                         android:id="@+id/cardLogout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="16dp"
+                        android:gravity="center_vertical"
                         android:clickable="true"
+                        android:focusable="true"
                         android:foreground="?attr/selectableItemBackground">
 
                         <androidx.appcompat.widget.AppCompatImageView
@@ -175,57 +248,25 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:layout_marginStart="16dp"
                             android:text="خروج از حساب"
-                            android:textSize="16sp"
                             android:textColor="#F44336"
-                            android:layout_marginStart="16dp" />
-
-                    </LinearLayout>
-
-                    <!-- نسخه برنامه -->
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="#eee" />
-
-                    <LinearLayout
-                        android:id="@+id/cardVersion"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            app:srcCompat="@drawable/ic_info"
-                            app:tint="#666" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="نسخه برنامه"
-                            android:textSize="16sp"
-                            android:textColor="#333"
-                            android:layout_marginStart="16dp" />
-
-                        <TextView
-                            android:id="@+id/tvVersion"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="1.0"
-                            android:textSize="14sp"
-                            android:textColor="#999" />
-
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                 </LinearLayout>
-
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- ==================== متن پاورقی ==================== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="تعمیرات مکانیک بی‌بی‌یک"
+                android:textColor="#BDBDBD"
+                android:textSize="12sp" />
+
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>

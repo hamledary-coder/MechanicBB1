@@ -21,6 +21,8 @@ import com.android.volley.toolbox.Volley
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.ui.auth.LoginActivity
+import com.workshop.mechanicbb1.update.UpdateDialog
+import com.workshop.mechanicbb1.update.UpdateManager
 import com.workshop.mechanicbb1.utils.UserCache
 import org.json.JSONObject
 
@@ -36,6 +38,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var tvUserName: TextView
     private lateinit var tvPersonnelId: TextView
     private lateinit var tvVersion: TextView
+    private lateinit var cardCheckUpdate: LinearLayout
+    private lateinit var tvAvatar: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +67,13 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun initViews() {
         toolbar = findViewById(R.id.toolbar)
-        cardChangePassword = findViewById(R.id.cardChangePassword)  // ✅ الان درست کار میکنه
-        cardLogout = findViewById(R.id.cardLogout)                  // ✅ الان درست کار میکنه
+        cardChangePassword = findViewById(R.id.cardChangePassword)
+        cardCheckUpdate = findViewById(R.id.cardCheckUpdate)  // ← جدید
+        cardLogout = findViewById(R.id.cardLogout)
         tvUserName = findViewById(R.id.tvUserName)
         tvPersonnelId = findViewById(R.id.tvPersonnelId)
         tvVersion = findViewById(R.id.tvVersion)
+        tvAvatar = findViewById(R.id.tvAvatar)  // ← جدید
     }
 
     private fun setupToolbar() {
@@ -81,9 +87,16 @@ class SettingsActivity : AppCompatActivity() {
             showChangePasswordDialog()
         }
 
+        // ✅ ردیف جدید: بررسی به‌روزرسانی
+        cardCheckUpdate.setOnClickListener {
+            checkForUpdateManually()
+        }
+
         cardLogout.setOnClickListener {
             showLogoutConfirmation()
         }
+
+        // cardVersion دیگر clickable نیست
     }
 
     private fun displayUserInfo() {
@@ -91,7 +104,10 @@ class SettingsActivity : AppCompatActivity() {
         val personnelId = sharedPref.getString(Config.PrefKeys.PERSONNEL_ID, "") ?: ""
 
         tvUserName.text = userName
-        tvPersonnelId.text = personnelId
+        tvPersonnelId.text = "شماره پرسنلی: $personnelId"
+
+        // آواتار دایره‌ای با حرف اول نام
+        tvAvatar.text = userName.firstOrNull()?.toString()?.uppercase() ?: "?"
     }
 
     private fun displayAppVersion() {
@@ -100,6 +116,39 @@ class SettingsActivity : AppCompatActivity() {
             tvVersion.text = packageInfo.versionName ?: "1.0"
         } catch (e: Exception) {
             tvVersion.text = "1.0"
+        }
+    }
+
+    private fun checkForUpdateManually() {
+        // اگر APK آماده نصب داریم → مستقیم نصب
+        if (UpdateManager.hasPendingApk(this)) {
+            UpdateDialog.showReadyToInstall(this) {
+                UpdateManager.installPendingApk(this)
+            }
+            return
+        }
+
+        Toast.makeText(this, "در حال بررسی نسخه...", Toast.LENGTH_SHORT).show()
+
+        UpdateManager.check(this) { result ->
+            when (result) {
+                is UpdateManager.CheckResult.NoUpdate -> {
+                    Toast.makeText(this, "برنامه به‌روز است ✅", Toast.LENGTH_LONG).show()
+                }
+                is UpdateManager.CheckResult.Error -> {
+                    Toast.makeText(this, "خطا: ${result.message}", Toast.LENGTH_LONG).show()
+                }
+                is UpdateManager.CheckResult.Available -> {
+                    UpdateDialog.showAvailable(this, result.info) { info ->
+                        UpdateManager.download(this, info)
+                    }
+                }
+                is UpdateManager.CheckResult.Force -> {
+                    UpdateDialog.showForce(this, result.info) { info ->
+                        UpdateManager.download(this, info)
+                    }
+                }
+            }
         }
     }
 
