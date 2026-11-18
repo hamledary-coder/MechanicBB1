@@ -80,7 +80,7 @@ object WorkOrderSyncer {
     /**
      * sync یک WorkOrder خاص (برای DetailActivity)
      */
-    fun syncSingleWorkOrder(
+    fun singleSyncForWorker(
         context: Context,
         workOrderId: String,
         onComplete: ((Boolean) -> Unit)? = null
@@ -96,7 +96,7 @@ object WorkOrderSyncer {
                         try {
                             val repo = WorkOrderLocalRepository(context)
                             repo.saveWorkOrder(entity)
-                            Log.d(TAG, "✅ Synced single work order: $workOrderId")
+                            Log.d(TAG, "✅ Synced single work order (worker): $workOrderId")
                             onComplete?.invoke(true)
                         } catch (e: Exception) {
                             Log.e(TAG, "Error saving: ${e.message}")

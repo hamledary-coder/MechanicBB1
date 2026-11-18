@@ -93,4 +93,16 @@ interface WorkOrderDao {
 
     @Query("UPDATE work_orders SET progress = :progress WHERE id = :workOrderId")
     suspend fun updateProgress(workOrderId: String, progress: Int)
+
+    @Query("""
+    SELECT COUNT(*) FROM work_orders 
+    WHERE requestNumber = :requestNumber 
+      AND requestClass = :requestClass 
+      AND id != :excludeId
+""")
+    suspend fun countByRequestNumber(
+        requestNumber: String,
+        requestClass: String?,
+        excludeId: String = ""
+    ): Int
 }

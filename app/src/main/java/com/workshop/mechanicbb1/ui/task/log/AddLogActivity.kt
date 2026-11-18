@@ -758,14 +758,12 @@ class AddLogActivity : AppCompatActivity() {
 
                     // ۲. UPDATE work_orders.progress (Room) + Outbox (سرور)
                     progresses.forEach { p ->
-                        // ✅ آخرین progress — بر اساس **تاریخ انجام** (نه progress گزارش جدید)
                         val latest = db.taskLogWorkOrderProgressDao()
                             .getLatestForWorkOrderByDate(p.workOrderId)
                         val newProgress = latest?.progress ?: 0
 
                         db.workOrderDao().updateProgress(p.workOrderId, newProgress)
 
-                        // ✅ Outbox → سرور
                         val woEntity = db.workOrderDao().getById(p.workOrderId)
                         if (woEntity != null) {
                             val woModel = WorkOrderModel(
@@ -789,7 +787,6 @@ class AddLogActivity : AppCompatActivity() {
                     }
                 }
 
-                // ✅ اگر تسک «منتظر گزارش» بود، بعد از ثبت گزارش به وضعیت پایه برگردان
                 autoRestoreTaskStatusIfAwaiting()
 
                 OutboxHelper.enqueueAddTaskLog(this@AddLogActivity, log, progresses)
@@ -797,7 +794,11 @@ class AddLogActivity : AppCompatActivity() {
 
                 enableButton(btnSubmit)
                 Toast.makeText(this@AddLogActivity, "گزارش ثبت شد", Toast.LENGTH_SHORT).show()
-                setResult(RESULT_OK)
+
+                // ✅ setResult با TASK_ID (برای QuickLogActivity)
+                setResult(RESULT_OK, Intent().apply {
+                    putExtra("TASK_ID", task?.id ?: "")
+                })
 
                 val intent = Intent(this@AddLogActivity, EvaluationActivity::class.java).apply {
                     putExtra("TASK_ID", task?.id ?: "")

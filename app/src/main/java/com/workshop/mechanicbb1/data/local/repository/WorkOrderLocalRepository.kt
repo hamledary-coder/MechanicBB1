@@ -63,6 +63,15 @@ class WorkOrderLocalRepository(context: Context) {
 
     suspend fun count(): Int = dao.count()
 
+    suspend fun isRequestNumberTaken(
+        requestNumber: String,
+        requestClass: String?,
+        excludeId: String = ""
+    ): Boolean {
+        if (requestNumber.isEmpty() || requestClass == null) return false
+        return dao.countByRequestNumber(requestNumber, requestClass, excludeId) > 0
+    }
+
     // ============ Mapping ============
     private fun WorkOrderEntity.toModel(): WorkOrderModel {
         return WorkOrderModel(

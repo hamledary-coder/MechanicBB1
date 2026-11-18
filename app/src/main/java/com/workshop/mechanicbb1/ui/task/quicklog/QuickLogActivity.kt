@@ -6,18 +6,20 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.local.repository.TaskLocalRepository
 import com.workshop.mechanicbb1.data.remote.Config
+import com.workshop.mechanicbb1.ui.task.detail.TaskDetailActivity
 import com.workshop.mechanicbb1.ui.task.log.AddLogActivity
 import TaskModel
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,16 +39,30 @@ class QuickLogActivity : AppCompatActivity() {
     private lateinit var taskLocalRepository: TaskLocalRepository
     private var tasksJob: Job? = null
 
+    /** وقتی گزارش ثبت شد، دیگه لیست لود نشه */
+    private var shouldFinishAfterResult = false
+
+    private val addLogLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            shouldFinishAfterResult = true
+            val taskId = result.data?.getStringExtra("TASK_ID") ?: ""
+            if (taskId.isNotEmpty()) {
+                openTaskDetail(taskId)
+            }
+        }
+        // اگه RESULT_CANCELED → همین‌جا بمون
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
             view.updatePadding(
                 top = systemBars.top,
                 bottom = systemBars.bottom
             )
-            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
             WindowInsetsCompat.CONSUMED
         }
         setContentView(R.layout.activity_quick_log)
@@ -62,7 +78,7 @@ class QuickLogActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Flow خودکار آپدیت می‌کنه، ولی برای اطمینان
+        if (shouldFinishAfterResult) return
         if (::taskLocalRepository.isInitialized) {
             loadTasks()
         }
@@ -128,18 +144,20 @@ class QuickLogActivity : AppCompatActivity() {
             putExtra("DATE", task.createDate)
             putExtra("RESPONSIBLE", task.responsible)
             putExtra("ASSIGNED_TO", task.assignedTo)
-            //putExtra("UNIT", task.unit)
             putExtra("PRIORITY", task.priority)
-            //putExtra("SUB_UNIT", task.sub_unit)
-            //putExtra("DECLARATION_METHOD", task.declaration_method)
-            //putExtra("REQUESTER", task.requester)
-            //putExtra("REQUEST_DATE", task.request_date)
-            //putExtra("INITIAL_REVIEW", task.initial_review)
-            //putExtra("SYSTEM_REQUEST_NUMBER", task.system_request_number)
             putExtra("URGENCY", task.urgency)
             putExtra("FROM_QUICK_LOG", true)
         }
+        addLogLauncher.launch(intent)
+    }
+
+    private fun openTaskDetail(taskId: String) {
+        val intent = Intent(this, TaskDetailActivity::class.java).apply {
+            putExtra("TASK_ID", taskId)
+        }
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        finish()
     }
 
     private fun updateEmptyState() {

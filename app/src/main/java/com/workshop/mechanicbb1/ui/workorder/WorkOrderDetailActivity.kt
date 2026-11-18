@@ -60,11 +60,8 @@ class WorkOrderDetailActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            // Room خودکار آپدیت می‌شه (Flow)
-            // ولی برای اطمینان، sync کن
-            WorkOrderSyncer.syncSingleWorkOrder(this, workOrderId) { ok ->
-                Log.d("WorkOrderDetail", "Sync after edit: $ok")
-            }
+            // ✅ id همون (چون id عوض نمی‌شه)
+            loadWorkOrder()
         }
     }
 
@@ -128,13 +125,14 @@ class WorkOrderDetailActivity : AppCompatActivity() {
 
     // ============ بارگذاری (Offline-First) ============
     private fun loadWorkOrder() {
-        // ۱. اول از Room بخون (فوری)
         workOrderJob?.cancel()
         workOrderJob = lifecycleScope.launch {
             localRepository.getWorkOrderById(workOrderId).collectLatest { wo ->
                 if (wo == null) {
                     // تو Room نیست → از سرور sync کن
-                    WorkOrderSyncer.syncSingleWorkOrder(this@WorkOrderDetailActivity, workOrderId) { ok ->
+                    // ❌ کد قبلی: WorkOrderSyncer.syncSingleWorkOrder(...)
+                    // ✅ کد جدید:
+                    WorkOrderSyncer.singleSyncForWorker(this@WorkOrderDetailActivity, workOrderId) { ok ->
                         if (!ok) {
                             runOnUiThread {
                                 Toast.makeText(
@@ -157,7 +155,16 @@ class WorkOrderDetailActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun bindWorkOrder(wo: WorkOrderModel) {
         // هدر
-        tvWoNumber.text = wo.id
+        tvWoNumber.text = if (wo.requestNumber.isNotEmpty()) {
+            if (wo.requestClass != null) {
+                "WO-${wo.requestClass}-${wo.requestNumber}"
+            } else {
+                "WO-${wo.requestNumber}"
+            }
+        } else {
+            wo.id
+        }
+
         tvTitle.text = wo.title.ifEmpty { "بدون عنوان" }
 
         // کلاس

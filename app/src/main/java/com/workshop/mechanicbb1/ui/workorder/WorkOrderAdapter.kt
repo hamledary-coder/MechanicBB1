@@ -132,7 +132,17 @@ class WorkOrderAdapter(
         private val tvProgress: TextView = itemView.findViewById(R.id.tvProgress)
 
         fun bind(wo: WorkOrderModel) {
-            tvWoNumber.text = wo.id  // WO-1001
+            // ← نمایش شماره درخواست (نه id)
+            tvWoNumber.text = if (wo.requestNumber.isNotEmpty()) {
+                if (wo.requestClass != null) {
+                    "WO-${wo.requestClass}-${wo.requestNumber}"
+                } else {
+                    "WO-${wo.requestNumber}"
+                }
+            } else {
+                wo.id   // fallback (اگه شماره خالی)
+            }
+
             tvDate.text = wo.requestDate.ifEmpty { "—" }
             tvTitle.text = wo.title.ifEmpty { "بدون عنوان" }
 

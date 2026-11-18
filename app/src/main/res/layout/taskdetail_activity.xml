@@ -306,45 +306,6 @@
                             android:background="#F0F0F0"
                             android:visibility="gone" />
 
-                        <!-- ارجاع‌دهنده -->
-                        <LinearLayout
-                            android:id="@+id/rowReferredBy"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:paddingVertical="8dp"
-                            android:visibility="gone">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="↩️"
-                                android:textSize="16sp"
-                                android:layout_marginEnd="10dp" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="ارجاع‌دهنده"
-                                    android:textSize="11sp"
-                                    android:textColor="#999" />
-
-                                <TextView
-                                    android:id="@+id/tvReferredBy"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="محمد"
-                                    android:textSize="14sp"
-                                    android:textColor="#333" />
-                            </LinearLayout>
-                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -928,7 +889,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- ============================================ -->
-                <!-- SEEN BY CARD                                 -->
+                <!-- SEEN BY + REFERRED BY CARD                   -->
                 <!-- ============================================ -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardSeenBy"
@@ -944,26 +905,61 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:gravity="center_vertical">
+                        android:orientation="vertical"
+                        android:padding="12dp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="👁 "
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="#666"
-                            android:layout_marginEnd="8dp" />
-
+                        <!-- ✅ ارجاع‌دهنده -->
                         <LinearLayout
-                            android:id="@+id/seenByContainer"
-                            android:layout_width="0dp"
+                            android:id="@+id/rowReferredBy"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical" />
+                            android:gravity="center_vertical"
+                            android:layout_marginBottom="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="↩️ ارجاع‌دهنده: "
+                                android:textSize="11sp"
+                                android:textColor="#999" />
+
+                            <TextView
+                                android:id="@+id/tvReferredBy"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="..."
+                                android:textSize="11sp"
+                                android:textColor="#555" />
+                        </LinearLayout>
+
+                        <!-- ✅ مشاهده‌کنندگان -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="👁 "
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textColor="#666"
+                                android:layout_marginEnd="8dp" />
+
+                            <LinearLayout
+                                android:id="@+id/seenByContainer"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical" />
+                        </LinearLayout>
+
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

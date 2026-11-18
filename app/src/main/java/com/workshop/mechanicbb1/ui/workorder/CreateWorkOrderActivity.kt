@@ -1,7 +1,9 @@
 package com.workshop.mechanicbb1.ui.workorder
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.Spinner
@@ -151,6 +153,23 @@ class CreateWorkOrderActivity : AppCompatActivity() {
         statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerStatus.adapter = statusAdapter
 
+        // ✅ listener برای فیلد شماره (بر اساس مرحله)
+        spinnerStatus.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                val selectedStatus = statuses[position]
+                val stage = selectedStatus.dbValue.toIntOrNull() ?: 1
+
+                if (stage == 4) {
+                    etRequestNumber.isEnabled = true
+                    etRequestNumber.alpha = 1.0f
+                } else {
+                    etRequestNumber.isEnabled = false
+                    etRequestNumber.alpha = 0.5f
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
         // واحد
         val unitAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, units.map { it.displayName })
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -220,6 +239,23 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                // ← چک تداخل لوکال (اگه شماره پر شده)
+                if (workOrder.requestNumber.isNotEmpty() && workOrder.requestClass != null) {
+                    val isTaken = localRepository.isRequestNumberTaken(
+                        workOrder.requestNumber,
+                        workOrder.requestClass
+                    )
+                    if (isTaken) {
+                        showLoading(false)
+                        Toast.makeText(
+                            this@CreateWorkOrderActivity,
+                            "این شماره در کلاس ${workOrder.requestClass} قبلاً ثبت شده",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@launch
+                    }
+                }
+
                 localRepository.saveWorkOrder(workOrder.toEntity())
                 OutboxHelper.enqueueCreateWorkOrder(this@CreateWorkOrderActivity, workOrder)
                 ReportSyncWorker.enqueue(this@CreateWorkOrderActivity)
@@ -245,6 +281,24 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                // ← چک تداخل لوکال (به جز خودش)
+                if (workOrder.requestNumber.isNotEmpty() && workOrder.requestClass != null) {
+                    val isTaken = localRepository.isRequestNumberTaken(
+                        workOrder.requestNumber,
+                        workOrder.requestClass,
+                        excludeId = editWorkOrderId
+                    )
+                    if (isTaken) {
+                        showLoading(false)
+                        Toast.makeText(
+                            this@CreateWorkOrderActivity,
+                            "این شماره در کلاس ${workOrder.requestClass} قبلاً ثبت شده",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@launch
+                    }
+                }
+
                 localRepository.updateWorkOrder(workOrder.toEntity())
                 OutboxHelper.enqueueUpdateWorkOrder(this@CreateWorkOrderActivity, workOrder)
                 ReportSyncWorker.enqueue(this@CreateWorkOrderActivity)
@@ -252,7 +306,11 @@ class CreateWorkOrderActivity : AppCompatActivity() {
                 showLoading(false)
                 Toast.makeText(this@CreateWorkOrderActivity, "تغییرات ذخیره شد", Toast.LENGTH_SHORT).show()
 
-                setResult(RESULT_OK)
+                // ✅ newWoId رو برگردون
+                val resultIntent = Intent().apply {
+                    putExtra("NEW_WORK_ORDER_ID", workOrder.id)
+                }
+                setResult(RESULT_OK, resultIntent)
                 finish()
 
             } catch (e: Exception) {
@@ -265,29 +323,37 @@ class CreateWorkOrderActivity : AppCompatActivity() {
     private fun buildWorkOrderModel(): WorkOrderModel {
         val requestNumber = etRequestNumber.text.toString().trim()
 
-        // اگه شماره خالیه → id موقت
-        val newId = if (isEdit) {
-            editWorkOrderId
-        } else {
-            if (requestNumber.isNotEmpty()) {
-                "WO-$requestNumber"          // id از شماره
-            } else {
-                "tmp-${System.currentTimeMillis()}"   // id موقت
-            }
-        }
-
         val classPos = spinnerClass.selectedItemPosition
         val statusPos = spinnerStatus.selectedItemPosition
         val unitPos = spinnerUnit.selectedItemPosition
 
+        val classValue = classes[classPos].dbValue
         val selectedStatus = statuses[statusPos]
         val isArchived = selectedStatus.dbValue == "10"
+
+        // ✅ id:
+        //   - ویرایش: id قبلی (ثابت)
+        //   - ایجاد + شماره: WO-{class}-{number}-{timestamp}
+        //   - ایجاد + بدون شماره: tmp-{timestamp}
+        val newId = if (isEdit) {
+            editWorkOrderId
+        } else {
+            if (requestNumber.isNotEmpty()) {
+                if (classValue.isNotEmpty()) {
+                    "WO-$classValue-$requestNumber-${System.currentTimeMillis()}"
+                } else {
+                    "WO-$requestNumber-${System.currentTimeMillis()}"
+                }
+            } else {
+                "tmp-${System.currentTimeMillis()}"
+            }
+        }
 
         return WorkOrderModel(
             id = newId,
             requestNumber = requestNumber,
             title = etTitle.text.toString().trim(),
-            requestClass = classes[classPos].dbValue.takeIf { it.isNotEmpty() },
+            requestClass = classValue.takeIf { it.isNotEmpty() },
             requestDate = etRequestDate.text.toString().trim(),
             requester = etRequester.text.toString().trim(),
             approver = etApprover.text.toString().trim(),
@@ -295,7 +361,7 @@ class CreateWorkOrderActivity : AppCompatActivity() {
             subUnit = etSubUnit.text.toString().trim(),
             equipmentName = etEquipment.text.toString().trim(),
             description = etDescription.text.toString().trim(),
-            externalStatus = selectedStatus.dbValue,   // "1" تا "10"
+            externalStatus = selectedStatus.dbValue,
             progress = if (isArchived) 100 else 0
         )
     }
@@ -327,7 +393,6 @@ class CreateWorkOrderActivity : AppCompatActivity() {
 
     private fun fillForm(wo: WorkOrderModel) {
         etRequestNumber.setText(wo.requestNumber)
-        etRequestNumber.isEnabled = false
 
         etTitle.setText(wo.title)
         etSubUnit.setText(wo.subUnit)
