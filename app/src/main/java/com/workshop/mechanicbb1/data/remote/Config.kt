@@ -6,7 +6,6 @@ object Config {
 
     object Endpoints {
         const val LOGIN = BASE_URL
-        const val CHECK_VERSION = "$BASE_URL?action=checkVersion"
         const val TASKS = "$BASE_URL?action=getTasks"
         const val CREATE_TASK = BASE_URL
         const val DELETE_TASK = BASE_URL
@@ -99,12 +98,6 @@ object Config {
         const val USERNAME = "username"
         const val USER_ROLE = "userRole"
         const val USER_ROW_ID = "userRowId"  // کد ردیف کاربر در شیت Users
-
-        const val UPDATE_PREFS = "UpdatePrefs"
-        const val LAST_CHECKED_AT = "lastCheckedAt"
-        const val PENDING_APK_PATH = "pendingApkPath"
-        const val PENDING_APK_VERSION = "pendingApkVersion"
-        const val PENDING_APK_NAME = "pendingApkName"
     }
 
     // ============== کدهای واحد مربوطه ==============

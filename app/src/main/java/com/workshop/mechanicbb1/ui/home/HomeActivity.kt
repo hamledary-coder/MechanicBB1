@@ -44,8 +44,6 @@ import com.workshop.mechanicbb1.ui.task.quicklog.QuickLogActivity
 import com.workshop.mechanicbb1.ui.workorder.WorkOrderListActivity
 import com.workshop.mechanicbb1.utils.DateUtils
 import com.workshop.mechanicbb1.utils.UserCache
-import com.workshop.mechanicbb1.update.UpdateManager
-import com.workshop.mechanicbb1.update.UpdateDialog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -149,7 +147,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.home_activity)
 
         // ✅ پاک‌سازی APK قدیمی اگر نصب انجام شده
-        UpdateManager.cleanupInstalledApk(this)
+        //UpdateManager.cleanupInstalledApk(this)
 
         taskLocalRepository = TaskLocalRepository(this)
         connectivityManager = getSystemService(ConnectivityManager::class.java)
@@ -179,7 +177,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkUserHasResponsibleTasks()
-        checkForUpdate()
+
     }
 
 
@@ -488,36 +486,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkForUpdate() {
-        // ۱. اگر APK آماده نصب داریم → دکمه نصب
-        if (UpdateManager.hasPendingApk(this)) {
-            UpdateDialog.showReadyToInstall(this) {
-                UpdateManager.installPendingApk(this)
-            }
-            return
-        }
 
-        // ۲. آیا زمان چک رسیده؟
-        if (!UpdateManager.shouldCheck(this)) return
-
-        // ۳. چک از سرور
-        UpdateManager.check(this) { result ->
-            when (result) {
-                is UpdateManager.CheckResult.NoUpdate -> { /* بی‌صدا */ }
-                is UpdateManager.CheckResult.Error -> { /* بی‌صدا */ }
-                is UpdateManager.CheckResult.Available -> {
-                    UpdateDialog.showAvailable(this, result.info) { info ->
-                        UpdateManager.download(this, info)
-                    }
-                }
-                is UpdateManager.CheckResult.Force -> {
-                    UpdateDialog.showForce(this, result.info) { info ->
-                        UpdateManager.download(this, info)
-                    }
-                }
-            }
-        }
-    }
 
     // =========================================================================
     // Click Listeners

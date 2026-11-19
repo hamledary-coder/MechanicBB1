@@ -21,8 +21,7 @@ import com.android.volley.toolbox.Volley
 import com.workshop.mechanicbb1.R
 import com.workshop.mechanicbb1.data.remote.Config
 import com.workshop.mechanicbb1.ui.auth.LoginActivity
-import com.workshop.mechanicbb1.update.UpdateDialog
-import com.workshop.mechanicbb1.update.UpdateManager
+
 import com.workshop.mechanicbb1.utils.UserCache
 import org.json.JSONObject
 
@@ -68,7 +67,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun initViews() {
         toolbar = findViewById(R.id.toolbar)
         cardChangePassword = findViewById(R.id.cardChangePassword)
-        cardCheckUpdate = findViewById(R.id.cardCheckUpdate)  // ← جدید
         cardLogout = findViewById(R.id.cardLogout)
         tvUserName = findViewById(R.id.tvUserName)
         tvPersonnelId = findViewById(R.id.tvPersonnelId)
@@ -85,11 +83,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         cardChangePassword.setOnClickListener {
             showChangePasswordDialog()
-        }
-
-        // ✅ ردیف جدید: بررسی به‌روزرسانی
-        cardCheckUpdate.setOnClickListener {
-            checkForUpdateManually()
         }
 
         cardLogout.setOnClickListener {
@@ -119,38 +112,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkForUpdateManually() {
-        // اگر APK آماده نصب داریم → مستقیم نصب
-        if (UpdateManager.hasPendingApk(this)) {
-            UpdateDialog.showReadyToInstall(this) {
-                UpdateManager.installPendingApk(this)
-            }
-            return
-        }
 
-        Toast.makeText(this, "در حال بررسی نسخه...", Toast.LENGTH_SHORT).show()
-
-        UpdateManager.check(this) { result ->
-            when (result) {
-                is UpdateManager.CheckResult.NoUpdate -> {
-                    Toast.makeText(this, "برنامه به‌روز است ✅", Toast.LENGTH_LONG).show()
-                }
-                is UpdateManager.CheckResult.Error -> {
-                    Toast.makeText(this, "خطا: ${result.message}", Toast.LENGTH_LONG).show()
-                }
-                is UpdateManager.CheckResult.Available -> {
-                    UpdateDialog.showAvailable(this, result.info) { info ->
-                        UpdateManager.download(this, info)
-                    }
-                }
-                is UpdateManager.CheckResult.Force -> {
-                    UpdateDialog.showForce(this, result.info) { info ->
-                        UpdateManager.download(this, info)
-                    }
-                }
-            }
-        }
-    }
 
     private fun showChangePasswordDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
