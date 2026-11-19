@@ -639,10 +639,91 @@ class AddLogActivity : AppCompatActivity() {
         return Pair(userId, userName)
     }
 
+<<<<<<< Updated upstream
     private fun buildActionDescriptionFromProgress(): String {
         val adapter = workOrderProgressAdapter ?: return ""
         val progresses = adapter.getProgressData()
         if (progresses.isEmpty()) return ""
+=======
+<<<<<<< Updated upstream
+    private fun createTaskLogModel(status: String): TaskLogModel {
+=======
+    private fun buildActionDescriptionFromProgress(): String {
+        val sb = StringBuilder()
+
+        // ==========================================
+        // 1. گزارش فعالیت‌های مربوط به WorkOrder
+        // ==========================================
+        val adapter = workOrderProgressAdapter
+        val progresses = adapter?.getProgressData() ?: emptyList()
+
+        val visibleProgresses = progresses.filter { p ->
+            val hasProgressChange =
+                p.previousProgress == -1 || p.progress != p.previousProgress
+
+            val hasStatusChange =
+                p.previousStatus == null || p.status != p.previousStatus
+
+            val hasNewDetails =
+                p.hasDetails &&
+                        p.detailsNotes.isNotBlank() &&
+                        p.detailsNotes != p.previousDetailsNotes
+
+            hasProgressChange || hasStatusChange || hasNewDetails
+        }
+
+        visibleProgresses.forEachIndexed { index, p ->
+
+            val wo = workOrdersList.find { it.id == p.workOrderId }
+                ?: return@forEachIndexed
+
+            val statusLine = when (p.status) {
+                WorkOrderProgressAdapter.Status.COMPLETED ->
+                    "✅ ${wo.title}: انجام شد"
+
+                WorkOrderProgressAdapter.Status.IN_PROGRESS ->
+                    "⏳ ${p.progress} درصد از درخواست مربوط به «${wo.title}» انجام شده (ادامه دارد)"
+
+                WorkOrderProgressAdapter.Status.NOT_COMPLETED ->
+                    "❌ ${wo.title}: انجام نشد"
+            }
+
+            sb.append(statusLine)
+
+            if (p.hasDetails && p.detailsNotes.isNotBlank()) {
+                sb.append("\n   📝 ${p.detailsNotes}")
+            }
+
+            if (index < visibleProgresses.size - 1) {
+                sb.append("\n\n")
+            }
+        }
+
+        // ==========================================
+        // 2. فعالیت‌های خارج از WorkOrder
+        // ==========================================
+        val otherActivities = etNotes.text.toString().trim()
+
+        if (otherActivities.isNotBlank()) {
+
+            if (sb.isNotEmpty()) {
+                sb.append("\n\n")
+            }
+
+            sb.append("🔧 گزارش کارهای داخلی:\n")
+            sb.append(otherActivities)
+        }
+
+        // ==========================================
+        // خروجی نهایی گزارش
+        // ==========================================
+        return sb.toString().trim()
+    }
+
+    private fun createTaskLogModel(status: String, id: String? = null): TaskLogModel {
+>>>>>>> Stashed changes
+        val (userId, userName) = getCurrentUserInfo()
+>>>>>>> Stashed changes
 
         // ✅ فیلتر: فقط WorkOrderهایی که **تغییر** داشتن
         val visibleProgresses = progresses.filter { p ->
