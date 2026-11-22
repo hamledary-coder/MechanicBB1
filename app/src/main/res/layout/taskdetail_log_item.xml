@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
-=======
 <androidx.cardview.widget.CardView
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
-    android:id="@+id/cardLog"
-=======
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -24,15 +16,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-        <!-- ====== هدر (سه سطر) ====== -->
-=======
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
-        <!-- ====== هدر ====== -->
-=======
         <!-- ====== هدر (کلیک‌پذیر) ====== -->
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
         <LinearLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
@@ -43,54 +27,28 @@
             android:clickable="true"
             android:focusable="true">
 
-            <!-- سطر ۱: شماره گزارش -->
             <TextView
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-                android:id="@+id/tvLogNumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📋 گزارش #۱"
-                android:textSize="18sp"
-=======
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
-                android:id="@+id/tvLogSummary"
-=======
                 android:id="@+id/tvLogNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📋 گزارش اول"
                 android:textSize="16sp"
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
                 android:textStyle="bold"
                 android:textColor="#1565C0"
                 android:layout_marginBottom="4dp"
                 tools:ignore="HardcodedText" />
 
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-            <!-- سطر ۲: تاریخ + روز هفته -->
-=======
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
             <TextView
                 android:id="@+id/tvLogDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📅 1405/08/19 (شنبه)"
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-                android:textSize="16sp"
-=======
                 android:textSize="13sp"
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
                 android:textColor="#333"
                 android:layout_marginBottom="4dp"
                 tools:ignore="HardcodedText" />
 
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-            <!-- سطر ۳: ساعت + مسئول -->
             <LinearLayout
-=======
-            <LinearLayout
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -132,16 +90,8 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-            android:background="#E8E8E8" />
-=======
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
-            android:background="#E8E8E8"/>
-=======
             android:background="#E8E8E8"
             android:visibility="gone" />
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
 
         <!-- ====== detailLayout (فقط باز) ====== -->
         <LinearLayout
@@ -174,6 +124,7 @@
                 android:background="#E8E8E8"
                 android:layout_marginBottom="12dp" />
 
+            <!-- مدت زمان -->
             <TextView
                 android:id="@+id/tvDuration"
                 android:layout_width="match_parent"
@@ -185,6 +136,7 @@
                 android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
+            <!-- گروه انجام‌دهنده -->
             <TextView
                 android:id="@+id/tvWorkers"
                 android:layout_width="match_parent"
@@ -205,14 +157,7 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone" />
 
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-=======
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
-            <!-- وضعیت جدید با آیکون دایره -->
-=======
             <!-- وضعیت جدید -->
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
             <LinearLayout
                 android:id="@+id/statusContainer"
                 android:layout_width="match_parent"
@@ -234,19 +179,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="وضعیت جدید: ..."
-<<<<<<< Updated upstream:app/src/main/res/layout/item_task_log.xml
-                    android:textSize="13sp"
-<<<<<<< Updated upstream:app/src/main/res/layout/taskdetail_log_item.xml
-                    android:textColor="#555555"
-                    tools:ignore="HardcodedText" />
-=======
-                    android:textColor="#555555"/>
-=======
                     android:textSize="12sp"
                     android:textColor="#555555"
                     tools:ignore="HardcodedText" />
->>>>>>> Stashed changes:app/src/main/res/layout/taskdetail_log_item.xml
->>>>>>> Stashed changes:app/src/main/res/layout/item_task_log.xml
             </LinearLayout>
 
             <View

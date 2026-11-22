@@ -58,7 +58,7 @@ class AddLogActivity : AppCompatActivity() {
     private lateinit var btnCancel: Button
     private lateinit var tvDuration: TextView
 
-    // ✅ WorkOrder Progress
+    // WorkOrder Progress
     private lateinit var cardWorkOrderProgress: View
     private lateinit var tvWorkOrderProgressCount: TextView
     private lateinit var rvWorkOrderProgress: RecyclerView
@@ -87,12 +87,7 @@ class AddLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // پدینگ بالا و پایین رو به اندازه نوارها اضافه میکنیم
-            view.updatePadding(
-                top = systemBars.top,
-                bottom = systemBars.bottom
-            )
-            // به سیستم میگیم که این Insets رو مصرف کردیم و به بچه‌ها نده
+            view.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
             WindowInsetsCompat.CONSUMED
         }
         setContentView(R.layout.add_log_activity)
@@ -185,16 +180,13 @@ class AddLogActivity : AppCompatActivity() {
         rvWorkOrderProgress.isNestedScrollingEnabled = false
         rvWorkOrderProgress.setHasFixedSize(false)
 
-        // ✅ فقط برای ثبت جدید
         if (!isEditMode) {
             etStartTime.setText("09:00")
             etEndTime.setText("11:00")
             calculateDuration()
-
             selectedDate = DateUtils.gregorianToShamsi()
             updateDateDisplay()
         }
-        // برای ویرایش، populateLogData (از loadLogForEdit) این کارو می‌کنه
     }
 
     // ============================================================
@@ -212,7 +204,6 @@ class AddLogActivity : AppCompatActivity() {
                 val allWorkOrders = taskLocalRepository.getWorkOrdersForTaskOnce(taskId)
                 val db = AppDatabase.getInstance(this@AddLogActivity)
 
-                // ✅ فیلتر: فقط WorkOrderهایی که «انجام شد» نیستن (از work_orders.progress)
                 val activeWorkOrders = allWorkOrders.filter { wo ->
                     val entity = db.workOrderDao().getById(wo.id)
                     entity == null || entity.progress < 100
@@ -267,7 +258,6 @@ class AddLogActivity : AppCompatActivity() {
                     workOrdersList.clear()
                     workOrdersList.addAll(workOrders)
 
-                    // ✅ برای ویرایش: progressهای **همین گزارش**
                     val existingProgresses = loadEditProgresses(logId)
                     setupWorkOrderProgressSection(existingProgresses)
 
@@ -284,16 +274,14 @@ class AddLogActivity : AppCompatActivity() {
         val db = AppDatabase.getInstance(this@AddLogActivity)
         val result = mutableMapOf<String, WorkOrderProgressAdapter.ProgressData>()
 
-        // progressهای **همین گزارش** (برای نمایش)
         val currentProgresses = db.taskLogWorkOrderProgressDao().getByLogOnce(logId)
 
         currentProgresses.forEach { p ->
-            // progress قبلی — قبل از این گزارش
             val previous = db.taskLogWorkOrderProgressDao()
                 .getLatestForWorkOrderBeforeLog(p.workOrderId, logId)
 
             val prevStatus = when (previous?.progress) {
-                null -> null   // اولین گزارش
+                null -> null
                 100 -> WorkOrderProgressAdapter.Status.COMPLETED
                 0 -> WorkOrderProgressAdapter.Status.NOT_COMPLETED
                 else -> WorkOrderProgressAdapter.Status.IN_PROGRESS
@@ -310,8 +298,8 @@ class AddLogActivity : AppCompatActivity() {
                 hasDetails = p.hasDetails,
                 detailsNotes = p.detailsNotes,
                 previousDetailsNotes = previous?.detailsNotes ?: "",
-                previousProgress = previous?.progress ?: -1,   // ✅ جدید
-                previousStatus = prevStatus                    // ✅ جدید
+                previousProgress = previous?.progress ?: -1,
+                previousStatus = prevStatus
             )
         }
 
@@ -335,16 +323,15 @@ class AddLogActivity : AppCompatActivity() {
 
                 result[wo.id] = WorkOrderProgressAdapter.ProgressData(
                     workOrderId = wo.id,
-                    status = prevStatus,              // فعلی = قبلی (شروع از قبلی)
+                    status = prevStatus,
                     progress = latest.progress,
                     hasDetails = false,
                     detailsNotes = "",
                     previousDetailsNotes = latest.detailsNotes,
-                    previousProgress = latest.progress,     // ✅ جدید
-                    previousStatus = prevStatus             // ✅ جدید
+                    previousProgress = latest.progress,
+                    previousStatus = prevStatus
                 )
             }
-            // اگه latest == null → اولین گزارش → previousProgress=-1 (پیش‌فرض)
         }
 
         return result
@@ -352,11 +339,8 @@ class AddLogActivity : AppCompatActivity() {
 
     private fun populateLogData(log: TaskLogModel) {
         editingLog = log
-
-        // ✅ تاریخ خالص
         selectedDate = log.date
         updateDateDisplay()
-
         etStartTime.setText(log.startTime)
         etEndTime.setText(log.endTime)
         etNotes.setText(log.notes)
@@ -380,7 +364,6 @@ class AddLogActivity : AppCompatActivity() {
     }
 
     private fun showDatePicker() {
-        // ✅ تاریخ خالص
         val dateText = selectedDate.ifEmpty {
             etDate.text.toString().substringBefore(" (").trim()
         }
@@ -404,7 +387,6 @@ class AddLogActivity : AppCompatActivity() {
                 override fun onDismissed() { }
             })
 
-        // ✅ setInitDate آخر، فقط اگه تاریخ داریم
         if (dateText.isNotEmpty()) {
             val parts = dateText.split("/")
             val y = parts.getOrNull(0)?.toIntOrNull()
@@ -419,10 +401,6 @@ class AddLogActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    /**
-     * نمایش تاریخ به همراه نام روز در etDate
-     * مثال: "1405/08/19 (شنبه)"
-     */
     @SuppressLint("SetTextI18n")
     private fun updateDateDisplay() {
         if (selectedDate.isEmpty()) return
@@ -566,7 +544,7 @@ class AddLogActivity : AppCompatActivity() {
         val progressData = workOrderProgressAdapter?.getProgressData() ?: emptyList()
 
         val previewData = ConfirmReportDialog.ReportPreviewData(
-            date = selectedDate,   // ✅ تاریخ خالص
+            date = selectedDate,
             startTime = etStartTime.text.toString(),
             endTime = etEndTime.text.toString(),
             durationMinutes = calculateDuration(),
@@ -583,7 +561,6 @@ class AddLogActivity : AppCompatActivity() {
     }
 
     private fun validateForm(): Boolean {
-        // ✅ بررسی تاریخ خالص
         if (selectedDate.isBlank()) {
             Toast.makeText(this, "لطفاً تاریخ را انتخاب کنید", Toast.LENGTH_SHORT).show()
             return false
@@ -602,10 +579,6 @@ class AddLogActivity : AppCompatActivity() {
             }
         }
 
-        // ✅ حداقل یکی از:
-        //  - تغییر وضعیت/پیشرفت تو WorkOrder
-        //  - شرح جدید تو WorkOrder
-        //  - notes پر
         val adapter = workOrderProgressAdapter
         val hasAnyChange = adapter?.getProgressData()?.any { p ->
             val hasProgressChange = p.previousProgress == -1 || p.progress != p.previousProgress
@@ -639,112 +612,24 @@ class AddLogActivity : AppCompatActivity() {
         return Pair(userId, userName)
     }
 
-<<<<<<< Updated upstream
-    private fun buildActionDescriptionFromProgress(): String {
-        val adapter = workOrderProgressAdapter ?: return ""
-        val progresses = adapter.getProgressData()
-        if (progresses.isEmpty()) return ""
-=======
-<<<<<<< Updated upstream
-    private fun createTaskLogModel(status: String): TaskLogModel {
-=======
+    /**
+     * ساخت متن گزارش از تغییرات WorkOrderها + فعالیت‌های خارج از WorkOrder.
+     */
     private fun buildActionDescriptionFromProgress(): String {
         val sb = StringBuilder()
 
-        // ==========================================
-        // 1. گزارش فعالیت‌های مربوط به WorkOrder
-        // ==========================================
+        // ۱. گزارش تغییرات WorkOrder
         val adapter = workOrderProgressAdapter
         val progresses = adapter?.getProgressData() ?: emptyList()
 
-        val visibleProgresses = progresses.filter { p ->
-            val hasProgressChange =
-                p.previousProgress == -1 || p.progress != p.previousProgress
-
-            val hasStatusChange =
-                p.previousStatus == null || p.status != p.previousStatus
-
-            val hasNewDetails =
-                p.hasDetails &&
-                        p.detailsNotes.isNotBlank() &&
-                        p.detailsNotes != p.previousDetailsNotes
-
-            hasProgressChange || hasStatusChange || hasNewDetails
-        }
-
-        visibleProgresses.forEachIndexed { index, p ->
-
-            val wo = workOrdersList.find { it.id == p.workOrderId }
-                ?: return@forEachIndexed
-
-            val statusLine = when (p.status) {
-                WorkOrderProgressAdapter.Status.COMPLETED ->
-                    "✅ ${wo.title}: انجام شد"
-
-                WorkOrderProgressAdapter.Status.IN_PROGRESS ->
-                    "⏳ ${p.progress} درصد از درخواست مربوط به «${wo.title}» انجام شده (ادامه دارد)"
-
-                WorkOrderProgressAdapter.Status.NOT_COMPLETED ->
-                    "❌ ${wo.title}: انجام نشد"
-            }
-
-            sb.append(statusLine)
-
-            if (p.hasDetails && p.detailsNotes.isNotBlank()) {
-                sb.append("\n   📝 ${p.detailsNotes}")
-            }
-
-            if (index < visibleProgresses.size - 1) {
-                sb.append("\n\n")
-            }
-        }
-
-        // ==========================================
-        // 2. فعالیت‌های خارج از WorkOrder
-        // ==========================================
-        val otherActivities = etNotes.text.toString().trim()
-
-        if (otherActivities.isNotBlank()) {
-
-            if (sb.isNotEmpty()) {
-                sb.append("\n\n")
-            }
-
-            sb.append("🔧 گزارش کارهای داخلی:\n")
-            sb.append(otherActivities)
-        }
-
-        // ==========================================
-        // خروجی نهایی گزارش
-        // ==========================================
-        return sb.toString().trim()
-    }
-
-    private fun createTaskLogModel(status: String, id: String? = null): TaskLogModel {
->>>>>>> Stashed changes
-        val (userId, userName) = getCurrentUserInfo()
->>>>>>> Stashed changes
-
-        // ✅ فیلتر: فقط WorkOrderهایی که **تغییر** داشتن
         val visibleProgresses = progresses.filter { p ->
             val hasProgressChange = p.previousProgress == -1 || p.progress != p.previousProgress
             val hasStatusChange = p.previousStatus == null || p.status != p.previousStatus
             val hasNewDetails = p.hasDetails && p.detailsNotes.isNotBlank() &&
                     p.detailsNotes != p.previousDetailsNotes
-
-            val hasAnyChange = hasProgressChange || hasStatusChange || hasNewDetails
-
-            // NOT_COMPLETED بدون تغییر → حذف
-            if (p.status == WorkOrderProgressAdapter.Status.NOT_COMPLETED) {
-                hasAnyChange
-            } else {
-                hasAnyChange
-            }
+            hasProgressChange || hasStatusChange || hasNewDetails
         }
 
-        if (visibleProgresses.isEmpty()) return ""
-
-        val sb = StringBuilder()
         visibleProgresses.forEachIndexed { index, p ->
             val wo = workOrdersList.find { it.id == p.workOrderId } ?: return@forEachIndexed
 
@@ -767,6 +652,17 @@ class AddLogActivity : AppCompatActivity() {
                 sb.append("\n\n")
             }
         }
+
+        // ۲. فعالیت‌های خارج از WorkOrder (notes)
+        val otherActivities = etNotes.text.toString().trim()
+        if (otherActivities.isNotBlank()) {
+            if (sb.isNotEmpty()) {
+                sb.append("\n\n")
+            }
+            sb.append("🔧 گزارش کارهای داخلی:\n")
+            sb.append(otherActivities)
+        }
+
         return sb.toString().trim()
     }
 
@@ -834,10 +730,8 @@ class AddLogActivity : AppCompatActivity() {
                 val db = AppDatabase.getInstance(this@AddLogActivity)
 
                 if (progresses.isNotEmpty()) {
-                    // ۱. INSERT تاریخچه
                     db.taskLogWorkOrderProgressDao().insertAll(progresses)
 
-                    // ۲. UPDATE work_orders.progress (Room) + Outbox (سرور)
                     progresses.forEach { p ->
                         val latest = db.taskLogWorkOrderProgressDao()
                             .getLatestForWorkOrderByDate(p.workOrderId)
@@ -876,7 +770,6 @@ class AddLogActivity : AppCompatActivity() {
                 enableButton(btnSubmit)
                 Toast.makeText(this@AddLogActivity, "گزارش ثبت شد", Toast.LENGTH_SHORT).show()
 
-                // ✅ setResult با TASK_ID (برای QuickLogActivity)
                 setResult(RESULT_OK, Intent().apply {
                     putExtra("TASK_ID", task?.id ?: "")
                 })
@@ -902,27 +795,18 @@ class AddLogActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * اگر تسک در وضعیت 21/31 بود (منتظر گزارش)، بعد از ثبت گزارش
-     * به وضعیت پایه (2 یا 3) برگردانده شود و در اختیار مسئول قرار گیرد.
-     *
-     * نکته: چون در فرم گزارش امکان انتخاب newStatus وجود ندارد،
-     * همیشه به وضعیت پایه برمی‌گردیم (در حال انجام یا متوقف).
-     */
     private fun autoRestoreTaskStatusIfAwaiting() {
         val taskId = task?.id ?: return
 
         lifecycleScope.launch {
             try {
                 val db = AppDatabase.getInstance(this@AddLogActivity)
-                // ✅ getById (نه getByIdOnce)
                 val currentStatus = db.taskDao().getById(taskId)?.status ?: return@launch
 
                 if (!Config.StatusCode.isAwaitingReport(currentStatus)) return@launch
 
                 val baseStatus = Config.StatusCode.unwrapAwaitingReport(currentStatus)
 
-                // ✅ updateStatus (متد جدید TaskDao)
                 db.taskDao().updateStatus(taskId, baseStatus)
                 OutboxHelper.enqueueUpdateTaskStatus(this@AddLogActivity, taskId, baseStatus)
                 ReportSyncWorker.enqueue(this@AddLogActivity)
@@ -941,8 +825,6 @@ class AddLogActivity : AppCompatActivity() {
         val log = createTaskLogModel("")
         val logId = editingLogId ?: ""
 
-        // ✅ اگه actionDescription خالی شد (یعنی progressها تغییر نکردن)،
-        //    از متن گزارش قبلی استفاده کن
         val finalLog = if (log.actionDescription.isBlank() && editingLog != null) {
             log.copy(actionDescription = editingLog!!.actionDescription)
         } else {
@@ -953,25 +835,48 @@ class AddLogActivity : AppCompatActivity() {
             try {
                 val reportLocalRepo = ReportLocalRepository(this@AddLogActivity)
 
-                reportLocalRepo.saveReportLocally(finalLog)   // ← finalLog
+                reportLocalRepo.saveReportLocally(finalLog)
 
                 val progresses = buildWorkOrderProgressEntities(logId)
                 val db = AppDatabase.getInstance(this@AddLogActivity)
 
                 if (progresses.isNotEmpty()) {
-                    // ۱. DELETE + INSERT تاریخچه
                     db.taskLogWorkOrderProgressDao().deleteByLog(logId)
                     db.taskLogWorkOrderProgressDao().insertAll(progresses)
 
-                    // ۲. UPDATE work_orders.progress (Room) + Outbox (سرور)
                     progresses.forEach { p ->
-                        // ... بدون تغییر
+                        val latest = db.taskLogWorkOrderProgressDao()
+                            .getLatestForWorkOrderByDate(p.workOrderId)
+                        val newProgress = latest?.progress ?: 0
+
+                        db.workOrderDao().updateProgress(p.workOrderId, newProgress)
+
+                        val woEntity = db.workOrderDao().getById(p.workOrderId)
+                        if (woEntity != null) {
+                            val woModel = WorkOrderModel(
+                                id = woEntity.id,
+                                requestNumber = woEntity.requestNumber ?: "",
+                                title = woEntity.title,
+                                requestClass = woEntity.requestClass,
+                                requestDate = woEntity.requestDate,
+                                requester = woEntity.requester,
+                                approver = woEntity.approver ?: "",
+                                unit = woEntity.unit,
+                                subUnit = woEntity.subUnit,
+                                equipmentName = woEntity.equipmentName,
+                                description = woEntity.description,
+                                externalStatus = woEntity.externalStatus,
+                                progress = newProgress,
+                                source = woEntity.source
+                            )
+                            OutboxHelper.enqueueUpdateWorkOrder(this@AddLogActivity, woModel)
+                        }
                     }
                 }
 
                 autoRestoreTaskStatusIfAwaiting()
 
-                OutboxHelper.enqueueUpdateTaskLog(this@AddLogActivity, finalLog)   // ← finalLog
+                OutboxHelper.enqueueUpdateTaskLog(this@AddLogActivity, finalLog)
                 ReportSyncWorker.enqueue(this@AddLogActivity)
 
                 enableButton(btnSubmit)
@@ -1004,9 +909,7 @@ class AddLogActivity : AppCompatActivity() {
         button.alpha = 1.0f
     }
 
-    private fun setupExpandableCards() {
-
-    }
+    private fun setupExpandableCards() {}
 
     private fun toggleCard(contentId: Int, iconId: Int) {
         val content = findViewById<LinearLayout>(contentId)

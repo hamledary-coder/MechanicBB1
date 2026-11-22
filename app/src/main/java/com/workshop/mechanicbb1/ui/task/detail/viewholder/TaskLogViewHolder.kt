@@ -72,17 +72,14 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private lateinit var currentTask: TaskModel
     private lateinit var onRefreshCallback: () -> Unit
     private lateinit var currentUserId: String
-<<<<<<< Updated upstream
-=======
     private val detailLayout: LinearLayout = itemView.findViewById(R.id.detailLayout)
-    private val tvMoreText: TextView = itemView.findViewById(R.id.tvMoreText)
-    private val moreButton: View = itemView.findViewById(R.id.moreButton)
+
     private val headerLayout: LinearLayout = itemView.findViewById(R.id.headerLayout)
     private val divider: View = itemView.findViewById(R.id.divider)
-
+    private val tvMoreText: TextView = itemView.findViewById(R.id.tvMoreText)
+    private val moreButton: View = itemView.findViewById(R.id.moreButton)
 
     private var isLogExpanded = false
->>>>>>> Stashed changes
 
     private val statusContainer: LinearLayout = itemView.findViewById(R.id.statusContainer)
     private val statusDot: View = itemView.findViewById(R.id.statusDot)
@@ -102,32 +99,14 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         this.currentUserId = currentUserId
         this.onRefreshCallback = onRefresh
 
-<<<<<<< Updated upstream
-        val isSeenByCurrentUser = currentLog.seenBy.contains(currentUserId)
-        if (!isSeenByCurrentUser && (userRole == Config.RoleCode.SUPERVISOR || userRole == Config.RoleCode.MANAGER)) {
-            cardLog.setCardBackgroundColor(Color.parseColor("#F0F5FF"))
-        }
-
-        // ===== هدر =====
-        // سطر ۱: شماره
-        val reportNumberText = DateUtils.toPersianOrdinal(reportNumber)
-        tvLogNumber.text = "📋 گزارش $reportNumberText"
-
-        // سطر ۲: تاریخ
-=======
         // ===== هدر =====
         val reportNumberText = DateUtils.toPersianOrdinal(reportNumber)
         tvLogNumber.text = "📋 گزارش $reportNumberText"
 
->>>>>>> Stashed changes
         val dayOfWeek = DateUtils.getDayNameFromDate(log.date)
         val dateDisplay = if (dayOfWeek.isNotEmpty()) "${log.date} ($dayOfWeek)" else log.date
         tvLogDate.text = "📅 $dateDisplay"
 
-<<<<<<< Updated upstream
-        // سطر ۳: ساعت + مسئول
-=======
->>>>>>> Stashed changes
         if (log.startTime.isNotEmpty() || log.endTime.isNotEmpty()) {
             tvLogTime.text = "⏰ ${log.startTime} - ${log.endTime}"
             tvLogTime.visibility = View.VISIBLE
@@ -136,8 +115,6 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         }
         tvLogUser.text = "👤 ${log.userName}"
 
-<<<<<<< Updated upstream
-=======
         // ===== حالت اولیه: بسته =====
         isLogExpanded = false
         applyExpansionState()
@@ -146,23 +123,16 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         headerLayout.setOnClickListener { toggleLogExpanded() }
         moreButton.setOnClickListener { toggleLogExpanded() }
 
-        // ===== محتوای detail =====
->>>>>>> Stashed changes
+        // ===== محتوای detail (فقط یک‌بار bind) =====
         tvActionDescription.text = log.actionDescription
         if (log.actionDescription.contains("برگشت داده شد")) {
             tvActionDescription.setBackgroundColor(Color.parseColor("#FFEBEE"))
             tvActionDescription.setTextColor(Color.parseColor("#D32F2F"))
-<<<<<<< Updated upstream
-        }
-
-=======
         } else {
             tvActionDescription.setBackgroundColor(Color.parseColor("#FFE8E7"))
             tvActionDescription.setTextColor(Color.parseColor("#000000"))
         }
 
-        // ✅ مدت زمان
->>>>>>> Stashed changes
         val durationText = TaskDetailUiUtils.calculateDurationText(log.startTime, log.endTime)
         if (durationText.isNotEmpty()) {
             tvDuration.text = "⏱ $durationText"
@@ -171,11 +141,7 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             tvDuration.visibility = View.GONE
         }
 
-<<<<<<< Updated upstream
         // گروه انجام‌دهنده
-=======
-        // ✅ گروه انجام‌دهنده
->>>>>>> Stashed changes
         val assignedToFullList = task.assignedTo.split(",").map { it.trim() }.filter { it.isNotEmpty() }
         val responsibleId = task.responsible
         val logWorkers = log.assignedUsers.split(",").map { it.trim() }.filter { it.isNotEmpty() }
@@ -201,11 +167,7 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             dividerWorkers.visibility = View.GONE
         }
 
-<<<<<<< Updated upstream
         // وضعیت جدید
-=======
-        // ✅ وضعیت جدید
->>>>>>> Stashed changes
         if (log.newStatus.isNotEmpty()) {
             val statusText = Config.StatusCode.getText(log.newStatus)
             tvNewStatus.text = "وضعیت جدید: $statusText"
@@ -221,23 +183,10 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             statusContainer.visibility = View.GONE
         }
 
-<<<<<<< Updated upstream
         displaySeenBy(log.seenBy)
         setupEvaluationSection(log)
         displayComments(log.comments, currentUserId)
 
-=======
-        // ✅ SeenBy
-        displaySeenBy(log.seenBy)
-
-        // ✅ Evaluation
-        setupEvaluationSection(log)
-
-        // ✅ Comments
-        displayComments(log.comments, currentUserId)
-
-        // ✅ Add Comment button
->>>>>>> Stashed changes
         val isArchived = task.status == "5"
         if (!isArchived) {
             btnAddComment.visibility = View.VISIBLE
@@ -246,24 +195,8 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             btnAddComment.visibility = View.GONE
         }
 
-<<<<<<< Updated upstream
         setupActionButtons(log, task, currentUserId, userRole, onDelete)
 
-        itemView.setOnClickListener {
-            val intent = Intent(itemView.context, TaskLogDetailActivity::class.java).apply {
-                putExtra("TASK_ID", task.id)
-                putExtra("LOG_ID", log.id)
-                putExtra("IS_TASK_ARCHIVED", task.status == "5")
-            }
-            itemView.context.startActivity(intent)
-        }
-
-=======
-        // ✅ Action buttons (ارزیابی، ویرایش، حذف)
-        setupActionButtons(log, task, currentUserId, userRole, onDelete)
-
-        // ✅ Mark as seen
->>>>>>> Stashed changes
         if (::currentUserId.isInitialized && currentUserId.isNotEmpty()) {
             SeenManager.markAsSeen(
                 itemView.context, currentUserId,
@@ -272,10 +205,8 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         }
     }
 
-<<<<<<< Updated upstream
-=======
     /**
-     * هماهنگ‌سازی وضعیت باز/بسته
+     * هماهنگ‌سازی وضعیت باز/بسته (همه‌ی viewها یه‌جا)
      */
     private fun applyExpansionState() {
         if (isLogExpanded) {
@@ -294,7 +225,8 @@ class TaskLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         applyExpansionState()
     }
 
->>>>>>> Stashed changes
+
+
     @SuppressLint("SetTextI18n")
     private fun setupEvaluationSection(log: TaskLogModel) {
         val hasData = log.heatLevel > 30 || log.pollutionLevel > 0 ||

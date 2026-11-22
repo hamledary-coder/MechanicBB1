@@ -2,10 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-<<<<<<< Updated upstream
-=======
     xmlns:tools="http://schemas.android.com/tools"
->>>>>>> Stashed changes
     android:id="@+id/cardViewRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -78,12 +75,8 @@
                             android:background="#F0F0F0"
                             android:paddingHorizontal="6dp"
                             android:paddingVertical="2dp"
-<<<<<<< Updated upstream
-                            android:layout_marginEnd="8dp" />
-=======
                             android:layout_marginEnd="8dp"
                             tools:ignore="HardcodedText" />
->>>>>>> Stashed changes
 
                         <TextView
                             android:id="@+id/tvStatusBadge"
@@ -95,12 +88,8 @@
                             android:textColor="#2E7D32"
                             android:background="#E8F5E9"
                             android:paddingHorizontal="8dp"
-<<<<<<< Updated upstream
-                            android:paddingVertical="2dp" />
-=======
                             android:paddingVertical="2dp"
                             tools:ignore="HardcodedText" />
->>>>>>> Stashed changes
 
                         <View
                             android:layout_width="0dp"

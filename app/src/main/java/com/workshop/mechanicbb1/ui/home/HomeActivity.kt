@@ -90,11 +90,6 @@ class HomeActivity : AppCompatActivity() {
     // =========================================================================
     private lateinit var taskLocalRepository: TaskLocalRepository
     private var responsibleTasksJob: Job? = null
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
     private var syncJob: Job? = null
 
     // =========================================================================
@@ -113,12 +108,7 @@ class HomeActivity : AppCompatActivity() {
             super.onAvailable(network)
             runOnUiThread {
                 updateNetworkStatusUI(true)
-<<<<<<< Updated upstream
-                // sync خودکار وقتی نت وصل شد
-                startSync()
-=======
-                startSync(showProgress = false)   // ✅ بدون پروگرس
->>>>>>> Stashed changes
+                startSync(showProgress = false)   // ✅ فقط این
             }
         }
 
@@ -134,10 +124,6 @@ class HomeActivity : AppCompatActivity() {
             runOnUiThread { updateNetworkStatusUI(hasInternet) }
         }
     }
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 1001
@@ -229,11 +215,7 @@ class HomeActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
+
     // =========================================================================
     // Drawer
     // =========================================================================
@@ -325,11 +307,7 @@ class HomeActivity : AppCompatActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-<<<<<<< Updated upstream
-=======
 
-
->>>>>>> Stashed changes
     // =========================================================================
     // Network
     // =========================================================================
@@ -361,12 +339,7 @@ class HomeActivity : AppCompatActivity() {
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         updateNetworkStatusUI(online)
 
-<<<<<<< Updated upstream
-        // sync خودکار اگه آنلاین بود
-        if (online) startSync()
-=======
-        if (online) startSync(showProgress = false)   // ✅ بدون پروگرس
->>>>>>> Stashed changes
+        if (online) startSync(showProgress = false)   // ✅ فقط این
     }
 
     private fun updateNetworkStatusUI(online: Boolean) {
@@ -384,30 +357,16 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-<<<<<<< Updated upstream
-    // =========================================================================
-    // Sync
-    // =========================================================================
-    private fun startSync() {
-=======
-
 
     // =========================================================================
     // Sync
     // =========================================================================
     private fun startSync(showProgress: Boolean = false) {
->>>>>>> Stashed changes
         if (!isOnline) {
             Toast.makeText(this, "اتصال به اینترنت برقرار نیست", Toast.LENGTH_SHORT).show()
             return
         }
 
-<<<<<<< Updated upstream
-        syncJob?.cancel()
-        syncJob = lifecycleScope.launch {
-            SyncManager.syncAll(this@HomeActivity) { state ->
-                runOnUiThread { updateSyncUI(state) }
-=======
         // ✅ اگه sync در حال اجراست، دوباره شروع نکن
         if (syncJob?.isActive == true) {
             if (showProgress) {
@@ -419,29 +378,12 @@ class HomeActivity : AppCompatActivity() {
             SyncManager.syncAll(applicationContext) { state ->
                 if (isFinishing || isDestroyed) return@syncAll
                 runOnUiThread { updateSyncUI(state, showProgress) }
->>>>>>> Stashed changes
             }
         }
     }
 
+
     @SuppressLint("SetTextI18n")
-<<<<<<< Updated upstream
-    private fun updateSyncUI(state: SyncState) {
-        when (state) {
-            is SyncState.Idle -> {
-                progressBar.visibility = View.GONE
-            }
-            is SyncState.Offline -> {
-                progressBar.visibility = View.GONE
-            }
-            is SyncState.Syncing -> {
-                btnSync.isEnabled = false
-                progressBar.visibility = View.VISIBLE
-            }
-            is SyncState.Success -> {
-                btnSync.isEnabled = true
-                progressBar.visibility = View.GONE
-=======
     private fun updateSyncUI(state: SyncState, showProgress: Boolean) {
         when (state) {
             is SyncState.Idle -> {
@@ -459,17 +401,12 @@ class HomeActivity : AppCompatActivity() {
             is SyncState.Success -> {
                 btnSync.isEnabled = true
                 if (showProgress) progressBar.visibility = View.GONE
->>>>>>> Stashed changes
                 tvLastSyncTime.visibility = View.VISIBLE
                 tvLastSyncTime.text = "آخرین: ${formatSyncTime(state.timestamp)}"
             }
             is SyncState.Error -> {
                 btnSync.isEnabled = true
-<<<<<<< Updated upstream
-                progressBar.visibility = View.GONE
-=======
                 if (showProgress) progressBar.visibility = View.GONE
->>>>>>> Stashed changes
             }
         }
     }
@@ -495,18 +432,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-<<<<<<< Updated upstream
-    // =========================================================================
-    // User Data
-    // =========================================================================
-=======
-
 
     // =========================================================================
     // User Data
     // =========================================================================
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     private fun loadUserData() {
         val sharedPref = getSharedPreferences(Config.PrefKeys.USER_PREFS, MODE_PRIVATE)
         val userName = sharedPref.getString(Config.PrefKeys.USERNAME, "کاربر") ?: "کاربر"
@@ -540,21 +469,10 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-<<<<<<< Updated upstream
-    // =========================================================================
-    // QuickLog card
-    // =========================================================================
-=======
-<<<<<<< Updated upstream
-    // ====== متد کمکی برای تغییر وضعیت کارت ======
-=======
-
 
     // =========================================================================
     // QuickLog card
     // =========================================================================
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     private fun setQuickLogCardEnabled(enabled: Boolean) {
         cardQuickLog.isEnabled = enabled
         cardQuickLog.alpha = if (enabled) 1.0f else 0.5f
@@ -602,20 +520,10 @@ class HomeActivity : AppCompatActivity() {
                 Toast.makeText(this, "شما مسئول هیچ کاری در حال انجام نیستید", Toast.LENGTH_SHORT).show()
             }
         }
-<<<<<<< Updated upstream
 
         btnSync.setOnClickListener {
-            startSync()
+            startSync(showProgress = true)   // ✅ فقط این
         }
-=======
-<<<<<<< Updated upstream
-=======
-
-        btnSync.setOnClickListener {
-            startSync(showProgress = true)   // ✅ با پروگرس
-        }
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     }
 
     // =========================================================================
