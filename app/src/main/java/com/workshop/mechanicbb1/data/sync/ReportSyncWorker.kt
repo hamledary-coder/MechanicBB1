@@ -28,7 +28,9 @@ class ReportSyncWorker(
     companion object {
         private const val TAG = "ReportSyncWorker"
         private const val WORK_NAME = "ReportSyncWork"
+        private const val PERIODIC_WORK_NAME = "ReportSyncPeriodicWork"
 
+        /** یک‌باره — برای بعد از هر تغییر (فوری) */
         fun enqueue(context: Context) {
             val request = OneTimeWorkRequestBuilder<ReportSyncWorker>()
                 .setConstraints(
@@ -46,6 +48,30 @@ class ReportSyncWorker(
                 .enqueueUniqueWork(
                     WORK_NAME,
                     ExistingWorkPolicy.REPLACE,
+                    request
+                )
+        }
+
+        /** ✅ دوره‌ای — برای سینک خودکار در پس‌زمینه (هر ۱۵ دقیقه) */
+        fun enqueuePeriodic(context: Context) {
+            val request = PeriodicWorkRequestBuilder<ReportSyncWorker>(
+                15, TimeUnit.MINUTES   // حداقل مجاز اندروید
+            )
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    30, TimeUnit.SECONDS
+                )
+                .build()
+
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(
+                    PERIODIC_WORK_NAME,
+                    ExistingPeriodicWorkPolicy.KEEP,   // اگه قبلاً ثبت شده، دوباره ثبت نکن
                     request
                 )
         }
